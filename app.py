@@ -112,7 +112,7 @@ def chat_with_agent(input_string, file_path):
 def fetch_file_info():
     try:
         #response = requests.get("https://fastapi-2y3qx63wua-uc.a.run.app/get_file_info/")
-        response = requests.get("http://127.0.0.1:8000/get_file_info/")
+        response = requests.get("http://13.60.4.147:8000/get_file_info/")
         
         response.raise_for_status()  # Raise an exception for HTTP errors
         data = response.json()
@@ -555,7 +555,10 @@ async def main_viz():
     clean_csv_files(UPLOAD_DIR)
     if excel_files:
         for excel_file in excel_files:
-            convert_excel_to_csv(excel_file)
+            try:
+                convert_excel_to_csv(excel_file)
+            except Exception as e:
+                st.warning("Oops, something went wrong. Please try updating the page.")
     
     st.title("Report Analysis")
 
