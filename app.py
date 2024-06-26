@@ -144,7 +144,7 @@ def big_main():
             if st.button("Submit"):
                 try:
                     # Sending the input text as JSON data
-                    response = requests.post(url="http://127.0.0.1:8000/chat_to_agent/", json={"prompt": input_text})
+                    response = requests.post(url="http://13.60.4.147:8000/chat_to_agent/", json={"prompt": input_text})
                     # Check if the request was successful
                     if response.status_code == 200:
                         # Extracting the nested response
