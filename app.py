@@ -562,11 +562,12 @@ async def main_viz():
     if os.path.exists(last_uploaded_file_path):
         big_main()
     else:
+        st.rerun()
         if os.path.exists(last_uploaded_file_path):
             # Check if there are any Excel files
             big_main()
         else:
-            st.success("Update the page to get visualizations")
+            st.warning("Try refreshing the page to get the visualization, if not, try uploading the file again")
 
 
 def big_summary(file_path):
