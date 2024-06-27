@@ -112,7 +112,7 @@ def chat_with_agent(input_string, file_path):
 def fetch_file_info():
     try:
         #response = requests.get("https://fastapi-2y3qx63wua-uc.a.run.app/get_file_info/")
-        response = requests.get("http://13.60.4.147:8000/get_file_info/")
+        response = requests.get("https://fastapi-2y3qx63wua-uc.a.run.app/get_file_info/")
         
         response.raise_for_status()  # Raise an exception for HTTP errors
         data = response.json()
@@ -144,7 +144,7 @@ def big_main():
             if st.button("Submit"):
                 try:
                     # Sending the input text as JSON data
-                    response = requests.post(url="http://13.60.4.147:8000/chat_to_agent/", json={"prompt": input_text})
+                    response = requests.post(url="https://fastapi-2y3qx63wua-uc.a.run.app/chat_to_agent/", json={"prompt": input_text})
                     # Check if the request was successful
                     if response.status_code == 200:
                         # Extracting the nested response
@@ -517,11 +517,12 @@ def big_main():
 
 async def main_viz():
     global last_uploaded_file_path
-    #global
+
     result = fetch_file_info()
     
-    url = result.get("url")
-    file_name = result.get("file_name")
+    url_name = result.get("url")
+    file_name_ = result.get("file_name")
+
     filename = get_file_name()
     last_uploaded_file_path = os.path.join(UPLOAD_DIR, filename)
     
@@ -537,9 +538,9 @@ async def main_viz():
         'REP_DETAILS': 'rep_details.xlsx',
         'REPS_SUMMARY': 'reps_summary.xlsx',
     }
-    response = requests.get(url, stream=True)
+    response = requests.get(url_name, stream=True)
     response.raise_for_status()
-    friendly_filename = report_type_filenames.get(file_name, 'unknown.xlsx')
+    friendly_filename = report_type_filenames.get(file_name_, 'unknown.xlsx')
     excel_file_path = os.path.join(UPLOAD_DIR, friendly_filename)
     
     with open(excel_file_path, "wb") as file:
