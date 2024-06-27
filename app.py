@@ -74,7 +74,7 @@ async def read_csv(file_path):
     loop = asyncio.get_event_loop()
     return await loop.run_in_executor(None, pd.read_csv, file_path)
 
-async def chat_with_file(prompt, file_path):
+def chat_with_file(prompt, file_path):
     file_name = get_file_name()
     last_uploaded_file_path = os.path.join(UPLOAD_DIR, file_name)
     try:
@@ -111,19 +111,32 @@ def chat_with_agent(input_string, file_path):
 
 def fetch_file_info():
     try:
-        #response = requests.get("https://fastapi-2y3qx63wua-uc.a.run.app/get_file_info/")
         response = requests.get("https://fastapi-2y3qx63wua-uc.a.run.app/get_file_info/")
-        
         response.raise_for_status()  # Raise an exception for HTTP errors
         data = response.json()
         return data
+    except Exception as e:
+        st.success("Important Update")
+        st.warning("This page was reloaded, so you need to run the report again. After running the report, you may close this page.")
+        st.stop()
     except requests.RequestException as e:
         st.error(f"Error fetching file info: {e}")
         return None
 
+@st.cache_data
+def cache_df(last_uploaded_file_path):
+    if 'df' not in st.session_state:
+            st.session_state["df"] = pd.read_csv(last_uploaded_file_path)
+    try:
+        df = st.session_state["df"]
+    except Exception as e:
+        st.warning("There is some error with data, try to update the session")
+    return df
 
 def big_main():
-    df = pd.read_csv(last_uploaded_file_path)
+
+    df = cache_df(last_uploaded_file_path)
+
     file_type = identify_file(df)
     
     
@@ -143,27 +156,23 @@ def big_main():
         if input_text is not None:
             if st.button("Submit"):
                 try:
-                    # Sending the input text as JSON data
-                    response = requests.post(url="https://fastapi-2y3qx63wua-uc.a.run.app/chat_to_agent/", json={"prompt": input_text})
-                    # Check if the request was successful
-                    if response.status_code == 200:
-                        # Extracting the nested response
-                        response_data = response.json()
-                        nested_response = response_data.get('response', {}).get('response', 'No response found')
-                        st.success(nested_response)
-                    else:
-                        st.error(f"Error: {response.status_code} - {response.text}")
+                    result = chat_with_file(input_text, last_uploaded_file_path)
+                    if "response" in result:
+                        st.success(result["response"])
                 except Exception as e:
                     st.error(f"An error occurred: {str(e)}")
-        
+
         st.info("Build a Chart")
         input_text2 =st.text_area(label = 'Enter your query for the plot', placeholder = "Enter your query to generate a chart and press ‘Submit’.", label_visibility="collapsed")
         if input_text2 is not None:
             if st.button("Submit", key=2):
                 st.info("Plotting your Query: " + input_text2)
                 #result = build_some_chart(df, input_text2)
-                result = test_plot_maker(df, input_text2)
-                #st.success(result)
+                try:
+                    result = test_plot_maker(df, input_text2)
+                    #st.success(result)
+                except Exception as e:
+                    st.warning("There is some error with data visualization, try to make query more details")
     
     if df.empty:
         st.warning("### This data report is empty - try downloading another one to get better visualizations")
@@ -507,10 +516,18 @@ def big_main():
                 st.warning("There is no Total sales or Group or Billing state columns, so visualizing can not be ready")
     else:
         df = customer_details_viz.preprocess_data(pd.read_csv(last_uploaded_file_path))
-        #here can turn on lida and try to analyze dataset automatically by its toolset
-        #lida_call(query=input_text, df=df)
-        st.write(big_summary(last_uploaded_file_path))
-        summary_lida(df)
+        
+        try:
+            st.write(big_summary(last_uploaded_file_path))
+        except Exception as e:
+            st.warning("There is some error with data summary, try to update the session")
+
+        try:
+            summary_lida(df)
+        except Exception as e:
+            st.warning("There is some error with custom data visualization, try to update the session")
+        
+        
 
 
 
@@ -518,12 +535,29 @@ def big_main():
 async def main_viz():
     global last_uploaded_file_path
 
-    result = fetch_file_info()
+    try:
+        if "result" not in st.session_state:
+            st.session_state["result"] = fetch_file_info()
+
+        result = st.session_state["result"]
+    except Exception as e:
+        st.success("Important Update")
+        st.warning("This page was reloaded, so you need to run the report again. After running the report, you may close this page.")
     
-    url_name = result.get("url")
-    file_name_ = result.get("file_name")
+    if "url" not in st.session_state:
+        if "file_name" not in st.session_state:
+            st.session_state["url"] = result.get("url")
+            st.session_state["file_name"] = result.get("file_name")
+
+
+    url_name = st.session_state["url"]
+    file_name_ = st.session_state["file_name"]
+
 
     filename = get_file_name()
+    #if "last_uploaded_file_path" not in st.session_state:
+    #     st.session_state["last_uploaded_file_path"] = os.path.join(UPLOAD_DIR, filename)
+         
     last_uploaded_file_path = os.path.join(UPLOAD_DIR, filename)
     
     report_type_filenames = {
