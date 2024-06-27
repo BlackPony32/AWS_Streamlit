@@ -137,9 +137,9 @@ def big_main():
     with col1:
         st.dataframe(df, use_container_width=True)
     with col2:
-        st.info("Chat Below")
+        st.info("Chat with GPT")
         
-        input_text = st.text_area(label='Enter your query:', placeholder="Type here", label_visibility="collapsed")
+        input_text = st.text_area(label='Enter your query:', placeholder="Type your question or message and press ‘Submit", label_visibility="collapsed")
         if input_text is not None:
             if st.button("Submit"):
                 try:
@@ -156,8 +156,8 @@ def big_main():
                 except Exception as e:
                     st.error(f"An error occurred: {str(e)}")
         
-        st.info("Chart Below")
-        input_text2 =st.text_area(label = 'Enter your query for the plot', placeholder = "Enter your query for the plot", label_visibility="collapsed")
+        st.info("Build a Chart")
+        input_text2 =st.text_area(label = 'Enter your query for the plot', placeholder = "Enter your query to generate a chart and press ‘Submit’.", label_visibility="collapsed")
         if input_text2 is not None:
             if st.button("Submit", key=2):
                 st.info("Plotting your Query: " + input_text2)
