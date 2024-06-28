@@ -29,8 +29,14 @@ from visualizations import (
     low_stock_inventory_viz, current_inventory_viz, top_customers_viz, customer_details_viz
 )
 from side_func import identify_file, get_file_name, get_csv_columns
-#from main import file_name
+
 load_dotenv()
+node_env = os.getenv('NODE_ENV', 'development')
+
+fastapi_url = os.getenv('FASTAPI_URL')
+    
+
+
 st.set_page_config(layout="wide")
 
 UPLOAD_DIR = "uploads"
@@ -111,7 +117,8 @@ def chat_with_agent(input_string, file_path):
 
 def fetch_file_info():
     try:
-        response = requests.get("https://fastapi-2y3qx63wua-uc.a.run.app/get_file_info/")
+        link = fastapi_url + "/get_file_info/"
+        response = requests.get(link)
         response.raise_for_status()  # Raise an exception for HTTP errors
         data = response.json()
         return data
