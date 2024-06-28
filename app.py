@@ -31,10 +31,8 @@ from visualizations import (
 from side_func import identify_file, get_file_name, get_csv_columns
 
 load_dotenv()
-node_env = os.getenv('NODE_ENV', 'development')
 
 fastapi_url = os.getenv('FASTAPI_URL')
-    
 
 
 st.set_page_config(layout="wide")
