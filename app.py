@@ -79,13 +79,13 @@ async def read_csv(file_path):
     return await loop.run_in_executor(None, pd.read_csv, file_path)
 
 def chat_with_file(prompt, file_path):
-    file_name = get_file_name()
-    last_uploaded_file_path = os.path.join(UPLOAD_DIR, file_name)
+    #file_name = get_file_name()
+    #last_uploaded_file_path = os.path.join(UPLOAD_DIR, file_name)
     try:
-        if last_uploaded_file_path is None or not os.path.exists(last_uploaded_file_path):
-            raise HTTPException(status_code=400, detail=f"No file has been uploaded or downloaded yet {last_uploaded_file_path}")
+        if file_path is None or not os.path.exists(file_path):
+            raise HTTPException(status_code=400, detail=f"No file has been uploaded or downloaded yet {file_path}")
             
-        result = chat_with_agent(prompt, last_uploaded_file_path)
+        result = chat_with_agent(prompt, file_path)
         
         return {"response": result}
 
@@ -139,7 +139,7 @@ def cache_df(last_uploaded_file_path):
     return df
 
 def big_main():
-
+    #st.session_state
     df = cache_df(last_uploaded_file_path)
 
     file_type = identify_file(df)
@@ -157,24 +157,52 @@ def big_main():
     with col2:
         st.info("Chat with GPT")
         
-        input_text = st.text_area(label='Enter your query:', placeholder="Type your question or message and press ‘Submit", label_visibility="collapsed")
+        input_text = st.text_area(label='Enter your query:', placeholder="Type your question or message and press ‘Submit’", label_visibility="collapsed")
         if input_text is not None:
-            if st.button("Submit"):
+            
+            #\\
+            if 'chat_clicked' not in st.session_state:
+                st.session_state.chat_clicked = False
+
+            def click_button():
+                st.session_state.chat_clicked = True
+
+            st.button('Submit', on_click=click_button, key=1)
+            #\\\
+            if st.session_state.chat_clicked:
                 try:
-                    result = chat_with_file(input_text, last_uploaded_file_path)
-                    if "response" in result:
-                        st.success(result["response"])
+                    if "chat_result" not in st.session_state:
+                        #st.session_state["chat_result"] = ''
+                        st.session_state["chat_result"] = chat_with_file(input_text, last_uploaded_file_path)
+                        #chat_result = st.session_state["chat_result"]
+                    else:
+                        st.session_state["chat_result"] = chat_with_file(input_text, last_uploaded_file_path)
+                        #chat_result = st.session_state["chat_result"]
+                    #chat_result = chat_with_file(input_text, last_uploaded_file_path)
+                    if "response" in st.session_state["chat_result"]:
+                        st.success(st.session_state["chat_result"]["response"])
                 except Exception as e:
                     st.error(f"An error occurred: {str(e)}")
 
         st.info("Build a Chart")
-        input_text2 =st.text_area(label = 'Enter your query for the plot', placeholder = "Enter your query to generate a chart and press ‘Submit’.", label_visibility="collapsed")
+        input_text2 =st.text_area(label = 'Enter your query for the plot', placeholder = "Enter your query to generate a chart and press ‘Submit’", label_visibility="collapsed")
         if input_text2 is not None:
-            if st.button("Submit", key=2):
+            #\\
+            if 'plot_clicked' not in st.session_state:
+                st.session_state.plot_clicked = False
+
+            def click_button():
+                st.session_state.plot_clicked = True
+
+            st.button('Submit', on_click=click_button, key=2)
+            #\\\
+            if st.session_state.plot_clicked:
+                #st.session_state.click = True
                 st.info("Plotting your Query: " + input_text2)
                 #result = build_some_chart(df, input_text2)
                 try:
-                    result = test_plot_maker(df, input_text2)
+                    plot_result = test_plot_maker(df, input_text2)
+                    st.plotly_chart(plot_result)
                     #st.success(result)
                 except Exception as e:
                     st.warning("There is some error with data visualization, try to make query more details")
@@ -554,7 +582,10 @@ async def main_viz():
             st.session_state["url"] = result.get("url")
             st.session_state["file_name"] = result.get("file_name")
 
-
+    if "clean" not in st.session_state:
+        st.session_state["clean"] = True
+        cleanup_uploads_folder(UPLOAD_DIR)
+        
     url_name = st.session_state["url"]
     file_name_ = st.session_state["file_name"]
 
@@ -592,8 +623,9 @@ async def main_viz():
     excel_files = glob.glob(excel_files_pattern)
     
     
-    clean_csv_files(UPLOAD_DIR)
+    
     if excel_files:
+        #clean_csv_files(UPLOAD_DIR)
         for excel_file in excel_files:
             try:
                 convert_excel_to_csv(excel_file)
@@ -605,7 +637,7 @@ async def main_viz():
     if os.path.exists(last_uploaded_file_path):
         big_main()
     else:
-        st.rerun()
+        st.rerun() # TODO: danger zone for reruning
         if os.path.exists(last_uploaded_file_path):
             # Check if there are any Excel files
             big_main()
@@ -653,7 +685,7 @@ def test_plot_maker(df, text):
         selected_viz = visualizations[0]
         exec_globals = {'data': df}
         exec(selected_viz.code, exec_globals)
-        st.plotly_chart(exec_globals['chart'])
+        return exec_globals['chart']
     else:
         st.warning("No visualizations were generated for this query.")    
 
