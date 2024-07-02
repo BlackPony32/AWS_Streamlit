@@ -35,7 +35,7 @@ load_dotenv()
 fastapi_url = os.getenv('FASTAPI_URL')
 
 
-st.set_page_config(layout="wide", page_icon='visualizations\icon.ico', page_title="SimplyDepo report")
+st.set_page_config(layout="wide", page_icon='icon.ico', page_title="SimplyDepo report")
 
 UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
@@ -141,7 +141,7 @@ def cache_df(last_uploaded_file_path):
 def big_main():
     #st.session_state
     df = cache_df(last_uploaded_file_path)
-
+    df.index = range(1, len(df) + 1)
     file_type = identify_file(df)
     
     
