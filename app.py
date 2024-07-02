@@ -35,7 +35,7 @@ load_dotenv()
 fastapi_url = os.getenv('FASTAPI_URL')
 
 
-st.set_page_config(layout="wide")
+st.set_page_config(layout="wide", page_icon='visualizations\icon.ico', page_title="SimplyDepo report")
 
 UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
