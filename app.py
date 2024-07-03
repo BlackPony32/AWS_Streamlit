@@ -78,6 +78,7 @@ async def read_csv(file_path):
     loop = asyncio.get_event_loop()
     return await loop.run_in_executor(None, pd.read_csv, file_path)
 
+@st.cache_data
 def chat_with_file(prompt, file_path):
     #file_name = get_file_name()
     #last_uploaded_file_path = os.path.join(UPLOAD_DIR, file_name)
@@ -94,6 +95,7 @@ def chat_with_file(prompt, file_path):
     except Exception as e:
         return {"error": str(e)}
 
+@st.cache_data
 def chat_with_agent(input_string, file_path):
     try:
         # Assuming file_path is always CSV after conversion
@@ -153,7 +155,7 @@ def big_main():
         st.success(f"This is  {file_type} type. File is available for visualization.")
     
     with col1:
-        st.dataframe(df, use_container_width=True)
+        st.dataframe(df, use_container_width=False)
     with col2:
         st.info("Chat with GPT")
         
