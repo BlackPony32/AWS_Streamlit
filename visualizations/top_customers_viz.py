@@ -31,78 +31,85 @@ def preprocess_data(data):
 
     return data
 #Visualization of Customer_details
-def customer_analysis_app(df):
+def customer_analysis_app1(df):
     """Creates a Streamlit app with tabs for analyzing customer data using plots."""
 
-    st.title("Customer Sales Analysis")
-
-    tab1, tab2, tab3 = st.tabs(["Top Customers", "Territory Analysis", "Payment Terms Analysis"])
-
-    with tab1:
-        st.subheader("Top 10 Customers")
-        top_10_customers = df.groupby('Name')['Total sales'].sum().nlargest(10).reset_index()
-
-        fig = go.Figure(data=go.Bar(
-            x=top_10_customers['Name'],
-            y=top_10_customers['Total sales'],
-            marker_color=px.colors.qualitative.Light24,
-            text=top_10_customers['Total sales'].apply(lambda x: f'${x:,.2f}'),
-            textposition='outside',
-            hovertemplate='<b>Customer:</b> %{x}<br><b>Total Sales:</b> $%{y:,.2f}<extra></extra>'
-        ))
-        fig.update_layout(
-            title="Top 10 Customers by Total Sales",
-            xaxis_title="Customer",
-            yaxis_title="Total Sales",
-            template="plotly_white",
-            height=550  # Set the height of the plot
-    )
-        st.plotly_chart(fig, use_container_width=True)
-
-    with tab2:
-        st.subheader("Sales by Territory")
-        territory_sales = df.groupby('Territory')['Total sales'].sum().reset_index()
-
-        fig = go.Figure(data=go.Pie(
-            labels=territory_sales['Territory'],
-            values=territory_sales['Total sales'],
-            hole=0.3,
-            marker=dict(colors=px.colors.qualitative.Pastel),
-            hovertemplate='<b>Territory:</b> %{label}<br><b>Total Sales:</b> $%{value:,.2f}<br><b>Percentage:</b> %{percent}<extra></extra>',
-            textinfo='percent+label'
-        ))
-        fig.update_layout(
-            title="Sales Distribution by Territory",
+    st.subheader("Top 10 Customers")
+    top_10_customers = df.groupby('Name')['Total sales'].sum().nlargest(10).reset_index()
+    fig = go.Figure(data=go.Bar(
+        x=top_10_customers['Name'],
+        y=top_10_customers['Total sales'],
+        marker_color=px.colors.qualitative.Light24,
+        text=top_10_customers['Total sales'].apply(lambda x: f'${x:,.2f}'),
+        textposition='outside',
+        hovertemplate='<b>Customer:</b> %{x}<br><b>Total Sales:</b> $%{y:,.2f}<extra></extra>'
+    ))
+    fig.update_layout(
+        title="Top 10 Customers by Total Sales",
+        xaxis_title="Customer",
+        yaxis_title="Total Sales",
+        template="plotly_white",
         height=550  # Set the height of the plot
     )
-        st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
 
-    with tab3:
-        st.subheader("Sales by Payment Terms")
-        payment_terms_sales = df.groupby('Payment terms')['Total sales'].sum().reset_index()
-
-        fig = go.Figure(data=go.Bar(
-            x=payment_terms_sales['Payment terms'],
-            y=payment_terms_sales['Total sales'],
-            marker_color=px.colors.qualitative.Pastel,
-            text=payment_terms_sales['Total sales'].apply(lambda x: f'${x:,.2f}'),
-            textposition='outside',
-            hovertemplate='<b>Payment Terms:</b> %{x}<br><b>Total Sales:</b> $%{y:,.2f}<extra></extra>'
-        ))
-        fig.update_layout(
-            title="Sales Distribution by Payment Terms",
-            xaxis_title="Payment Terms",
-            yaxis_title="Total Sales",
-            template="plotly_white",
-            height=550  # Set the height of the plot
-    )
-        st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("""
     ## Understanding Customer Behavior: Sales Insights
 
     This dashboard provides an overview of customer sales patterns, focusing on your top-performing customers, sales distribution across different territories, and a breakdown of sales by payment terms. Use this information to identify key customer segments, optimize sales strategies, and improve cash flow management.
     """)
+    
+def customer_analysis_app2(df):
+    """Creates a Streamlit app with tabs for analyzing customer data using plots."""
+
+    
+    st.subheader("Sales by Territory")
+    territory_sales = df.groupby('Territory')['Total sales'].sum().reset_index()
+    fig = go.Figure(data=go.Pie(
+        labels=territory_sales['Territory'],
+        values=territory_sales['Total sales'],
+        hole=0.3,
+        marker=dict(colors=px.colors.qualitative.Pastel),
+        hovertemplate='<b>Territory:</b> %{label}<br><b>Total Sales:</b> $%{value:,.2f}<br><b>Percentage:</b> %{percent}<extra></extra>',
+        textinfo='percent+label'
+    ))
+    fig.update_layout(
+        title="Sales Distribution by Territory",
+    height=550  # Set the height of the plot
+)
+    st.plotly_chart(fig, use_container_width=True)
+
+
+    st.markdown("""
+    ## Understanding Customer Behavior: Sales Insights
+
+    This dashboard provides an overview of customer sales patterns, focusing on your top-performing customers, sales distribution across different territories, and a breakdown of sales by payment terms. Use this information to identify key customer segments, optimize sales strategies, and improve cash flow management.
+    """)
+
+def customer_analysis_app3(df):
+    """Creates a Streamlit app with tabs for analyzing customer data using plots."""
+
+
+    st.subheader("Sales by Payment Terms")
+    payment_terms_sales = df.groupby('Payment terms')['Total sales'].sum().reset_index()
+    fig = go.Figure(data=go.Bar(
+        x=payment_terms_sales['Payment terms'],
+        y=payment_terms_sales['Total sales'],
+        marker_color=px.colors.qualitative.Pastel,
+        text=payment_terms_sales['Total sales'].apply(lambda x: f'${x:,.2f}'),
+        textposition='outside',
+        hovertemplate='<b>Payment Terms:</b> %{x}<br><b>Total Sales:</b> $%{y:,.2f}<extra></extra>'
+    ))
+    fig.update_layout(
+        title="Sales Distribution by Payment Terms",
+        xaxis_title="Payment Terms",
+        yaxis_title="Total Sales",
+        template="plotly_white",
+        height=550  # Set the height of the plot
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
 #--------------------------bar_plot_with_percentages- SUB FUNCTION-------------------------------------
 def create_bar_plot_with_percentages(df, col="Payment terms"):
     counts = df[col].value_counts().sort_values(ascending=False)
@@ -133,19 +140,14 @@ def create_bar_plot_with_percentages(df, col="Payment terms"):
     return fig
 
 def interactive_bar_plot_app(df):
-    st.title("Distribution Analysis") # More concise title
 
     column_options = df.select_dtypes(include='object').columns
     selected_column = st.selectbox("Select a Category", column_options)
 
     fig = create_bar_plot_with_percentages(df, selected_column)
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
-    ## Understanding Distribution Patterns
-
-    This interactive bar chart allows you to analyze the distribution of data across different categories within your dataset. Explore various categorical columns to uncover patterns, identify dominant categories, and gain insights into the composition of your data. 
-    """)
+    
 #Data distribution visualization
 def create_non_zero_sales_grouped_plot(df, sales_col='Total sales', threshold=500):
     df_filtered = df[df[sales_col] > 0]
@@ -168,7 +170,7 @@ def create_non_zero_sales_grouped_plot(df, sales_col='Total sales', threshold=50
     ))
     
     fig.update_layout(
-        title="Distribution of Non-Zero Total Sales",
+        title="",
         title_x=0, 
         xaxis_title="Value of Total Sales", 
         yaxis_title="Number of Entries",
@@ -177,11 +179,7 @@ def create_non_zero_sales_grouped_plot(df, sales_col='Total sales', threshold=50
     
     st.plotly_chart(fig)
 
-    st.markdown("""
-    ## Sales Distribution: Identifying Patterns and Outliers
-
-    This line chart illustrates the distribution of non-zero total sales values, providing a visual representation of sales frequencies. Analyze the shape of the line to identify common sales value ranges, potential outliers (sudden spikes or drops), and gain a better understanding of the overall sales distribution.
-    """)
+    
 
 #Distribution of customer groups by city
 def create_bar_plot_with_legend(df, city_col, group_col, title):
@@ -207,8 +205,7 @@ def create_bar_plot_with_legend(df, city_col, group_col, title):
     )
     return fig
 
-def interactive_group_distribution_app(df, group_col='Group', city_col='Billing city'):
-    st.title("Customer Group Distribution")  # Concise title
+def interactive_group_distribution_app(df, group_col='Group', city_col='Billing city'):# Concise title
 
     most_frequent_city = df[city_col].value_counts().index[0]
 
@@ -225,8 +222,4 @@ def interactive_group_distribution_app(df, group_col='Group', city_col='Billing 
         fig2 = create_bar_plot_with_legend(data_without_frequent_city, city_col, group_col, f"Client Group Distribution (Excluding {most_frequent_city})")
         st.plotly_chart(fig2, use_container_width=True)
 
-    st.markdown("""
-    ## Geographic Insights: Customer Group Distribution
-
-    This interactive visualization explores the distribution of customer groups across different cities. Analyze how customer groups are concentrated or spread out geographically, identify key markets, and uncover potential opportunities for expansion or targeted marketing efforts. 
-    """)
+    

@@ -31,56 +31,48 @@ def preprocess_data(data):
 
     return data
 
-def low_stock_analysis_app(df):
-    st.title("Low Stock Inventory Analysis")
+def low_stock_analysis_app1(df):
+    category_counts = df.groupby("Category name")["Product name"].count().reset_index()
+    fig1 = go.Figure(go.Pie(
+        labels=category_counts["Category name"],
+        values=category_counts["Product name"],
+        hole=0.3,
+        textinfo='percent+label',
+        marker=dict(colors=px.colors.qualitative.Pastel),
+        hovertemplate="<b>Category:</b> %{label}<br><b>Count:</b> %{value}<br><b>Percentage:</b> %{percent}<extra></extra>"
+    ))
+    fig1.update_layout(
+        title="Low Stock Items by Category",
+        legend=dict(title="Category", orientation="h", y=1.1, x=0.5, xanchor='center')
+    )
+    st.plotly_chart(fig1, use_container_width=True)
 
-    tab1, tab2 = st.tabs(["Distribution by Category", "Price vs. Quantity"])
 
-    with tab1:
-        category_counts = df.groupby("Category name")["Product name"].count().reset_index()
-        fig1 = go.Figure(go.Pie(
-            labels=category_counts["Category name"],
-            values=category_counts["Product name"],
-            hole=0.3,
-            textinfo='percent+label',
-            marker=dict(colors=px.colors.qualitative.Pastel),
-            hovertemplate="<b>Category:</b> %{label}<br><b>Count:</b> %{value}<br><b>Percentage:</b> %{percent}<extra></extra>"
-        ))
-        fig1.update_layout(
-            title="Low Stock Items by Category",
-            legend=dict(title="Category", orientation="h", y=1.1, x=0.5, xanchor='center')
-        )
-        st.plotly_chart(fig1, use_container_width=True)
+def low_stock_analysis_app2(df):
+    df_positive_qty = df[df['Available cases (QTY)'] > 0]  
+    fig2 = go.Figure(data=go.Scatter(
+        x=df_positive_qty["Wholesale price"],
+        y=df_positive_qty["Available cases (QTY)"],
+        mode='markers',
+        marker=dict(
+            size=df_positive_qty["Available cases (QTY)"],
+            color=df_positive_qty["Wholesale price"],
+            #colorscale='Pastel',
+            showscale=True
+        ),
+        text=df_positive_qty['Product name'],
+        hovertemplate="<b>%{text}</b><br>Wholesale Price: %{x}<br>Available Cases (QTY): %{y}<extra></extra>"
+    ))
+    fig2.update_layout(
+        title="Wholesale Price vs. Available Quantity",
+        xaxis_title="Wholesale Price",
+        yaxis_title="Available Cases (QTY)",
+        template="plotly_white",
+        legend=dict(title="Category", orientation="h", y=1.1, x=0.5, xanchor='center')
+    )
+    st.plotly_chart(fig2, use_container_width=True)
 
-    with tab2:
-        df_positive_qty = df[df['Available cases (QTY)'] > 0]  
-        fig2 = go.Figure(data=go.Scatter(
-            x=df_positive_qty["Wholesale price"],
-            y=df_positive_qty["Available cases (QTY)"],
-            mode='markers',
-            marker=dict(
-                size=df_positive_qty["Available cases (QTY)"],
-                color=df_positive_qty["Wholesale price"],
-                #colorscale='Pastel',
-                showscale=True
-            ),
-            text=df_positive_qty['Product name'],
-            hovertemplate="<b>%{text}</b><br>Wholesale Price: %{x}<br>Available Cases (QTY): %{y}<extra></extra>"
-        ))
-        fig2.update_layout(
-            title="Wholesale Price vs. Available Quantity",
-            xaxis_title="Wholesale Price",
-            yaxis_title="Available Cases (QTY)",
-            template="plotly_white",
-            legend=dict(title="Category", orientation="h", y=1.1, x=0.5, xanchor='center')
-        )
-        st.plotly_chart(fig2, use_container_width=True)
-
-    st.markdown("""
-    ## Low Stock Insights: A Deeper Dive
-
-    This analysis focuses on products with low stock levels. The first chart breaks down these items by category, allowing you to quickly pinpoint areas of concern. The second chart visualizes the relationship between wholesale price and available quantity, offering a more granular perspective on inventory levels for each product.  
-    """)
+    
 
 def create_profit_margin_analysis_plot(df):
     df["Profit Margin"] = df["Retail price"] - df["Wholesale price"]
@@ -95,7 +87,6 @@ def create_profit_margin_analysis_plot(df):
     ))
     
     fig.update_layout(
-        title="Profit Margins: Low Stock Items",
         xaxis_title="Product Name",
         yaxis_title="Profit Margin",
         xaxis_tickangle=45,
@@ -104,13 +95,8 @@ def create_profit_margin_analysis_plot(df):
         legend=dict(title="Profit Margin", orientation="h", y=1.1, x=0.5, xanchor='center')
     )
     
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
-    ## Profitability Focus: Low Stock Items
-
-    This bar chart highlights the profit margins of your low-stock items, sorted from highest to lowest. Prioritize replenishing high-margin products to maximize potential revenue and avoid stockouts.  
-    """)
 
 def create_low_stock_by_manufacturer_bar_plot(df):
     low_stock_counts = df.groupby("Manufacturer name")["Product name"].count().reset_index()
@@ -125,7 +111,6 @@ def create_low_stock_by_manufacturer_bar_plot(df):
     ))
     
     fig.update_layout(
-        title="Low Stock Items by Manufacturer",
         xaxis_title="Manufacturer",
         yaxis_title="Number of Low Stock Items",
         xaxis_tickangle=45,
@@ -134,13 +119,8 @@ def create_low_stock_by_manufacturer_bar_plot(df):
         legend=dict(title="Manufacturer", orientation="h", y=1.1, x=0.5, xanchor='center')
     ) 
     
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
-    ## Low Stock Breakdown: Manufacturer Focus
-
-    This bar chart highlights the manufacturers with the highest number of low-stock items, providing insights into potential supplier-related challenges or product popularity. By analyzing this breakdown, you can proactively address inventory concerns and strengthen your supply chain relationships.  
-    """)
 
 
 #Analyzing the correlation Between Price and Available Quantity
@@ -152,7 +132,6 @@ def create_interactive_price_vs_quantity_plot(df):
         x="Wholesale price", 
         y="Available cases (QTY)", 
         trendline="ols",
-        title="Price vs. Quantity: Low-Stock Items",
         template="plotly_white",
         color_discrete_sequence=px.colors.qualitative.Pastel
     )
@@ -168,13 +147,8 @@ def create_interactive_price_vs_quantity_plot(df):
         legend=dict(title="Category", orientation="h", y=1.1, x=0.5, xanchor='center')
     )
     
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
-    ## Price vs. Quantity: Low-Stock Item Analysis
-
-    This scatter plot explores the relationship between wholesale price and available quantity for products currently low in stock. The trendline helps you visualize the general association between these factors. Analyze this visualization to inform your inventory management decisions and potentially predict future stock requirements.
-    """)
 
 def create_quantity_price_ratio_plot(df):
     df['Retail price'] = pd.to_numeric(df['Retail price'], errors='coerce')
@@ -187,7 +161,6 @@ def create_quantity_price_ratio_plot(df):
         x='QTY/Price Ratio', 
         color='QTY/Price Ratio', 
         orientation='h',
-        title="Quantity/Price Ratio: Low-Stock Items",
         color_continuous_scale='purples', 
         text='QTY/Price Ratio',
         template="plotly_white"
@@ -205,10 +178,4 @@ def create_quantity_price_ratio_plot(df):
         legend=dict(title="Category", orientation="h", y=1.1, x=0.5, xanchor='center')
     )
     
-    st.plotly_chart(fig)
-
-    st.markdown("""
-    ## Quantity/Price Ratio: A Closer Look at Low Stock
-
-    This horizontal bar chart visualizes the ratio of available quantity to retail price for each low-stock item. Products with higher ratios might indicate overstocking or potential pricing issues, while those with lower ratios could signal high demand or potential stock shortages.
-    """)
+    st.plotly_chart(fig, use_container_width=True)

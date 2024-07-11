@@ -42,59 +42,48 @@ def preprocess_data(data):
     return data
 
 #Total sales
-def visualize_product_analysis(data, product_col='Product name', grand_total_col='Grand total'):
+def visualize_product_analysis1(data, product_col='Product name', grand_total_col='Grand total'):
     product_data = data.groupby(product_col)[grand_total_col].agg(['sum', 'count']).sort_values(by='sum', ascending=False)
 
-    tab1, tab2 = st.tabs(["Total Sales", "Order Distribution"])
+    
+    # Pie chart
+    fig = go.Figure(data=[go.Pie(
+        labels=product_data.index,
+        values=product_data['count'],
+        textinfo='percent+label',
+        hovertemplate='<b>%{label}</b><br>Orders: %{value}<br>Percentage: %{percent}<extra></extra>'
+    )])
+    
+    fig.update_layout(
+        hoverlabel=dict(bgcolor="white", font_size=12)
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
 
-    with tab1:
-        # Pie chart
-        fig = go.Figure(data=[go.Pie(
-            labels=product_data.index,
-            values=product_data['count'],
-            textinfo='percent+label',
-            hovertemplate='<b>%{label}</b><br>Orders: %{value}<br>Percentage: %{percent}<extra></extra>'
-        )])
+def visualize_product_analysis2(data, product_col='Product name', grand_total_col='Grand total'):
+    product_data = data.groupby(product_col)[grand_total_col].agg(['sum', 'count']).sort_values(by='sum', ascending=False)
+
+    # Bar chart
+    fig = go.Figure(data=[go.Bar(
+        x=product_data.index,
+        y=product_data['count'],
+        marker=dict(
+            color=product_data['count'],
+            colorscale='Cividis'
+        ),
+        hovertemplate='<b>%{x}</b><br>Orders: %{y}<extra></extra>'
+    )])
+    
+    fig.update_layout(
+        title_text="Distribution of Orders by Product",
+        xaxis_title="Product",
+        yaxis_title="Number of Orders",
+        xaxis_tickangle=45,
+        hoverlabel=dict(bgcolor="white", font_size=12)
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
         
-        fig.update_layout(
-            title_text='Order Distribution',
-            hoverlabel=dict(bgcolor="white", font_size=12)
-        )
-        
-        st.plotly_chart(fig)
-        st.markdown("""
-## Total Sales by Category
-
-This chart shows how total sales are split across product categories over time. See which categories drive sales in each period and spot any trends.
-""")
-
-    with tab2:
-        # Bar chart
-        fig = go.Figure(data=[go.Bar(
-            x=product_data.index,
-            y=product_data['count'],
-            marker=dict(
-                color=product_data['count'],
-                colorscale='Cividis'
-            ),
-            hovertemplate='<b>%{x}</b><br>Orders: %{y}<extra></extra>'
-        )])
-        
-        fig.update_layout(
-            title_text="Distribution of Orders by Product",
-            xaxis_title="Product",
-            yaxis_title="Number of Orders",
-            xaxis_tickangle=45,
-            hoverlabel=dict(bgcolor="white", font_size=12)
-        )
-        
-        st.plotly_chart(fig)
-        st.markdown("""
-## Order Distribution by Product
-
-This chart displays the number of orders for each product, indicating their popularity and helping you manage inventory effectively.
-""")
-
 #Sales amount for each client (top 10)
 def visualize_sales_trends(data, customer_col='Customer', product_col='Product name',
                            grand_total_col='Grand total', qty_col='QTY'):
@@ -115,7 +104,6 @@ def visualize_sales_trends(data, customer_col='Customer', product_col='Product n
 
     # Update layout
     fig.update_layout(
-        title_text="Top 10 Customers by Sales Amount",
         xaxis_title="Customer",
         yaxis_title="Sales Amount",
         xaxis_tickangle=45,
@@ -124,14 +112,7 @@ def visualize_sales_trends(data, customer_col='Customer', product_col='Product n
     )
 
     # Display chart
-    st.plotly_chart(fig)
-
-    # Display markdown
-    st.markdown("""
-    ## Top Customer Insights
-    This chart highlights your top 10 customers by sales revenue. Prioritize these key relationships to drive future sales and consider loyalty programs to encourage repeat business.
-    """)
-        
+    st.plotly_chart(fig, use_container_width=True)
 
 
 #Plot with coloring of points by product type
@@ -162,7 +143,6 @@ def visualize_combined_analysis(data, product_col='Product name',
 
     # Update the layout
     fig.update_layout(
-        title="Dependence between Quantity and Amount (by Product)",
         xaxis_title="Quantity",
         yaxis_title="Sales Amount",
         barmode='stack',
@@ -172,13 +152,9 @@ def visualize_combined_analysis(data, product_col='Product name',
     )
 
     # Display the chart
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
-    ## Sales by Quantity and Product
-
-    This chart shows how sales revenue varies with the quantity of products sold, broken down by product name. Analyze which products contribute the most at different quantity levels.
-    """)
+    
 #Analyzes discounts
 def analyze_discounts(data):
     discount_counts = data["Discount type"].value_counts()
@@ -195,16 +171,11 @@ def analyze_discounts(data):
     )])
 
     fig.update_layout(
-        title_text="Distribution of Discount Types",
         showlegend=False
     )
 
-    st.plotly_chart(fig)
-    st.markdown("""
-## Discount Usage
-
-This chart presents the distribution of discount types used in orders. It highlights the proportion of orders associated with each discount category.
-""")
+    st.plotly_chart(fig, use_container_width=True)
+    
 
 def area_visualisation(data):
     columns = ['Grand total', 'Manufacturer specific discount', 'Customer discount']
@@ -222,15 +193,10 @@ def area_visualisation(data):
         ))
     
     fig.update_layout(
-        title="Sales, Manufacturer, and Customer Discounts Over Time",
         xaxis_title="Index",
         yaxis_title="Amount",
         hovermode="x unified"
     )
     
-    st.plotly_chart(fig)
-    st.markdown("""
-    ## Sales, Manufacturer, and Customer Discounts Over Time
-
-    This area chart displays how the grand total, manufacturer discounts, and customer discounts have fluctuated over time. Track how these values change, identifying periods of high discounts and understanding the overall impact of discounts on sales revenue. 
-    """)
+    st.plotly_chart(fig, use_container_width=True)
+    

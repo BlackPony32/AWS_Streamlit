@@ -34,31 +34,47 @@ def preprocess_data(data):
     return data
 #Analyzes and visualizes the total inventory value by category
 def df_analyze_inventory_value_by_category(df):
+    # Ensure 'Wholesale price' is numeric
+    if df['Wholesale price'].dtype == 'object':
+        df['Wholesale price'] = pd.to_numeric(df['Wholesale price'].str.replace(',', '').str.replace('$ ', ''))
+
+    # Calculate 'Inventory Value'
     df["Inventory Value"] = df["Available cases (QTY)"] * df["Wholesale price"]
     category_value = df.groupby("Category name")["Inventory Value"].sum().reset_index()
 
-    fig = go.Figure(data=[go.Bar(
-        x=category_value['Category name'],
-        y=category_value['Inventory Value'],
-        marker_color=px.colors.qualitative.Plotly[:len(category_value)],
-        hovertemplate='<b>%{x}</b><br>Inventory Value: $%{y:,.2f}<extra></extra>'
-    )])
+    # Create the bar chart using plotly.graph_objects
+    fig = go.Figure()
 
+    for _, row in category_value.iterrows():
+        fig.add_trace(go.Bar(
+            x=[row['Category name']],
+            y=[row['Inventory Value']],
+            name=row['Category name'],
+            hovertemplate='<b>%{x}</b><br>Inventory Value: $%{y:,.2f}<extra></extra>'
+        ))
+
+    # Update the layout for better visualization
     fig.update_layout(
-        title="Inventory Value Distribution by Category",
         xaxis_title="Category",
         yaxis_title="Inventory Value",
-        showlegend=False,
-        legend_title_text='Category'
+        showlegend=True,
+        legend_title_text='Category',
+        legend=dict(
+            x=1.05,
+            y=1,
+            bgcolor='rgba(255, 255, 255, 0)',
+            bordercolor='rgba(255, 255, 255, 0)',
+            title_font=dict(size=12),
+            font=dict(size=10),
+            orientation='v'  # Change to 'h' if you want the legend below the plot
+        ),
+        margin=dict(r=150)  # Adjust the right margin to make space for the legend
     )
 
+    # Display the plot in Streamlit
     st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
-    ## Inventory Value: A Category Breakdown
-
-    This bar chart illustrates the proportional distribution of inventory value across different product categories, allowing you to quickly see which categories hold the most significant value within your inventory.
-    """)
+    
 
 def df_analyze_quantity_vs_retail_price(df):
     for col in ["Retail price", "Wholesale price"]:
@@ -91,7 +107,6 @@ def df_analyze_quantity_vs_retail_price(df):
         ))
 
     fig.update_layout(
-        title="Quantity, Price, and Category: A Multi-Factor View",
         xaxis_title="Available Cases",
         yaxis_title="Retail Price",
         template="plotly_white",
@@ -101,42 +116,51 @@ def df_analyze_quantity_vs_retail_price(df):
 
     st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
-    ## Quantity, Price, and Category: A Multi-Factor View
-
-    This scatter plot provides a visual analysis of the interplay between available quantity, retail price, category, and wholesale price. Explore how these factors relate to each other, uncover potential trends within categories, and identify outliers that might require further investigation. Use these insights to inform your pricing, inventory, and product strategies. 
-    """)
+    
 
 #Analyzing Inventory Value Distribution Across Manufacturers
 def df_analyze_inventory_value_by_manufacturer(df):
+    # Ensure 'Wholesale price' is numeric
     if df['Wholesale price'].dtype == 'object':
         df['Wholesale price'] = pd.to_numeric(df['Wholesale price'].str.replace(',', '').str.replace('$ ', ''))
-    
+
+    # Calculate 'Inventory Value'
     df["Inventory Value"] = df["Available cases (QTY)"] * df["Wholesale price"]
     manufacturer_value = df.groupby("Manufacturer name")["Inventory Value"].sum().reset_index()
 
-    fig = go.Figure(data=[go.Bar(
-        x=manufacturer_value['Manufacturer name'],
-        y=manufacturer_value['Inventory Value'],
-        marker_color=px.colors.qualitative.Plotly[:len(manufacturer_value)],
-        hovertemplate='<b>%{x}</b><br>Inventory Value: $%{y:,.2f}<extra></extra>'
-    )])
+    # Create the bar chart using plotly.graph_objects
+    fig = go.Figure()
 
+    for _, row in manufacturer_value.iterrows():
+        fig.add_trace(go.Bar(
+            x=[row['Manufacturer name']],
+            y=[row['Inventory Value']],
+            name=row['Manufacturer name'],
+            hovertemplate='<b>%{x}</b><br>Inventory Value: $%{y:,.2f}<extra></extra>'
+        ))
+
+    # Update the layout for better visualization
     fig.update_layout(
-        title="Inventory Value Distribution by Manufacturer",
         xaxis_title="Manufacturer",
         yaxis_title="Inventory Value",
-        showlegend=False,
-        legend_title_text='Manufacturer'
+        showlegend=True,
+        legend_title_text='Manufacturer',
+        legend=dict(
+            x=1.05,
+            y=1,
+            bgcolor='rgba(255, 255, 255, 0)',
+            bordercolor='rgba(255, 255, 255, 0)',
+            title_font=dict(size=12),
+            font=dict(size=10),
+            orientation='v'  # Change to 'h' if you want the legend below the plot
+        ),
+        margin=dict(r=150)  # Adjust the right margin to make space for the legend
     )
 
+    # Display the plot in Streamlit
     st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
-    ## Inventory Value: A Manufacturer Breakdown
-
-    This bar chart illustrates the proportional distribution of inventory value across different manufacturers. This allows you to see at a glance which manufacturers contribute the most to your overall inventory value. 
-    """)
+    
 
 #Analyzes and visualizes the average inventory value per unit for each product
 def df_analyze_inventory_value_per_unit(df):
@@ -157,32 +181,37 @@ def df_analyze_inventory_value_per_unit(df):
     # Create the bar chart using plotly.graph_objects
     fig = go.Figure()
 
-    fig.add_trace(go.Bar(
-        x=product_value['Product name'],
-        y=product_value['Total Value'],
-        marker_color=px.colors.qualitative.Pastel,
-        hovertemplate=
-        '<b>%{x}</b><br>' +
-        'Total Value: $%{y:,.2f}<extra></extra>',
-        name='Total Value'
-    ))
+    for _, row in product_value.iterrows():
+        fig.add_trace(go.Bar(
+            x=[row['Product name']],
+            y=[row['Total Value']],
+            name=row['Product name'],
+            hovertemplate=
+            '<b>%{x}</b><br>' +
+            'Total Value: $%{y:,.2f}<extra></extra>',
+        ))
     
     # Update the layout for better visualization
     fig.update_layout(
-        title="Inventory Value Distribution by Product",
         xaxis_title="Product",
         yaxis_title="Total Value",
-        showlegend=True
+        showlegend=True,
+        legend=dict(
+            x=1.05,
+            y=1,
+            bgcolor='rgba(255, 255, 255, 0)',
+            bordercolor='rgba(255, 255, 255, 0)',
+            title_font=dict(size=12),
+            font=dict(size=10),
+            orientation='v'  # Change to 'h' if you want the legend below the plot
+        ),
+        margin=dict(r=150)  # Adjust the right margin to make space for the legend
     )
 
     # Display the plot in Streamlit
     st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
-    ## Inventory Value: A Product Breakdown
-
-    This bar chart breaks down the distribution of inventory value across individual products, providing insights into which products contribute the most to the overall inventory value.
-    """)
+    
 
 # Comparing Average Retail Prices Across Categories
 def df_compare_average_retail_prices(df):
@@ -203,14 +232,9 @@ def df_compare_average_retail_prices(df):
     )])
 
     fig.update_layout(
-        title="Average Retail Price Distribution by Category",
         showlegend=True
     )
 
     st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
-    ## Average Retail Prices: A Category View
-
-    This donut chart provides a visual representation of how average retail prices are distributed across different product categories. Easily compare the proportions and identify categories with higher or lower average prices. 
-    """)
+    

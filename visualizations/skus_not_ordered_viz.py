@@ -56,11 +56,6 @@ def create_unordered_products_by_category_plot(df):
     
     st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
-    ## Unordered Products: A Category-Based View
-
-    This bar chart displays the number of unordered products in each category. Use this visualization to identify potential stock shortages, prioritize reordering, and refine your inventory management strategies.
-    """)
 
 #Visualizes the distribution of available cases for unordered products using a histogram
 def create_available_cases_distribution_plot(df):
@@ -89,17 +84,11 @@ def create_available_cases_distribution_plot(df):
     ))
 
     fig.update_layout(
-        title="Distribution of Products by Stock Level",
         hovermode="closest"
     )
 
     st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
-    ## Inventory Snapshot: Stock Level Distribution
-
-    This donut chart presents a clear picture of how your products are distributed across different stock levels. It provides a quick assessment of potential stock shortages ("Low Stock"), healthy inventory levels ("Medium Stock"), and potential overstocking ("High Stock"). 
-    """)
 
 def price_vs_available_cases_app(df):
     st.title("Average Available Cases by Price Range and Category")
@@ -127,15 +116,9 @@ def price_vs_available_cases_app(df):
     
     st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
-    ## Inventory by Price: Analyzing Availability 
-
-    This bar chart displays the average available cases for the selected product category across different retail price ranges. Use this information to identify potential stock imbalances within price ranges and make informed decisions about inventory management and pricing strategies. 
-    """)
 
 #Visualizes the relationship between wholesale and retail prices for unordered products
-def create_wholesale_vs_retail_price_scatter(df):
-    tab1, tab2 = st.tabs(["Available Cases vs Profit Margin", "Wholesale vs Retail Price"])
+def create_wholesale_vs_retail_price_scatter1(df):
 
     df["Profit Margin %"] = (df['Retail price'] - df['Wholesale price']) / df['Wholesale price'] * 100
 
@@ -143,78 +126,82 @@ def create_wholesale_vs_retail_price_scatter(df):
     unique_categories = df['Category name'].unique()
     color_map = dict(zip(unique_categories, colors.qualitative.Plotly[:len(unique_categories)]))
 
-    with tab1:
-        traces = []
-        for category in unique_categories:
-            df_category = df[df['Category name'] == category]
-            traces.append(go.Scatter(
-                x=df_category['Available cases (QTY)'],
-                y=df_category["Profit Margin %"],
-                mode='markers',
-                name=category,
-                marker=dict(color=color_map[category], size=8),
-                text=df_category['Category name'],
-                hovertemplate="<b>Category:</b> %{text}<br><b>Available Cases:</b> %{x}<br><b>Profit Margin:</b> %{y:.2f}%<br><b>Retail Price:</b> $%{customdata[0]:.2f}<br><b>Wholesale Price:</b> $%{customdata[1]:.2f}<extra></extra>",
-                customdata=df_category[['Retail price', 'Wholesale price']]
-            ))
-
-        fig1 = go.Figure(data=traces)
-        
-        fig1.update_layout(
-            title="Available Cases vs. Profit Margin",
-            xaxis_title="Available Cases",
-            yaxis_title="Profit Margin (%)",
-            template="plotly_white",
-            hovermode="closest",
-            font=dict(size=12),
-            title_font_size=14,
-            legend_title_text='Category',
-            legend=dict(
-                yanchor="top",
-                y=0.99,
-                xanchor="left",
-                x=0.01,
-                bgcolor="rgba(255, 255, 255, 0.5)"
-            )
-        )
-        
-        st.plotly_chart(fig1, use_container_width=True)
-
-    with tab2:
-        fig2 = go.Figure(go.Scatter(
-            x=df['Wholesale price'],
-            y=df['Retail price'],
+    traces = []
+    for category in unique_categories:
+        df_category = df[df['Category name'] == category]
+        traces.append(go.Scatter(
+            x=df_category['Available cases (QTY)'],
+            y=df_category["Profit Margin %"],
             mode='markers',
-            marker=dict(
-                color=[color_map[cat] for cat in df['Category name']],
-                size=8
-            ),
-            text=df['Category name'],
-            hovertemplate="<b>Category:</b> %{text}<br><b>Wholesale Price:</b> $%{x:.2f}<br><b>Retail Price:</b> $%{y:.2f}<extra></extra>"
+            name=category,
+            marker=dict(color=color_map[category], size=8),
+            text=df_category['Category name'],
+            hovertemplate="<b>Category:</b> %{text}<br><b>Available Cases:</b> %{x}<br><b>Profit Margin:</b> %{y:.2f}%<br><b>Retail Price:</b> $%{customdata[0]:.2f}<br><b>Wholesale Price:</b> $%{customdata[1]:.2f}<extra></extra>",
+            customdata=df_category[['Retail price', 'Wholesale price']]
         ))
-        
-        fig2.update_layout(
-            title="Wholesale vs. Retail Price",
-            xaxis_title="Wholesale Price",
-            yaxis_title="Retail Price",
-            template="plotly_white",
-            hovermode="closest",
-            legend_title_text='Category',
-            legend=dict(
-                yanchor="top",
-                y=0.99,
-                xanchor="left",
-                x=0.01,
-                bgcolor="rgba(255, 255, 255, 0.5)"
-            )
+    fig1 = go.Figure(data=traces)
+    
+    fig1.update_layout(
+        title="Available Cases vs. Profit Margin",
+        xaxis_title="Available Cases",
+        yaxis_title="Profit Margin (%)",
+        template="plotly_white",
+        hovermode="closest",
+        font=dict(size=12),
+        title_font_size=14,
+        legend_title_text='Category',
+        legend=dict(
+            yanchor="top",
+            y=0.99,
+            xanchor="left",
+            x=0.01,
+            bgcolor="rgba(255, 255, 255, 0.5)"
         )
-        st.plotly_chart(fig2, use_container_width=True)
+    )
+    
+    st.plotly_chart(fig1, use_container_width=True)
 
-    st.markdown("""
-    ## Profit & Pricing: Analyzing Relationships
+    
 
-    These scatter plots help you explore the connections between available cases, profit margins, wholesale prices, and retail prices. Use these visualizations to identify potential trends, outliers, and opportunities for optimizing pricing and inventory strategies. 
-    """)
+def create_wholesale_vs_retail_price_scatter2(df):
+
+    df["Profit Margin %"] = (df['Retail price'] - df['Wholesale price']) / df['Wholesale price'] * 100
+
+    # Create a color map for categories
+    unique_categories = df['Category name'].unique()
+    color_map = dict(zip(unique_categories, colors.qualitative.Plotly[:len(unique_categories)]))
+
+    
+    fig2 = go.Figure(go.Scatter(
+        x=df['Wholesale price'],
+        y=df['Retail price'],
+        mode='markers',
+        marker=dict(
+            color=[color_map[cat] for cat in df['Category name']],
+            size=8
+        ),
+        text=df['Category name'],
+        hovertemplate="<b>Category:</b> %{text}<br><b>Wholesale Price:</b> $%{x:.2f}<br><b>Retail Price:</b> $%{y:.2f}<extra></extra>"
+    ))
+    
+    fig2.update_layout(
+        title="Wholesale vs. Retail Price",
+        xaxis_title="Wholesale Price",
+        yaxis_title="Retail Price",
+        template="plotly_white",
+        hovermode="closest",
+        legend_title_text='Category',
+        legend=dict(
+            yanchor="top",
+            y=0.99,
+            xanchor="left",
+            x=0.01,
+            bgcolor="rgba(255, 255, 255, 0.5)"
+        )
+    )
+    st.plotly_chart(fig2, use_container_width=True)
+
+
 
 def df_unordered_products_per_category_and_price_range(df, category_col='Category name', retail_price_col='Retail price'):
     price_ranges = [0, 20, 40, 60, 80, 100, float('inf')]  # Added 100+ range
@@ -231,7 +218,7 @@ def df_unordered_products_per_category_and_price_range(df, category_col='Categor
     ))
     
     fig.update_layout(
-        title="Unordered Products: Category and Price View",
+        title="",
         xaxis_title="Price Range",
         yaxis_title="Category",
         xaxis_side="top",
@@ -239,9 +226,3 @@ def df_unordered_products_per_category_and_price_range(df, category_col='Categor
     )
     
     st.plotly_chart(fig, use_container_width=True)
-
-    st.markdown("""
-    ## Unordered Products: Insights by Category and Price
-
-    This heatmap reveals the distribution of unordered products across different categories and price ranges. Deeper colors represent a higher concentration of unordered items. Analyze this visualization to identify potential stock shortages, prioritize reordering based on price and category, and optimize inventory management strategies. 
-    """)
