@@ -35,7 +35,6 @@ def preprocess_data(data):
 def visualize_sales_trends1(data, customer_col='Customer', product_col='Product name', 
                            grand_total_col='Grand total', qty_col='QTY'):
     
-        st.subheader("Total Sales by Customer (Top 10)")
         top_customers = data.groupby(customer_col)[grand_total_col].sum().nlargest(10)
         # Create the plot
         fig = go.Figure()
@@ -151,7 +150,6 @@ def visualize_discount_analysis1(data, discount_type_col='Discount type', total_
         marker=dict(color=top_customers_discount.values, colorscale='Pinkyl')
     )])
     fig.update_layout(
-        title="Discount Amount by Customer (Top 10)", 
         xaxis_tickangle=45, 
         yaxis_title="Discount Amount", 
         xaxis_title="Customer",
@@ -190,9 +188,6 @@ def visualize_discount_analysis2(data, discount_type_col='Discount type', total_
 def visualize_delivery_analysis1(data, delivery_status_col='Delivery status', 
                                 delivery_method_col='Delivery methods'):
     
-    
-    
-        st.subheader("Number of Orders by Delivery Status")
         delivery_status_counts = data[delivery_status_col].value_counts()
         
         # Create a pie chart for delivery status distribution
@@ -215,7 +210,6 @@ def visualize_delivery_analysis1(data, delivery_status_col='Delivery status',
 def visualize_delivery_analysis2(data, delivery_status_col='Delivery status', 
                                 delivery_method_col='Delivery methods'):
     
-        st.subheader("Number of Orders by Delivery Method")
         delivery_method_counts = data[delivery_method_col].value_counts()
         
         # Create a pie chart for delivery method distribution
@@ -258,7 +252,6 @@ def visualize_combined_analysis1(data, product_col='Product name',
                                grand_total_col='Grand total', qty_col='QTY', 
                                delivery_status_col='Delivery status'):
 
-        st.subheader("Relationship between Quantity and Amount (by Product)")
         scatter_data = [
             go.Scatter(
                 x=data[data[product_col] == product][qty_col], 
@@ -271,7 +264,6 @@ def visualize_combined_analysis1(data, product_col='Product name',
         ]
         fig = go.Figure(data=scatter_data)
         fig.update_layout(
-            title="Relationship between Quantity and Amount (by Product)",
             xaxis_title="Quantity",
             yaxis_title="Sales Amount",
             xaxis_tickangle=45,
@@ -285,7 +277,6 @@ def visualize_combined_analysis2(data, product_col='Product name',
                                grand_total_col='Grand total', qty_col='QTY', 
                                delivery_status_col='Delivery status'):
 
-        st.subheader("Number of Orders by Product and Delivery Status")
         histogram_data = [
             go.Histogram(
                 x=data[data[delivery_status_col] == status][product_col],
@@ -297,7 +288,6 @@ def visualize_combined_analysis2(data, product_col='Product name',
         ]
         fig = go.Figure(data=histogram_data)
         fig.update_layout(
-            title="Number of Orders by Product and Delivery Status",
             xaxis_title="Product",
             yaxis_title="Number of Orders",
             barmode='group',

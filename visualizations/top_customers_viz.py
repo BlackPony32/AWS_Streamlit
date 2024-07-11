@@ -53,12 +53,6 @@ def customer_analysis_app1(df):
     )
     st.plotly_chart(fig, use_container_width=True)
 
-
-    st.markdown("""
-    ## Understanding Customer Behavior: Sales Insights
-
-    This dashboard provides an overview of customer sales patterns, focusing on your top-performing customers, sales distribution across different territories, and a breakdown of sales by payment terms. Use this information to identify key customer segments, optimize sales strategies, and improve cash flow management.
-    """)
     
 def customer_analysis_app2(df):
     """Creates a Streamlit app with tabs for analyzing customer data using plots."""
@@ -81,11 +75,6 @@ def customer_analysis_app2(df):
     st.plotly_chart(fig, use_container_width=True)
 
 
-    st.markdown("""
-    ## Understanding Customer Behavior: Sales Insights
-
-    This dashboard provides an overview of customer sales patterns, focusing on your top-performing customers, sales distribution across different territories, and a breakdown of sales by payment terms. Use this information to identify key customer segments, optimize sales strategies, and improve cash flow management.
-    """)
 
 def customer_analysis_app3(df):
     """Creates a Streamlit app with tabs for analyzing customer data using plots."""

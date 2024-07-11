@@ -35,7 +35,6 @@ def preprocess_data(data):
 #Visualize the relationships between Orders/Cases Sold and Revenue
 def plot_sales_relationships1(df):
     
-    st.subheader("Orders vs. Revenue")
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=df["Orders"],
@@ -52,13 +51,12 @@ def plot_sales_relationships1(df):
         template="plotly_white",
         coloraxis_colorbar=dict(title="Orders")
     )
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
     
 
 
 def plot_sales_relationships2(df):
-        st.subheader("Cases Sold vs. Revenue")
         fig = go.Figure()
         fig.add_trace(go.Scatter(
             x=df["Cases sold"],
@@ -76,7 +74,7 @@ def plot_sales_relationships2(df):
             template="plotly_white",
             coloraxis_colorbar=dict(title="Cases Sold")
         )
-        st.plotly_chart(fig)
+        st.plotly_chart(fig, use_container_width=True)
 
 
 #Revenue by Month and Role
@@ -110,7 +108,7 @@ def plot_revenue_by_month_and_role(df):
         )
     )
     
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
 
 #Visualize visits and travel distance for each name
@@ -144,7 +142,7 @@ def plot_visits_and_travel_distance_by_name(df):
        hoverlabel=dict(bgcolor="white", font_size=12)
    )
 
-   st.plotly_chart(fig)
+   st.plotly_chart(fig, use_container_width=True)
 
 #Visualize the number of cases sold for each day of the week
 def plot_cases_sold_by_day_of_week(df):
@@ -179,7 +177,7 @@ def plot_cases_sold_by_day_of_week(df):
         hovermode="x unified"
     )
 
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
 
 #Visualizing Revenue Trends over Time for Each Role
@@ -213,7 +211,7 @@ def plot_revenue_trend_by_month_and_role(df):
         legend_title="Role"
     )
 
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
     
 #Exploring the Relationship Between Visits and Orders
@@ -261,7 +259,7 @@ def plot_orders_vs_visits_with_regression(df):
         )
     )
 
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
 
 #Comparing Performance Metrics for Different Roles
@@ -289,7 +287,7 @@ def plot_multiple_metrics_by_role(df):
         hovermode="closest"
     )
 
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
     
 
@@ -326,4 +324,4 @@ def plot_revenue_vs_cases_sold_with_size_and_color(df):
         hovermode="closest"
     )
 
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
