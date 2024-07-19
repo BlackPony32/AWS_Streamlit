@@ -61,8 +61,7 @@ def analyze_sales_rep_efficiency(df_pd):
     )])
 
     fig.update_layout(
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        title_font=dict(size=20)
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
     )
 
     st.plotly_chart(fig, use_container_width=True)
@@ -128,7 +127,6 @@ def plot_travel_efficiency_line(df_pd):
     fig.update_layout(
         xaxis_title="Total Travel Distance (miles)",
         yaxis_title="Total Visits",
-        title_font_size=20,
         legend_title_text="Role",
         colorway=px.colors.qualitative.Set1,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
@@ -172,8 +170,7 @@ def analyze_work_hours_and_distance1(df_pd):
     df_pd["Total travel distance"] = df_pd["Total travel distance"].str.extract('(\d+\.?\d*)').astype(float)
 
 
-    
-    st.subheader("Top 10 Employees by Work Hours")
+
     fig = go.Figure(go.Bar(
         x=df_pd['Name'],
         y=df_pd['Pure Work Hours'],
@@ -227,8 +224,7 @@ def analyze_work_hours_and_distance2(df_pd):
 
     
 
-    
-    st.subheader("Top 10 Employees by Travel Distance")
+
     fig = go.Figure(go.Bar(
         x=df_pd['Name'],
         y=df_pd['Total travel distance'],

@@ -45,7 +45,6 @@ def plot_sales_relationships1(df):
         hovertemplate="<b>Orders: %{x}</b><br>Total Revenue: %{y}<extra></extra>"
     ))  
     fig.update_layout(
-        title="Orders vs. Revenue",
         xaxis_title="Orders",
         yaxis_title="Total Revenue",
         template="plotly_white",
@@ -68,7 +67,6 @@ def plot_sales_relationships2(df):
         ))
         
         fig.update_layout(
-            title="Cases Sold vs. Revenue",
             xaxis_title="Cases Sold",
             yaxis_title="Total Revenue",
             template="plotly_white",
@@ -94,7 +92,6 @@ def plot_revenue_by_month_and_role(df):
         ))
     
     fig.update_layout(
-        title="Revenue by Month and Role",
         xaxis_title="Month",
         yaxis_title="Total Revenue",
         template="plotly_white",
@@ -132,7 +129,6 @@ def plot_visits_and_travel_distance_by_name(df):
        ))
 
    fig.update_layout(
-       title="Visits and Travel Distance by Rep",
        xaxis_title="Name",
        yaxis_title="Count / Distance",
        barmode='group',

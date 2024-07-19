@@ -177,6 +177,7 @@ def chat_with_agent(input_string, file_path):
     try:
         # Assuming file_path is always CSV after conversion
         df = pd.read_csv(file_path)
+        #api_key = os.getenv('Chat_Api') ,openai_api_key=api_key
         agent = create_csv_agent(
             ChatOpenAI(temperature=0, model="gpt-3.5-turbo"),
             file_path,
@@ -185,8 +186,6 @@ def chat_with_agent(input_string, file_path):
         )
         result = agent.invoke(input_string)
         return result['output']
-    except ImportError as e:
-        raise ValueError("Missing optional dependency 'tabulate'. Use pip or conda to install tabulate.")
     except pd.errors.ParserError as e:
         raise ValueError("Parsing error occurred: " + str(e))
     except Exception as e:
@@ -219,12 +218,15 @@ def cache_df(last_uploaded_file_path):
 
 
 
+        
 def big_main():
     #st.session_state
     df = cache_df(last_uploaded_file_path)
     df.index = range(1, len(df) + 1)
     file_type = identify_file(df)
-    
+
+    #keyy = os.getenv('OPENAI_API_KEY')
+    #st.write(keyy)
     
     if file_type == 'Unknown':
         st.warning(f"This is  {file_type} type report,so this is generated report to it")
@@ -235,6 +237,65 @@ def big_main():
     #col1, col2 = st.columns([1, 1])
     tab1, tab2 = st.tabs(["Chat","Build a chart"])
     #with col1:
+    @st.experimental_dialog("Analyze Selected Data")
+    def AI_info():
+        st.markdown("""
+            <div class="custom-container">
+                <p>By clicking 'Submit', you will be connected to ChatGPT service. All information will be provided directly to the OpenAI server. For more information, read their privacy documents.</p>
+            </div>
+        """, unsafe_allow_html=True)
+    
+        
+        def click_cont_button():
+            st.session_state.continue_clicked = True
+        st.markdown("""
+            <style>
+                .stButton > button {
+                    font-size: 16px;
+                    padding: 10px 20px;
+                }
+                .custom-container {
+                    background-color: #f0f0f0;
+                    border-radius: 10px;
+                    padding: 20px;
+                    text-align: center;
+                }
+                .custom-container h3 {
+                    margin-bottom: 20px;
+                }
+                .custom-container p {
+                    margin-bottom: 30px;
+                }
+                .button-row {
+                    display: flex;
+                    justify-content: center;
+                    gap: 20px;
+                }
+            </style>
+        """, unsafe_allow_html=True)
+        st.markdown("""
+            <style>
+                .stButton > button {
+                    font-size: 16px;
+                    padding: 10px 20px;
+                    width: 450px; /* Custom width */
+                }
+                .stButton > button#continue-button {
+                    background-color: #05ad43; /* Custom green color */
+                    color: white;
+                }
+                .stButton > button#decline-button {
+                    background-color: #f44336; /* Custom red color */
+                    color: white;
+                }
+            </style>
+        """, unsafe_allow_html=True)
+        if st.button('Continue', on_click=click_cont_button, key=30):
+            #\\\
+            st.rerun()#close window
+        if st.button('Decline', key=31):
+            st.rerun()#close window
+    
     with tab1:
         st.info("Chat with GPT")
         
@@ -253,31 +314,41 @@ def big_main():
             input_text = option
             input_text = st.text_area(value=input_text, label='Enter your query:', placeholder="Type your question or message and press ‘Submit’", label_visibility="collapsed")
        #
+        
         if input_text is not None:
             
             #\\
             if 'chat_clicked' not in st.session_state:
                 st.session_state.chat_clicked = False
-
+            if 'continue_clicked' not in st.session_state:
+                st.session_state.continue_clicked = False
+                
             def click_button():
                 st.session_state.chat_clicked = True
+            
+            
+            if st.button('Submit', on_click=click_button, key=1):
+                if st.session_state.continue_clicked == False:
+                    AI_info() 
+                else:
+                    
+                    #$
+                    if st.session_state.chat_clicked:
+                        try:
+                            if "chat_result" not in st.session_state:
+                                #st.session_state["chat_result"] = ''
+                                st.session_state["chat_result"] = chat_with_file(input_text, last_uploaded_file_path)
+                                #chat_result = st.session_state["chat_result"]
+                            else:
+                                st.session_state["chat_result"] = chat_with_file(input_text, last_uploaded_file_path)
+                                #chat_result = st.session_state["chat_result"]
+                            #chat_result = chat_with_file(input_text, last_uploaded_file_path)
+                            if "response" in st.session_state["chat_result"]:
+                                st.success(st.session_state["chat_result"]["response"])
+                            #st.success(st.session_state["chat_result"])
+                        except Exception as e:
+                            st.error(f"An error occurred: {str(e)}")
 
-            st.button('Submit', on_click=click_button, key=1)
-            #\\\
-            if st.session_state.chat_clicked:
-                try:
-                    if "chat_result" not in st.session_state:
-                        #st.session_state["chat_result"] = ''
-                        st.session_state["chat_result"] = chat_with_file(input_text, last_uploaded_file_path)
-                        #chat_result = st.session_state["chat_result"]
-                    else:
-                        st.session_state["chat_result"] = chat_with_file(input_text, last_uploaded_file_path)
-                        #chat_result = st.session_state["chat_result"]
-                    #chat_result = chat_with_file(input_text, last_uploaded_file_path)
-                    if "response" in st.session_state["chat_result"]:
-                        st.success(st.session_state["chat_result"]["response"])
-                except Exception as e:
-                    st.error(f"An error occurred: {str(e)}")
     #with col2:
     with tab2:
         st.info("Build a Chart")
@@ -303,23 +374,30 @@ def big_main():
             #\\
             if 'plot_clicked' not in st.session_state:
                 st.session_state.plot_clicked = False
-
+            if 'continue_clicked' not in st.session_state:
+                st.session_state.continue_clicked = False
+                
             def click_button():
                 st.session_state.plot_clicked = True
 
             
-            st.button('Submit', on_click=click_button, key=2)
-            #\\\
-            if st.session_state.plot_clicked:
-                #st.session_state.click = True
-                st.info("Plotting your Query: " + input_text2)
-                #result = build_some_chart(df, input_text2)
-                try:
-                    plot_result = test_plot_maker(df, input_text2)
-                    st.plotly_chart(plot_result)
-                    #st.success(result)
-                except Exception as e:
-                    st.warning("There is some error with data visualization, try to make query more details")
+            if st.button('Submit', on_click=click_button, key=2):
+                if st.session_state.continue_clicked == False:
+                    AI_info()
+                else:
+                    #\\\
+                    if st.session_state.plot_clicked:
+                        #st.session_state.click = True
+                        st.info("Plotting your Query: " + input_text2)
+                        #result = build_some_chart(df, input_text2)
+                        try:
+                            plot_result = test_plot_maker(df, input_text2)
+                            st.plotly_chart(plot_result)
+                            #st.success(result)
+                        #except Exception as e:
+                        #    raise ValueError(f"An error occurred: {str(e)}")
+                        except Exception as e:
+                            st.warning("There is some error with data visualization, try to make query more details")
     
     
    
@@ -395,7 +473,6 @@ def big_main():
                         # Check the state of the button
                     if condition == True:
                         st.markdown("""
-                    ## Top Customer Insights
                     This chart highlights your top 10 customers by sales revenue. Prioritize these key relationships to drive future sales and consider loyalty programs to encourage repeat business.
                     """)
                     third_party_sales_viz.visualize_sales_trends(df)
@@ -423,8 +500,6 @@ def big_main():
                         # Check the state of the button
                     if condition == True:
                         st.markdown("""
-                        ## Sales by Quantity and Product
-
                         This chart shows how sales revenue varies with the quantity of products sold, broken down by product name. Analyze which products contribute the most at different quantity levels.
                         """)
                     third_party_sales_viz.visualize_combined_analysis(df)
@@ -459,8 +534,6 @@ def big_main():
                         # Check the state of the button
                     if condition == True:
                         st.markdown("""
-                    ## Discount Usage
-
                     This chart presents the distribution of discount types used in orders. It highlights the proportion of orders associated with each discount category.
                     """)
                     third_party_sales_viz.analyze_discounts(df)
@@ -563,21 +636,21 @@ def big_main():
                     with tab1:
                         if condition == True:
                             st.markdown("""
-                            This chart highlights your top 10 customers by sales amount. Use it to:
+                            This pie chart presents the share of total sales revenue generated by each product. It helps you:
 
-                            * **Focus on High-Value Customers:** Prioritize relationships with clients who contribute the most to revenue.
-                            * **Evaluate Sales Performance:** Compare sales contributions and identify potential gaps or disparities.
-                            * **Segment and Target Effectively:** Group similar customers for targeted marketing and tailored offerings.
+                            * **Identify Top Performers:** Quickly see which products contribute the most to overall revenue.
+                            * **Prioritize Product Focus:** Determine where to concentrate marketing and sales efforts for maximum impact.
+                            * **Analyze Performance Trends:** Track changes in product sales contributions over time. 
                             """)
                         order_sales_summary_viz.visualize_product_analysis1(df)
                     with tab2:
                         if condition == True:
                             st.markdown("""
-                            This line chart tracks your overall sales trajectory over time. Use it to:
+                            This bar chart shows the number of orders for each product, providing insights into:
 
-                            * **Identify Sales Patterns:** Spot trends (increasing/decreasing sales), seasonality, and periods of growth or decline.
-                            * **Analyze Monthly Performance:** Investigate months with exceptionally high or low sales to understand contributing factors.
-                            * **Improve Sales Forecasting:** Forecast future sales based on observed trends and seasonality.
+                            * **Product Popularity:** Identify products with high order volumes, indicating popularity or demand.
+                            * **Inventory Planning:** Use order volume to inform inventory management and prevent stock shortages for popular items. 
+                            * **Performance Comparison:** See which products have relatively low order numbers, which might suggest areas for improvement.
                             """)
                         order_sales_summary_viz.visualize_product_analysis2(df)
             else:
@@ -605,10 +678,10 @@ def big_main():
                     with tab1:
                         if condition == True:
                             st.markdown("""
-                            This pie chart shows the proportion of total discounts by type. It helps to:
+                            This chart shows the customers receiving the highest total discounts. It helps to:
 
-                            - **Evaluate Discount Strategy:** Identify which discount types are most impactful.
-                            - **Compare Discount Options:** Spot areas for optimization or experimentation.
+                            - **Align with Customer Strategies:** Ensure discounts align with business goals.
+                            - **Identify Negotiation Patterns:** Spot disparities or patterns in customer agreements.
                             """)
                         order_sales_summary_viz.visualize_discount_analysis1(df)
                     with tab2:
@@ -1083,8 +1156,6 @@ def big_main():
                         # Check the state of the button
                     if condition == True:
                         st.markdown("""
-                        ## Visits vs. Photos: Exploring the Relationship
-
                         These scatter plots analyze the relationship between total visits and the number of photos taken by team members for each role. This visualization helps to understand engagement levels and photo-taking patterns.
                         """)
                     reps_details_viz.plot_visits_vs_photos_separate(df)
@@ -1524,16 +1595,12 @@ def big_main():
                     with tab1:
                         if condition == True:
                             st.markdown("""
-                            ## Low Stock Insights: A Deeper Dive
-
                             This analysis focuses on products with low stock levels. The first chart breaks down these items by category, allowing you to quickly pinpoint areas of concern. The second chart visualizes the relationship between wholesale price and available quantity, offering a more granular perspective on inventory levels for each product.  
                             """)
                         low_stock_inventory_viz.low_stock_analysis_app1(df)
                     with tab2:
                         if condition == True:
                             st.markdown("""
-                            ## Low Stock Insights: A Deeper Dive
-
                             This analysis focuses on products with low stock levels. The first chart breaks down these items by category, allowing you to quickly pinpoint areas of concern. The second chart visualizes the relationship between wholesale price and available quantity, offering a more granular perspective on inventory levels for each product.  
                             """)
                         low_stock_inventory_viz.low_stock_analysis_app2(df)
@@ -1643,8 +1710,6 @@ def big_main():
                         # Check the state of the button
                     if condition == True:
                         st.markdown("""
-                        ## Quantity/Price Ratio: A Closer Look at Low Stock
-
                         This horizontal bar chart visualizes the ratio of available quantity to retail price for each low-stock item. Products with higher ratios might indicate overstocking or potential pricing issues, while those with lower ratios could signal high demand or potential stock shortages.
                         """)
                     low_stock_inventory_viz.create_quantity_price_ratio_plot(df)
@@ -1704,8 +1769,6 @@ def big_main():
                             
                     if condition==True:
                         st.markdown("""
-                        ## Quantity, Price, and Category: A Multi-Factor View
-
                         This scatter plot provides a visual analysis of the interplay between available quantity, retail price, category, and wholesale price. Explore how these factors relate to each other, uncover potential trends within categories, and identify outliers that might require further investigation. Use these insights to inform your pricing, inventory, and product strategies. 
                         """)
                     current_inventory_viz.df_analyze_quantity_vs_retail_price(df)
@@ -1905,8 +1968,6 @@ def big_main():
                         # Check the state of the button
                     if condition == True:
                         st.markdown("""
-                    ## Geographic Insights: Customer Group Distribution
-
                     This interactive visualization explores the distribution of customer groups across different cities. Analyze how customer groups are concentrated or spread out geographically, identify key markets, and uncover potential opportunities for expansion or targeted marketing efforts. 
                     """)
                     top_customers_viz.interactive_group_distribution_app(df)
@@ -1994,8 +2055,6 @@ def big_main():
                         # Check the state of the button
                     if condition == True:
                         st.markdown("""
-                        ## Sales Value Distribution: Insights for Growth
-
                         This visualization reveals how non-zero total sales values are distributed. Use these insights to refine your pricing and promotion strategies, enhance sales forecasting, optimize product development, and effectively manage potential risks.
                         """)
                     customer_details_viz.create_interactive_non_zero_sales_plot(df)
@@ -2159,8 +2218,8 @@ def test_plot_maker(df, text):
     i = 0
 
     goals = [text]
-
-    textgen_config = TextGenerationConfig(n=1, 
+    #viz_key = os.getenv('Visualizations_Api')   , openai_api_key=viz_key
+    textgen_config = TextGenerationConfig(n=1,
                                       temperature=0.1, model="gpt-4o", 
                                       use_cache=True)
 
