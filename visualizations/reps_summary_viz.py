@@ -33,31 +33,29 @@ def preprocess_data(data):
     return data
 
 #Visualize the relationships between Orders/Cases Sold and Revenue
-def plot_sales_relationships(df):
-    tab1, tab2 = st.tabs(["Orders vs. Revenue", "Cases Sold vs. Revenue"])
+def plot_sales_relationships1(df):
+    
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=df["Orders"],
+        y=df["Total revenue"],
+        mode='markers',
+        marker=dict(color='LightSkyBlue', opacity=0.7),
+        text=df["Orders"],
+        hovertemplate="<b>Orders: %{x}</b><br>Total Revenue: %{y}<extra></extra>"
+    ))  
+    fig.update_layout(
+        xaxis_title="Orders",
+        yaxis_title="Total Revenue",
+        template="plotly_white",
+        coloraxis_colorbar=dict(title="Orders")
+    )
+    st.plotly_chart(fig, use_container_width=True)
 
-    with tab1:
-        st.subheader("Orders vs. Revenue")
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(
-            x=df["Orders"],
-            y=df["Total revenue"],
-            mode='markers',
-            marker=dict(color='LightSkyBlue', opacity=0.7),
-            text=df["Orders"],
-            hovertemplate="<b>Orders: %{x}</b><br>Total Revenue: %{y}<extra></extra>"
-        ))  
-        fig.update_layout(
-            title="Orders vs. Revenue",
-            xaxis_title="Orders",
-            yaxis_title="Total Revenue",
-            template="plotly_white",
-            coloraxis_colorbar=dict(title="Orders")
-        )
-        st.plotly_chart(fig)
+    
 
-    with tab2:
-        st.subheader("Cases Sold vs. Revenue")
+
+def plot_sales_relationships2(df):
         fig = go.Figure()
         fig.add_trace(go.Scatter(
             x=df["Cases sold"],
@@ -69,19 +67,12 @@ def plot_sales_relationships(df):
         ))
         
         fig.update_layout(
-            title="Cases Sold vs. Revenue",
             xaxis_title="Cases Sold",
             yaxis_title="Total Revenue",
             template="plotly_white",
             coloraxis_colorbar=dict(title="Cases Sold")
         )
-        st.plotly_chart(fig)
-
-    st.markdown("""
-    ## Revenue Drivers: Orders and Cases Sold
-
-    These scatter plots analyze the relationships between revenue, orders placed, and cases sold. Explore these visualizations to identify key revenue drivers and understand how order volume and sales volume individually influence your bottom line. This can guide your sales strategies for maximizing revenue growth.
-    """)
+        st.plotly_chart(fig, use_container_width=True)
 
 
 #Revenue by Month and Role
@@ -101,7 +92,6 @@ def plot_revenue_by_month_and_role(df):
         ))
     
     fig.update_layout(
-        title="Revenue by Month and Role",
         xaxis_title="Month",
         yaxis_title="Total Revenue",
         template="plotly_white",
@@ -115,13 +105,7 @@ def plot_revenue_by_month_and_role(df):
         )
     )
     
-    st.plotly_chart(fig)
-
-    st.markdown("""
-    ## Revenue Trends: Monthly Performance by Role
-
-    This bar chart presents a breakdown of revenue generated each month, categorized by sales role. Analyze these trends to identify periods of strong performance, potential seasonal variations, and opportunities for targeted improvements in specific months or for particular roles. 
-    """)
+    st.plotly_chart(fig, use_container_width=True)
 
 
 #Visualize visits and travel distance for each name
@@ -145,7 +129,6 @@ def plot_visits_and_travel_distance_by_name(df):
        ))
 
    fig.update_layout(
-       title="Visits and Travel Distance by Rep",
        xaxis_title="Name",
        yaxis_title="Count / Distance",
        barmode='group',
@@ -155,13 +138,7 @@ def plot_visits_and_travel_distance_by_name(df):
        hoverlabel=dict(bgcolor="white", font_size=12)
    )
 
-   st.plotly_chart(fig)
-
-   st.markdown("""
-   ## Individual Performance: Visits and Travel
-
-   This bar chart provides a comparative view of the total visits and travel distance covered by each sales representative. By analyzing individual performance metrics, you can identify top performers, potential areas for improvement in travel efficiency, and opportunities for optimized resource allocation.
-   """)
+   st.plotly_chart(fig, use_container_width=True)
 
 #Visualize the number of cases sold for each day of the week
 def plot_cases_sold_by_day_of_week(df):
@@ -196,13 +173,8 @@ def plot_cases_sold_by_day_of_week(df):
         hovermode="x unified"
     )
 
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
-    ## Sales Patterns: Cases Sold by Day of the Week
-
-    This line chart presents the number of cases sold for each day of the week, highlighting the weekly sales trend. By analyzing these patterns, you can identify peak sales days, understand customer behavior, and optimize resource allocation, such as staffing and marketing efforts, to align with weekly sales trends.
-    """)
 
 #Visualizing Revenue Trends over Time for Each Role
 def plot_revenue_trend_by_month_and_role(df):
@@ -235,13 +207,9 @@ def plot_revenue_trend_by_month_and_role(df):
         legend_title="Role"
     )
 
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
-    ## Revenue Trends: Monthly Performance by Role
-
-    This line chart tracks the revenue generated by Merchandisers and Sales Representatives each month, allowing you to visualize revenue fluctuations and compare performance trends between roles. Analyze these trends to identify seasonal patterns, the impact of sales strategies, and opportunities for growth.
-    """)
+    
 #Exploring the Relationship Between Visits and Orders
 def plot_orders_vs_visits_with_regression(df):
     # Calculate the OLS trendline
@@ -275,7 +243,6 @@ def plot_orders_vs_visits_with_regression(df):
     ))
 
     fig.update_layout(
-        title="Visits vs. Orders: Exploring the Relationship",
         xaxis_title="Visits",
         yaxis_title="Orders",
         template="plotly_white",
@@ -288,15 +255,8 @@ def plot_orders_vs_visits_with_regression(df):
         )
     )
 
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
-    ## Visits vs. Orders: Exploring the Relationship
-
-    This scatter plot, enhanced with a regression line, visualizes the relationship between the number of visits made by sales representatives and the number of orders generated. Analyze this visualization to understand the correlation between visits and orders, identify potential outliers, and gain insights into the effectiveness of sales efforts.
-
-    The trendline represents the best-fit linear relationship between visits and orders. The R² value indicates how well the trendline fits the data, with values closer to 1 suggesting a stronger relationship.
-    """)
 
 #Comparing Performance Metrics for Different Roles
 def plot_multiple_metrics_by_role(df):
@@ -315,7 +275,6 @@ def plot_multiple_metrics_by_role(df):
         ))
 
     fig.update_layout(
-        title="Performance Metrics by Role",
         xaxis_title="Role",
         yaxis_title="Count",
         barmode='group',
@@ -324,13 +283,9 @@ def plot_multiple_metrics_by_role(df):
         hovermode="closest"
     )
 
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
-    ## Comparing Performance: A Role-Based View
-
-    This bar chart provides a comparative overview of key performance metrics (visits, orders, and cases sold) across different sales roles. Analyzing these metrics together can help you identify which roles are excelling in specific areas and pinpoint opportunities for improvement. 
-    """)
+    
 
 #Identifying Potential High-Value Clients
 def plot_revenue_vs_cases_sold_with_size_and_color(df):
@@ -359,17 +314,10 @@ def plot_revenue_vs_cases_sold_with_size_and_color(df):
     ))
 
     fig.update_layout(
-        title="Revenue vs. Cases Sold: Insights from Visits and Travel",
         xaxis_title="Cases Sold",
         yaxis_title="Total Revenue",
         template="plotly_white",
         hovermode="closest"
     )
 
-    st.plotly_chart(fig)
-
-    st.markdown("""
-    ## Multifaceted Sales Analysis: Revenue, Cases Sold, Visits, and Travel 
-
-    This interactive scatter plot provides a comprehensive view of your sales data. Explore the relationship between revenue and cases sold, with the size of each point representing visit frequency and color indicating travel distance. This visualization allows you to uncover deeper insights into the factors influencing sales performance and identify potential areas for optimization.  
-    """)
+    st.plotly_chart(fig, use_container_width=True)

@@ -61,18 +61,11 @@ def analyze_sales_rep_efficiency(df_pd):
     )])
 
     fig.update_layout(
-        title="Distribution of Total Visits by Role",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        title_font=dict(size=20)
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
     )
 
     st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
-    ## Visit Distribution: Understanding Role Contributions
-
-    This interactive donut chart provides a clear picture of how total visits are distributed among your sales roles. By visualizing these proportions, you can gain a better understanding of each role's contribution to overall sales efforts. 
-    """)
 
 
 #Visualizing Customer Engagement: Active Customers vs. Total Visits
@@ -93,7 +86,6 @@ def plot_active_customers_vs_visits(df_pd):
         ))
 
     fig.update_layout(
-        title="Active Customers vs. Total Visits (Sales Reps)",
         xaxis_title="Active Customers",
         yaxis_title="Total Visits",
         colorway=px.colors.qualitative.Set2,  # Set color palette
@@ -103,11 +95,7 @@ def plot_active_customers_vs_visits(df_pd):
 
     st.plotly_chart(fig, use_container_width=True)
     
-    st.markdown("""
-    ## Customer Engagement vs. Sales Activity
-
-    This scatter plot explores the relationship between the number of active customers a sales representative handles and their total number of visits.  By analyzing individual performance and overall trends, you can identify opportunities to optimize sales strategies, resource allocation, and potentially set more effective goals. 
-    """)
+    
 
 
 #Travel Distance vs. Number of Visits
@@ -137,10 +125,8 @@ def plot_travel_efficiency_line(df_pd):
         ))
 
     fig.update_layout(
-        title="Travel Efficiency: Distance vs. Visits",
         xaxis_title="Total Travel Distance (miles)",
         yaxis_title="Total Visits",
-        title_font_size=20,
         legend_title_text="Role",
         colorway=px.colors.qualitative.Set1,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
@@ -149,17 +135,10 @@ def plot_travel_efficiency_line(df_pd):
 
     st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
-    ## Travel Efficiency: Distance vs. Visits
-
-    This scatter plot shows the relationship between total travel distance and the number of visits. Each point represents a team member, colored by their role.
-
-    Use this plot to identify trends, outliers, and opportunities to optimize travel routes.
-    """)
 
 
 #Pure work time per Employee
-def analyze_work_hours_and_distance(df_pd):
+def analyze_work_hours_and_distance1(df_pd):
     """
     Calculates clear work hours and visualizes both clear work hours and
     total travel distance in separate tabs.
@@ -190,55 +169,80 @@ def analyze_work_hours_and_distance(df_pd):
     # Extract numeric part from "Total travel distance" 
     df_pd["Total travel distance"] = df_pd["Total travel distance"].str.extract('(\d+\.?\d*)').astype(float)
 
-    tab1, tab2 = st.tabs(["Pure Work Hours", "Total Travel Distance"])
 
-    with tab1:
-        st.subheader("Top 10 Employees by Work Hours")
-        fig = go.Figure(go.Bar(
-            x=df_pd['Name'],
-            y=df_pd['Pure Work Hours'],
-            text=[f"{x:.1f}h" for x in df_pd['Pure Work Hours']],
-            textposition='outside',
-            marker_color=px.colors.qualitative.Light24,
-            name="Pure Work Hours"
-        ))
-        fig.update_layout(
-            title="Top 10 Employees by Work Hours",
-            xaxis_title="Employee",
-            yaxis_title="Hours",
-            xaxis_tickangle=45,
-            height=500,
-            legend_title="Metrics",
-            margin=dict(l=40, r=40, b=40, t=40)
-        )
-        st.plotly_chart(fig, use_container_width=True)
 
-    with tab2:
-        st.subheader("Top 10 Employees by Travel Distance")
-        fig = go.Figure(go.Bar(
-            x=df_pd['Name'],
-            y=df_pd['Total travel distance'],
-            text=[f"{x:.1f} mi" for x in df_pd['Total travel distance']],
-            textposition='outside',
-            marker_color=px.colors.qualitative.Light24,
-            name="Total Travel Distance"
-        ))
-        fig.update_layout(
-            title="Top 10 Employees by Travel Distance",
-            xaxis_title="Employee",
-            yaxis_title="Miles",
-            xaxis_tickangle=45,
-            height=500,
-            legend_title="Metrics",
-            margin=dict(l=40, r=40, b=40, t=40)
-        )
-        st.plotly_chart(fig, use_container_width=True)
+    fig = go.Figure(go.Bar(
+        x=df_pd['Name'],
+        y=df_pd['Pure Work Hours'],
+        text=[f"{x:.1f}h" for x in df_pd['Pure Work Hours']],
+        textposition='outside',
+        marker_color=px.colors.qualitative.Light24,
+        name="Pure Work Hours"
+    ))
+    fig.update_layout(
+        title="Top 10 Employees by Work Hours",
+        xaxis_title="Employee",
+        yaxis_title="Hours",
+        xaxis_tickangle=45,
+        height=500,
+        legend_title="Metrics",
+        margin=dict(l=40, r=40, b=40, t=40)
+    )
+    st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
-    ## Workload and Travel: Insights into Top Performers
 
-    These bar charts, separated into tabs for easy navigation, highlight the top 10 employees based on pure work hours and total travel distance. Use these visualizations to identify potential workload imbalances, analyze travel patterns, and explore ways to optimize efficiency and resource allocation.
-    """)
+def analyze_work_hours_and_distance2(df_pd):
+    """
+    Calculates clear work hours and visualizes both clear work hours and
+    total travel distance in separate tabs.
+    """
+    df_pd = df_pd.copy()
+
+    def parse_time(time_str):
+        if pd.isna(time_str):
+            return 0
+        import re
+        match = re.match(r'(\d+)h\s*(\d+)m', time_str)
+        if match:
+            h, m = map(int, match.groups())
+        else:
+            match = re.match(r'(\d+)m', time_str)
+            if match:
+                m = int(match.group(1))
+                h = 0
+            else:
+                h, m = 0, 0
+        return h + m / 60
+
+    df_pd['Total working hours'] = df_pd['Total working hours'].apply(parse_time)
+    df_pd['Total break hours'] = df_pd['Total break hours'].apply(parse_time)
+    df_pd['Pure Work Hours'] = df_pd['Total working hours'] - df_pd['Total break hours']
+    df_pd = df_pd.sort_values(by='Pure Work Hours', ascending=False).head(10)
+
+    # Extract numeric part from "Total travel distance" 
+    df_pd["Total travel distance"] = df_pd["Total travel distance"].str.extract('(\d+\.?\d*)').astype(float)
+
+    
+
+
+    fig = go.Figure(go.Bar(
+        x=df_pd['Name'],
+        y=df_pd['Total travel distance'],
+        text=[f"{x:.1f} mi" for x in df_pd['Total travel distance']],
+        textposition='outside',
+        marker_color=px.colors.qualitative.Light24,
+        name="Total Travel Distance"
+    ))
+    fig.update_layout(
+        title="Top 10 Employees by Travel Distance",
+        xaxis_title="Employee",
+        yaxis_title="Miles",
+        xaxis_tickangle=45,
+        height=500,
+        legend_title="Metrics",
+        margin=dict(l=40, r=40, b=40, t=40)
+    )
+    st.plotly_chart(fig, use_container_width=True)
 
 
 #Total Visits vs. Total Photos Taken
@@ -277,13 +281,6 @@ def plot_visits_vs_photos_separate(df_pd):
             )
             st.plotly_chart(fig, use_container_width=True)
 
-    # Provide a brief markdown explanation
-    st.markdown("""
-    ## Visits vs. Photos: Exploring the Relationship
-
-    These scatter plots analyze the relationship between total visits and the number of photos taken by team members for each role. This visualization helps to understand engagement levels and photo-taking patterns.
-    """)
-
 
 #Exploring Customer Distribution Across Sales Representatives
 def analyze_customer_distribution(df_pd):
@@ -305,7 +302,6 @@ def analyze_customer_distribution(df_pd):
     ))
 
     fig.update_layout(
-        title="Assigned Customers per Sales Representative",
         xaxis_title="Sales Representative",
         yaxis_title="Number of Assigned Customers",
         title_font_size=20,
@@ -315,10 +311,5 @@ def analyze_customer_distribution(df_pd):
     )
 
     st.plotly_chart(fig, use_container_width=True)
+  
 
-    # Detailed markdown explanation
-    st.markdown("""
-    ## Understanding Customer Allocation
-
-    The bar plot above shows the number of assigned customers per sales representative. This visualization helps to identify potential imbalances in workload or variations in customer assignments. By analyzing this distribution, you can make informed decisions to optimize sales territories and ensure a more balanced workload across your sales team.
-    """)

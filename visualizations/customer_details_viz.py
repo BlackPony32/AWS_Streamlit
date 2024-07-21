@@ -63,7 +63,6 @@ def plot_orders_and_sales_plotly(df, group_col='Group'):
 
     fig.update_layout(
         barmode='group',
-        title='Comparison of Total Orders and Sales by Customer Group',
         xaxis=dict(
             title='Customer Group',
             tickangle=45,
@@ -79,11 +78,6 @@ def plot_orders_and_sales_plotly(df, group_col='Group'):
     )
     st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
-## Customer Group Performance: Orders & Sales
-
-These visualizations compare total orders and sales for each customer group, revealing valuable insights about your most important customer segments. Use this data to identify high-value customers, understand purchasing behavior, and optimize your sales and marketing strategies.
-""")
 
 #________________________________________________________________
 def bar_plot_sorted_with_percentages(df, col='Payment terms'):
@@ -117,11 +111,7 @@ def bar_plot_sorted_with_percentages(df, col='Payment terms'):
         height=550  # Set the height of the plot
     )
     st.plotly_chart(fig, use_container_width=True)
-    st.markdown("""
-## Payment Terms: Understanding Client Preferences
-
-This visualization shows how your clients are distributed across different payment terms. Use these insights to optimize your cash flow management, tailor your offerings to different customer segments, and make informed decisions about credit risk.
-""")
+    
 #Data distribution visualization function
 def create_interactive_non_zero_sales_plot(df, sales_col='Total sales', threshold=500):
     df_filtered = df[df[sales_col] > 0]
@@ -155,12 +145,8 @@ def create_interactive_non_zero_sales_plot(df, sales_col='Total sales', threshol
         )
     )
 
-    st.plotly_chart(fig)
-    st.markdown("""
-## Sales Value Distribution: Insights for Growth
-
-This visualization reveals how non-zero total sales values are distributed. Use these insights to refine your pricing and promotion strategies, enhance sales forecasting, optimize product development, and effectively manage potential risks.
-""")
+    st.plotly_chart(fig, use_container_width=True)
+    
 #Average total sales by customer group and billing state
 def create_interactive_average_sales_heatmap(df):
     df['Total sales'] = df['Total sales'].apply(pd.to_numeric, errors='coerce')  # Convert to numeric
@@ -178,7 +164,6 @@ def create_interactive_average_sales_heatmap(df):
     ))
 
     fig.update_layout(
-        title="Average Total Sales by Customer Group and State",
         xaxis=dict(
             title="Billing State"
         ),
@@ -188,13 +173,4 @@ def create_interactive_average_sales_heatmap(df):
         height=550  # Set the height of the plot
     )
     st.plotly_chart(fig, use_container_width=True)
-    st.markdown("""
-## Sales Performance: Customer Groups & Geographic Breakdown
-
-This heatmap reveals average total sales across customer groups and states. Use it to:
-
-- **Pinpoint high-performing segments and regions.**
-- **Identify areas for growth and optimization.**
-- **Develop targeted sales and marketing strategies.**
-- **Efficiently allocate resources and manage inventory.**
-""")
+    
