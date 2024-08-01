@@ -1972,8 +1972,8 @@ def big_main():
     elif file_type == "Customer Details report":
         #cc1, cc2 = st.columns([1,1])
         #with cc1:
-            columns = get_csv_columns(last_uploaded_file_path)
-            df = customer_details_viz.preprocess_data(pd.read_csv(last_uploaded_file_path))
+            columns = get_csv_columns(df)
+            customer_details_viz.preprocess_data(df)
             
             if "Group" in columns and "Total orders" in columns and "Total sales" in columns:
                 with st.container(border=True):
