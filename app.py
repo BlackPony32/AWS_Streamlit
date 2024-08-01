@@ -179,7 +179,7 @@ def chat_with_agent(input_string, file_path):
         df = pd.read_csv(file_path)
         #api_key = os.getenv('Chat_Api') ,openai_api_key=api_key
         agent = create_csv_agent(
-            ChatOpenAI(temperature=0, model="gpt-3.5-turbo"),
+            ChatOpenAI(temperature=0, model="gpt-4o"),
             file_path,
             verbose=True,
             agent_type=AgentType.OPENAI_FUNCTIONS
@@ -206,7 +206,6 @@ def fetch_file_info():
         st.error(f"Error fetching file info: {e}")
         return None
 
-@st.cache_data
 def cache_df(last_uploaded_file_path):
     if 'df' not in st.session_state:
             st.session_state["df"] = pd.read_csv(last_uploaded_file_path)
@@ -231,13 +230,15 @@ def big_main():
     if file_type == 'Unknown':
         st.warning(f"This is  {file_type} type report,so this is generated report to it")
     else:
-        st.success(f"This is  {file_type} type. File is available for visualization.")
+        if 'report_name' not in st.session_state:
+            st.session_state["report_name"] = file_type
+        st.success(f"This is  {st.session_state.report_name} type. File is available for visualization.")
         st.dataframe(df,width=2500, use_container_width=False)
     
     #col1, col2 = st.columns([1, 1])
     tab1, tab2 = st.tabs(["Chat","Build a chart"])
     #with col1:
-    @st.experimental_dialog("Analyze Selected Data")
+    @st.experimental_dialog("Analyze Selected Data")  #@st.dialog("Analyze Selected Data") 
     def AI_info():
         st.markdown("""
             <div class="custom-container">
@@ -344,7 +345,8 @@ def big_main():
                                 #chat_result = st.session_state["chat_result"]
                             #chat_result = chat_with_file(input_text, last_uploaded_file_path)
                             if "response" in st.session_state["chat_result"]:
-                                st.success(st.session_state["chat_result"]["response"])
+                                with st.container(border=True):
+                                    st.write(st.session_state["chat_result"]["response"])
                             #st.success(st.session_state["chat_result"])
                         except Exception as e:
                             st.error(f"An error occurred: {str(e)}")
@@ -400,10 +402,7 @@ def big_main():
                             st.warning("There is some error with data visualization, try to make query more details")
     
     
-   
-    
-    
-    
+
     if df.empty:
         st.warning("### This data report is empty - try downloading another one to get better visualizations")
     
@@ -414,8 +413,8 @@ def big_main():
     elif file_type == "3rd Party Sales Summary report":
         #cc1, cc2 = st.columns([1,1])
         #with cc1:
-            columns = get_csv_columns(last_uploaded_file_path)
-            third_party_sales_viz.preprocess_data(pd.read_csv(last_uploaded_file_path))
+            columns = get_csv_columns(df)
+            third_party_sales_viz.preprocess_data(df)
             if "Product name" in columns and "Grand total" in columns:
                 with st.container(border=True):
                     col11, col12 = st.columns([10, 0.45])
@@ -426,7 +425,7 @@ def big_main():
                             font-size:20px !important;
                         }</style>""", unsafe_allow_html=True)
 
-                        st.markdown('<p class="big-font">InvTotal Revenue by Product</p>', unsafe_allow_html=True)
+                        st.markdown('<p class="big-font">Inventory Total Revenue by Product</p>', unsafe_allow_html=True)
                     with col12:
                         if st.button("🛈", key=424, help="Get some plot information", use_container_width=False):
                             #if render_circle_button(22):
@@ -507,7 +506,9 @@ def big_main():
                 st.warning("There is no Delivery status or Product name or Quantity or Grand total, so visualizing can not be ready")
             
         #with cc2:
-            columns = get_csv_columns(last_uploaded_file_path)
+            #if 'df_columns' not in st.session_state:
+            #    st.session_state.df_columns = get_csv_columns(df)
+            #columns = get_csv_columns(df)
             #if "Discount type" in columns and "Total invoice discount" in columns:
             #    third_party_sales_viz.visualize_discount_analysis(df)
             #else:
@@ -522,7 +523,6 @@ def big_main():
                         .big-font {
                             font-size:20px !important;
                         }</style>""", unsafe_allow_html=True)
-
                         st.markdown('<p class="big-font">Dependence between Quantity and Amount (by Product)</p>', unsafe_allow_html=True)
                     with col12:
                         if st.button("🛈", key=427, help="Distribution of Discount Types", use_container_width=False):
@@ -530,7 +530,6 @@ def big_main():
                             condition = True
                         else:
                             condition = False
-
                         # Check the state of the button
                     if condition == True:
                         st.markdown("""
@@ -539,7 +538,6 @@ def big_main():
                     third_party_sales_viz.analyze_discounts(df)
             else:
                 st.warning("There is no Discount type, so visualizing can not be ready")
-            
             if "Grand total" in columns and "Manufacturer specific discount" in columns and "Customer discount" in columns:
                 with st.container(border=True):
                     col11, col12 = st.columns([10, 0.45])
@@ -569,8 +567,8 @@ def big_main():
     elif file_type == "Order Sales Summary report":
         #cc1, cc2 = st.columns([1,1])
         #with cc1:
-            columns = get_csv_columns(last_uploaded_file_path)
-            #df = order_sales_summary_viz.preprocess_data(pd.read_csv(last_uploaded_file_path))
+            columns = get_csv_columns(df)
+            order_sales_summary_viz.preprocess_data(df)
             
             if "Customer" in columns and "Product name" in columns and "Created at" in columns:
                 with st.container(border=True):
@@ -820,8 +818,8 @@ def big_main():
     elif file_type == "Best Sellers report":
         #cc1, cc2 = st.columns([1,1])
         #with cc1:
-            columns = get_csv_columns(last_uploaded_file_path)
-            df = best_sellers_viz.preprocess_data(pd.read_csv(last_uploaded_file_path))
+            columns = get_csv_columns(df)
+            best_sellers_viz.preprocess_data(df)
             
             if "Available cases (QTY)" in columns and "Product name" in columns:
                 with st.container(border=True):
@@ -1012,8 +1010,8 @@ def big_main():
     elif file_type == "Representative Details report":
         #cc1, cc2 = st.columns([1,1])
         #with cc1:
-            columns = get_csv_columns(last_uploaded_file_path)
-            df = reps_details_viz.preprocess_data(pd.read_csv(last_uploaded_file_path))
+            columns = get_csv_columns(df)
+            reps_details_viz.preprocess_data(df)
             
             if "Total working hours" in columns and "Total visits" in columns and "Assigned customers" in columns and "Role"in columns:
                 with st.container(border=True):
@@ -1191,8 +1189,8 @@ def big_main():
     elif file_type == "Reps Summary report":
         #cc1, cc2 = st.columns([1,1])
         #with cc1:
-            columns = get_csv_columns(last_uploaded_file_path)
-            df = reps_summary_viz.preprocess_data(pd.read_csv(last_uploaded_file_path))
+            columns = get_csv_columns(df)
+            reps_summary_viz.preprocess_data(df)
             
             if "Orders" in columns and "Total revenue" in columns and "Cases sold" in columns:
                 with st.container(border=True):
@@ -1422,8 +1420,8 @@ def big_main():
     elif file_type == "SKU's Not Ordered report":
         #cc1, cc2 = st.columns([1,1])
         #with cc1:
-            columns = get_csv_columns(last_uploaded_file_path)
-            df = skus_not_ordered_viz.preprocess_data(pd.read_csv(last_uploaded_file_path))
+            columns = get_csv_columns(df)
+            skus_not_ordered_viz.preprocess_data(df)
             
             if "Category name" in columns:
                 with st.container(border=True):
@@ -1570,8 +1568,8 @@ def big_main():
     elif file_type == "Low Stock Inventory report":
         #cc1, cc2 = st.columns([1,1])
         #with cc1:
-            columns = get_csv_columns(last_uploaded_file_path)
-            df = low_stock_inventory_viz.preprocess_data(pd.read_csv(last_uploaded_file_path))
+            columns = get_csv_columns(df)
+            low_stock_inventory_viz.preprocess_data(df)
             
             if "Category name" in columns and "Product name" in columns and "Available cases (QTY)" in columns and "Wholesale price" in columns:
                 with st.container(border=True):
@@ -1718,8 +1716,8 @@ def big_main():
     elif file_type == "Current Inventory report":
         #cc1, cc2 = st.columns([1,1])
         #with cc1:
-            columns = get_csv_columns(last_uploaded_file_path)
-            df = current_inventory_viz.preprocess_data(pd.read_csv(last_uploaded_file_path))
+            columns = get_csv_columns(df)
+            current_inventory_viz.preprocess_data(df)
 
             if "Available cases (QTY)" in columns and "Wholesale price" in columns and "Category name" in columns:
                 
@@ -1742,8 +1740,7 @@ def big_main():
 
                         # Check the state of the button
                     if condition == True:
-                        st.markdown("""
-                        ## Inventory Value: A Category Breakdown    
+                        st.markdown("""   
                         This bar chart illustrates the proportional distribution of inventory value across different product categories, allowing you to quickly see which categories hold the most significant value within your inventory.
                         """)
                     current_inventory_viz.df_analyze_inventory_value_by_category(df)
@@ -1793,7 +1790,6 @@ def big_main():
                             condition = False
                     if condition==True:
                         st.markdown("""
-                        ## Inventory Value: A Manufacturer Breakdown
                         This bar chart illustrates the proportional distribution of inventory value across different manufacturers. This allows you to see at a glance which manufacturers contribute the most to your overall inventory value. 
                         """)
                     current_inventory_viz.df_analyze_inventory_value_by_manufacturer(df)
@@ -1851,8 +1847,8 @@ def big_main():
     elif file_type == "Top Customers report":
         #cc1, cc2 = st.columns([1,1])
         #with cc1:
-            columns = get_csv_columns(last_uploaded_file_path)
-            df = top_customers_viz.preprocess_data(pd.read_csv(last_uploaded_file_path))
+            columns = get_csv_columns(df)
+            top_customers_viz.preprocess_data(df)
             if "Name" in columns and "Total sales" in columns and "Territory" in columns and "Payment terms" in columns:
                 with st.container(border=True):
                     col11, col12 = st.columns([10, 0.45])
@@ -2094,7 +2090,7 @@ def big_main():
             else:
                 st.warning("There is no Total sales or Group or Billing state columns, so visualizing can not be ready")
     else:
-        df = customer_details_viz.preprocess_data(pd.read_csv(last_uploaded_file_path))
+        df = customer_details_viz.preprocess_data(df)
         
         try:
             st.write(big_summary(last_uploaded_file_path))
@@ -2111,7 +2107,7 @@ def big_main():
 
 
 
-async def main_viz():
+def main_viz():
     global last_uploaded_file_path
 
     try:
@@ -2137,6 +2133,7 @@ async def main_viz():
 
 
     filename = get_file_name()
+    clean_csv_files(UPLOAD_DIR)
     #if "last_uploaded_file_path" not in st.session_state:
     #     st.session_state["last_uploaded_file_path"] = os.path.join(UPLOAD_DIR, filename)
          
@@ -2289,4 +2286,4 @@ def summary_lida(df):
 
 
 if __name__ == "__main__":
-    asyncio.run(main_viz())
+    main_viz()
