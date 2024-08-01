@@ -238,7 +238,7 @@ def big_main():
     #col1, col2 = st.columns([1, 1])
     tab1, tab2 = st.tabs(["Chat","Build a chart"])
     #with col1:
-    @st.experimental_dialog("Analyze Selected Data")  #@st.dialog("Analyze Selected Data") 
+    @st.dialog("Analyze Selected Data")  #@st.dialog("Analyze Selected Data") 
     def AI_info():
         st.markdown("""
             <div class="custom-container">
