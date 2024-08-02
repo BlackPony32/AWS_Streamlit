@@ -67,16 +67,17 @@ def extract_filename(url):
     
     return clean_filename
 
-def get_csv_columns(last_uploaded_file_path):
+def get_csv_columns(df):     #def get_csv_columns(last_uploaded_file_path):
     """
     This function takes the path to a CSV file and returns a list of its column names.
     
     :param last_uploaded_file_path: Path to the CSV file.
+    :param df:  CSV file.
     :return: List of column names.
     """
     try:
         # Read the CSV file into a DataFrame
-        df = pd.read_csv(last_uploaded_file_path)
+        #df = pd.read_csv(last_uploaded_file_path)
         
         # Get the list of columns
         columns = df.columns.tolist()
