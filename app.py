@@ -163,7 +163,9 @@ def chat_with_file(prompt, file_path):
         if file_path is None or not os.path.exists(file_path):
             raise HTTPException(status_code=400, detail=f"No file has been uploaded or downloaded yet {file_path}")
             
-        result = chat_with_agent(prompt, file_path)
+        pre_prompt = f'''Please do not include any tables, graphs, or code imports in your response, just answer to the query and make it attractive: {prompt}'''
+
+        result = chat_with_agent(pre_prompt, file_path)
         
         return {"response": result}
 
@@ -301,10 +303,12 @@ def big_main():
         st.info("Chat with GPT")
         
         option = st.selectbox(
-            "Perhaps one of the following questions will work for you?",
-            ("Write some short useful information about my data as business owner",
-             "Write top 3 useful dependecy from data that i should know",
-             "Can you extract and summarize the most important performance metrics from this data file?"),
+            "Choose a query to analyze your CSV data:",
+            ("Provide a brief summary of key insights for a business owner",
+             "Identify the top 3 critical dependencies in the data",
+             "Summarize the most important performance metrics from this CSV",
+             "Highlight any significant trends or patterns in the data",
+             "Generate a concise report of data anomalies or outliers"),
             index=None,
             placeholder="Select one of the frequently asked questions?",
             label_visibility="collapsed")
@@ -347,7 +351,8 @@ def big_main():
                             if "response" in st.session_state["chat_result"]:
                                 with st.container(border=True):
                                     st.write(st.session_state["chat_result"]["response"])
-                            #st.success(st.session_state["chat_result"])
+                            else:
+                                st.success("There is some error occurred, try to give more details to your prompt")
                         except Exception as e:
                             st.error(f"An error occurred: {str(e)}")
 
