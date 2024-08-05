@@ -217,8 +217,18 @@ def cache_df(last_uploaded_file_path):
         st.warning("There is some error with data, try to update the session")
     return df
 
+def format_phone_number(phone_number):
+    phone_str = str(phone_number)
+    if len(phone_str) == 11 and phone_str.startswith("1"):
+        return f"+{phone_str[0]} ({phone_str[1:4]}) {phone_str[4:7]}-{phone_str[7:]}"
+    elif len(phone_str) == 10:
+        return f"({phone_str[:3]}) {phone_str[3:6]}-{phone_str[6:]}"
+    else:
+        return phone_str
 
-
+#def format_id(id):
+#    id = int(id)
+#    return id
         
 def big_main():
     #st.session_state
@@ -235,8 +245,12 @@ def big_main():
         if 'report_name' not in st.session_state:
             st.session_state["report_name"] = file_type
         st.success(f"This is  {st.session_state.report_name} type. File is available for visualization.")
-        st.dataframe(df,width=2500, use_container_width=False)
-    
+        if file_type == "Representative Details report":
+            df['Phone number'] = df['Phone number'].apply(format_phone_number)
+            st.dataframe(df,width=2500, use_container_width=False)
+        else:
+            st.dataframe(df,width=2500, use_container_width=False)
+
     #col1, col2 = st.columns([1, 1])
     tab1, tab2 = st.tabs(["Chat","Build a chart"])
     #with col1:
@@ -2135,7 +2149,6 @@ def main_viz():
         
     url_name = st.session_state["url"]
     file_name_ = st.session_state["file_name"]
-
 
     filename = get_file_name()
     clean_csv_files(UPLOAD_DIR)
