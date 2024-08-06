@@ -34,8 +34,8 @@ load_dotenv()
 
 fastapi_url = os.getenv('FASTAPI_URL')
 
-
-st.set_page_config( page_icon='icon.ico', page_title="SimplyDepo report")
+file_type = identify_file()
+st.set_page_config( page_icon='icon.ico', page_title=file_type)
 css='''
 <style>
     section.main > div {max-width:75rem}
@@ -226,28 +226,45 @@ def format_phone_number(phone_number):
     else:
         return phone_str
 
-#def format_id(id):
-#    id = int(id)
-#    return id
+def add_dollar_sign(value):
+    try:
+        # Only format if value is numeric and doesn't already start with $
+        if not str(value).startswith('$'):
+            return f"${float(value):.2f}"
+        else:
+            return value
+    except ValueError:
+        return value
         
 def big_main():
     #st.session_state
     df = cache_df(last_uploaded_file_path)
     df.index = range(1, len(df) + 1)
-    file_type = identify_file(df)
+    file_type = identify_file()
 
     #keyy = os.getenv('OPENAI_API_KEY')
     #st.write(keyy)
-    
+
+    # #
     if file_type == 'Unknown':
         st.warning(f"This is  {file_type} type report,so this is generated report to it")
     else:
         if 'report_name' not in st.session_state:
             st.session_state["report_name"] = file_type
         st.success(f"This is  {st.session_state.report_name} type. File is available for visualization.")
+        
         if file_type == "Representative Details report":
-            df['Phone number'] = df['Phone number'].apply(format_phone_number)
-            st.dataframe(df,width=2500, use_container_width=False)
+            df_show = df.copy()
+            df_show['Id'] = df_show['Id'].astype(str)
+            df_show['Phone number'] = df_show['Phone number'].apply(format_phone_number)
+            st.dataframe(df_show,width=2500, use_container_width=False)
+        
+        elif file_type == "Current Inventory report":
+            # Apply formatting to the price columns
+            df_show = df.copy()
+            df_show['Wholesale price'] = df_show['Wholesale price'].apply(add_dollar_sign)
+            df_show['Retail price'] = df_show['Retail price'].apply(add_dollar_sign)
+            st.dataframe(df_show,width=2500, use_container_width=False)
         else:
             st.dataframe(df,width=2500, use_container_width=False)
 
@@ -317,7 +334,7 @@ def big_main():
         st.info("Chat with GPT")
         
         option = st.selectbox(
-            "Choose a query to analyze your CSV data:",
+            "Choose a query to analyze your CSV data:",  #label is not visible
             ("Provide a brief summary of key insights for a business owner",
              "Identify the top 3 critical dependencies in the data",
              "Summarize the most important performance metrics from this CSV",
@@ -327,15 +344,13 @@ def big_main():
             placeholder="Select one of the frequently asked questions?",
             label_visibility="collapsed")
        #
+
         if option is None:
             input_text = st.text_area(label='Enter your query:', placeholder="Enter your request to start a chat", label_visibility="collapsed")
         else:
-            input_text = option
-            input_text = st.text_area(value=input_text, label='Enter your query:', placeholder="Type your question or message and press ‘Submit’", label_visibility="collapsed")
+            input_text = st.text_area(value=option, label='Enter your query:', placeholder="Type your question or message and press ‘Submit’", label_visibility="collapsed")
        #
-        
         if input_text is not None:
-            
             #\\
             if 'chat_clicked' not in st.session_state:
                 st.session_state.chat_clicked = False
@@ -344,13 +359,16 @@ def big_main():
                 
             def click_button():
                 st.session_state.chat_clicked = True
+                #st.rerun()
             
+            #if "but_name" not in st.session_state:
+            #    st.session_state.but_name = 'Let me know if you have any questions'
             
-            if st.button('Submit', on_click=click_button, key=1):
+            if st.button('Let me know if you have any questions', on_click=click_button, key=1):
                 if st.session_state.continue_clicked == False:
                     AI_info() 
                 else:
-                    
+                    #st.session_state.but_name = 'Submit'
                     #$
                     if st.session_state.chat_clicked:
                         try:

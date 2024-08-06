@@ -17,12 +17,12 @@ def get_file_name():
     except Exception as e:
         return "Invalid File"
 
-def identify_file(uploaded_file):
+def identify_file():
     try:
         file_name = get_file_name()
-        last_uploaded_file_path = os.path.join(UPLOAD_DIR, file_name)
-        df = pd.read_csv(last_uploaded_file_path, encoding='utf-8')
-        columns = set(df.columns)
+        #last_uploaded_file_path = os.path.join(UPLOAD_DIR, file_name)
+        #df = pd.read_csv(last_uploaded_file_path, encoding='utf-8')
+        #columns = set(df.columns)
 
         
         # Identify file type based on columns
@@ -47,7 +47,7 @@ def identify_file(uploaded_file):
         elif file_name == 'customer_details.csv':
             return "Customer Details report"
         else:
-            return "Unknown"
+            return "SimplyDepo report"
         
 
 
