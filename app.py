@@ -185,7 +185,7 @@ def add_dollar_sign(value):
         return value
         
 def big_main():
-    st.write(st.session_state)
+    #st.write(st.session_state)
     df = cache_df(last_uploaded_file_path)
     df.index = range(1, len(df) + 1)
     file_type = identify_file()
