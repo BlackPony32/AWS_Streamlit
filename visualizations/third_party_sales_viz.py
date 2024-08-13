@@ -42,20 +42,32 @@ def preprocess_data(data):
     return data
 
 #Total sales
-def visualize_product_analysis1(data, product_col='Product name', grand_total_col='Grand total'):
+def visualize_product_analysis1(data, product_col='Product name', grand_total_col='Grand total', threshold=0.03):
     product_data = data.groupby(product_col)[grand_total_col].agg(['sum', 'count']).sort_values(by='sum', ascending=False)
-
+    
+    # Calculate percentages
+    product_data['percentage'] = product_data['count'] / product_data['count'].sum()
+    
+    # Group smaller categories into 'Other'
+    other_data = product_data[product_data['percentage'] < threshold]
+    main_data = product_data[product_data['percentage'] >= threshold]
+    
+    if not other_data.empty:
+        other_sum = other_data['count'].sum()
+        other_row = pd.DataFrame({'sum': [other_data['sum'].sum()], 'count': [other_sum], 'percentage': [other_sum / product_data['count'].sum()]}, index=['Other'])
+        main_data = pd.concat([main_data, other_row])
     
     # Pie chart
     fig = go.Figure(data=[go.Pie(
-        labels=product_data.index,
-        values=product_data['count'],
+        labels=main_data.index,
+        values=main_data['count'],
         textinfo='percent+label',
         hovertemplate='<b>%{label}</b><br>Orders: %{value}<br>Percentage: %{percent}<extra></extra>'
     )])
     
     fig.update_layout(
-        hoverlabel=dict(bgcolor="white", font_size=12)
+        hoverlabel=dict(bgcolor="white", font_size=12),
+        margin=dict(t=0, b=0, l=0, r=0)
     )
     
     st.plotly_chart(fig, use_container_width=True)

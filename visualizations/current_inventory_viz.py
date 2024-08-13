@@ -178,7 +178,6 @@ def df_analyze_inventory_value_per_unit(df):
     # Group by 'Product name' and sum the 'Total Value'
     product_value = df.groupby("Product name")["Total Value"].sum().reset_index()
 
-    # Create the bar chart using plotly.graph_objects
     fig = go.Figure()
 
     for _, row in product_value.iterrows():
@@ -214,15 +213,28 @@ def df_analyze_inventory_value_per_unit(df):
     
 
 # Comparing Average Retail Prices Across Categories
-def df_compare_average_retail_prices(df):
+def df_compare_average_retail_prices(df, threshold=0.01):
+    # Convert 'Retail price' to numeric if necessary
     if df['Retail price'].dtype == 'object':
-        df['Retail price'] = pd.to_numeric(df['Retail price'].str.replace(',', '').str.replace('$ ', ''))
+        df['Retail price'] = pd.to_numeric(df['Retail price'].str.replace(',', '').str.replace('$ ', ''), errors='coerce')
+
     average_prices = df.groupby("Category name")["Retail price"].mean()
     
-    # Create the pie chart using plotly.graph_objects
+    total_sum = average_prices.sum()
+    average_prices_percentage = average_prices / total_sum
+    
+    # Group smaller categories into 'Other'
+    main_data = average_prices[average_prices_percentage >= threshold]
+    other_data = average_prices[average_prices_percentage < threshold]
+    
+    if not other_data.empty:
+        other_sum = other_data.sum()
+        main_data['Other'] = other_sum
+    
+    # Create the pie chart
     fig = go.Figure(data=[go.Pie(
-        values=average_prices.values,
-        labels=average_prices.index,
+        values=main_data.values,
+        labels=main_data.index,
         hole=0.3,  # Create a donut chart
         marker=dict(colors=px.colors.qualitative.Vivid),
         textinfo='percent+label',
@@ -232,7 +244,8 @@ def df_compare_average_retail_prices(df):
     )])
 
     fig.update_layout(
-        showlegend=True
+        showlegend=True,
+        margin=dict(t=0, b=0, l=0, r=0)
     )
 
     st.plotly_chart(fig, use_container_width=True)

@@ -46,7 +46,6 @@ def create_unordered_products_by_category_plot(df):
     ))
     
     fig.update_layout(
-        title="Unordered Products by Category",
         xaxis_title="Category",
         yaxis_title="Number of Unordered Products",
         xaxis_tickangle=45,
@@ -91,8 +90,6 @@ def create_available_cases_distribution_plot(df):
 
 
 def price_vs_available_cases_app(df):
-    st.title("Average Available Cases by Price Range and Category")
-
     category_options = df['Category name'].unique()
     selected_category = st.selectbox("Select a Category", category_options)
 

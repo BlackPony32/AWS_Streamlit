@@ -271,7 +271,6 @@ def plot_visits_vs_photos_separate(df_pd):
             ))
 
             fig.update_layout(
-                title=f"Visits vs. Photos ({role})",
                 xaxis_title="Total Visits",
                 yaxis_title="Total Photos",
                 template="plotly_white",
@@ -304,7 +303,6 @@ def analyze_customer_distribution(df_pd):
     fig.update_layout(
         xaxis_title="Sales Representative",
         yaxis_title="Number of Assigned Customers",
-        title_font_size=20,
         xaxis_tickangle=-45,
         template="plotly_white",
         coloraxis_colorbar=dict(title="Assigned Customers")

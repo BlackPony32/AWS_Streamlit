@@ -15,6 +15,7 @@ uvicorn
 tabulate
 openpyxl
 streamlit
+streamlit-extras
 plotly
 statsmodels
 pandasai
