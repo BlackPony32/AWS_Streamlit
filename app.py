@@ -97,7 +97,7 @@ def chat_with_file(prompt, file_path):
         if file_path is None or not os.path.exists(file_path):
             raise HTTPException(status_code=400, detail=f"No file has been uploaded or downloaded yet {file_path}")
             
-        pre_prompt = f'''Please do not include any tables, graphs, or code imports in your response, just answer to the query and make it attractive: {prompt}'''
+        pre_prompt = f'''Please do not include any tables, graphs, or code imports in your response, just answer to the query and make it attractive: {prompt} ?'''
 
         result = chat_with_agent(pre_prompt, file_path)
         
@@ -183,7 +183,7 @@ def add_dollar_sign(value):
             return value
     except ValueError:
         return value
-        
+
 def big_main():
     #st.write(st.session_state)
     df = cache_df(last_uploaded_file_path)
@@ -253,7 +253,7 @@ def big_main():
                 elif file_type == "Top Customers report":
                     df_show = df.copy()
                     #df_show['Phone number'] = df_show['Phone number'].apply(format_phone_number)  #error with this report
-                    df_show['Contact phone'] = df_show['Contact phone'].apply(format_phone_number)  #error with this report
+                    #df_show['Contact phone'] = df_show['Contact phone'].apply(format_phone_number)  #TODO error with this report
                     df_show['Total sales'] = df_show['Total sales'].apply(add_dollar_sign)
                     st.dataframe(df_show,width=2500, use_container_width=False)
                 
@@ -330,7 +330,7 @@ def big_main():
                 margin: 4px 2px;
                 border-style: solid;
                 width: 110px;
-                height: 50px;
+                height: 55px;
                 line-height: 30px;
                 position: relative;
             }""",
@@ -407,7 +407,7 @@ def big_main():
                     ):
                     tab1, tab2 = st.tabs(["Chat","Build a chart"])
                     #with col1:
-                    @st.dialog("Analyze Selected Data")  #@st.dialog("Analyze Selected Data") 
+                    @st.dialog("Analyze Selected Data")
                     def AI_info():
                         def click_cont_button():
                             st.session_state.continue_clicked = True
@@ -495,6 +495,9 @@ def big_main():
                             st.rerun() #close window
 
                     with tab1:
+                        if 'input_text' not in st.session_state:
+                            st.session_state.input_text = ''
+                            
                         st.info("Chat with GPT")
 
                         option = st.selectbox(
@@ -507,26 +510,34 @@ def big_main():
                             index=None,
                             placeholder="Select one of the frequently asked questions?",
                             label_visibility="collapsed")
-                   #    
 
+                        def update_text():
+                            st.session_state['input_text'] = st.session_state['my_input']
+                            
+                            
                         if option is None:
-                            input_text = st.text_area(label='Enter your query:', placeholder="Enter your request to start a chat", label_visibility="collapsed")
+                            st.session_state['input_text'] = st.text_area(label='Enter your query:', key='my_input' , placeholder="Enter your request to start a chat", label_visibility="collapsed", on_change=update_text)
+                            st.write(f"Current text in func: {st.session_state['input_text']}")
+                            input_text = st.session_state['input_text']
                         else:
-                            input_text = st.text_area(value=option, label='Enter your query:', placeholder="Type your question or message and press ‘Submit’", label_visibility="collapsed")
-                   #    
+                            st.session_state['input_text'] = st.text_area(value=option, label='Enter your query:', placeholder="Type your question or message and press ‘Submit’", label_visibility="collapsed", on_change=update_text)
+                            option = None
+                            input_text = st.session_state['input_text']
+                   
                         if input_text is not None:
                             #\\
+                            
                             if 'chat_clicked' not in st.session_state:
                                 st.session_state.chat_clicked = False
+                            
                             if 'continue_clicked' not in st.session_state:
                                 st.session_state.continue_clicked = False
 
                             def click_button():
+                                #global user_prompt
+                                #user_prompt = input_text
                                 st.session_state.chat_clicked = True
-                                #st.rerun()
 
-                            #if "but_name" not in st.session_state:
-                            #    st.session_state.but_name = 'Let me know if you have any questions'
 
                             with stylable_container(
                                 key="custom-Submit1_button",
@@ -563,41 +574,67 @@ def big_main():
                                     ):
                                 button_Submit1 = st.button('Submit', on_click=click_button, key=1)
 
-                            if button_Submit1:
+                            if st.session_state.chat_clicked == True:
                                 if st.session_state.continue_clicked == False:
                                     AI_info() 
                                 else:
-                                    #st.session_state.but_name = 'Submit'
-                                    #$
+
                                     if st.session_state.chat_clicked:
+                                        if 'input_text' in st.session_state:
+                                            #st.write(f"Current text: {st.session_state['input_text']}")
+                                            user_prompt = st.session_state['input_text']
+                                        
+                                        #st.session_state.chat_clicked = False #TODO real needed?
                                         try:
                                             if "chat_result" not in st.session_state:
-                                                #st.session_state["chat_result"] = ''
-                                                st.session_state["chat_result"] = chat_with_file(input_text, last_uploaded_file_path)
+                                                #st.write(user_prompt)
+                                                st.session_state["chat_result"] = chat_with_file(user_prompt, last_uploaded_file_path)
                                                 #chat_result = st.session_state["chat_result"]
-                                            else:
-                                                st.session_state["chat_result"] = chat_with_file(input_text, last_uploaded_file_path)
-                                                #chat_result = st.session_state["chat_result"]
-                                            #chat_result = chat_with_file(input_text, last_uploaded_file_path)
-                                            if "response" in st.session_state["chat_result"]:
-                                                # Inject custom CSS for answer container
-                                                st.write("""
-                                                <style>
-                                                  div[data-testid="stVerticalBlockBorderWrapper"]:has(
-                                                    >div>div>div[data-testid="element-container"] 
-                                                    .red-frame
-                                                  ) {
-                                                    outline: 2px solid #47A06D;
-                                                    border-radius: 12px; 
-                                                  }
-                                                </style>
-                                                """, unsafe_allow_html=True)
-                                                with st.container(border=True):
-                                                    st.write('<span class="red-frame"/>', unsafe_allow_html=True)
-                                                    st.write(st.session_state["chat_result"]["response"])
+                                                #chat_result = chat_with_file(input_text, last_uploaded_file_path)
+                                                if "response" in st.session_state["chat_result"]:
+                                                    # Inject custom CSS for answer container
+                                                    st.write("""
+                                                    <style>
+                                                      div[data-testid="stVerticalBlockBorderWrapper"]:has(
+                                                        >div>div>div[data-testid="element-container"] 
+                                                        .red-frame
+                                                      ) {
+                                                        outline: 2px solid #47A06D;
+                                                        border-radius: 12px; 
+                                                      }
+                                                    </style>
+                                                    """, unsafe_allow_html=True)
+                                                    with st.container(border=True):
+                                                        st.write('<span class="red-frame"/>', unsafe_allow_html=True)
+                                                        st.write(st.session_state["chat_result"]["response"])
 
+                                                else:
+                                                    st.success("There is some error occurred, try to give more details to your prompt")
+                                        
                                             else:
-                                                st.success("There is some error occurred, try to give more details to your prompt")
+                                                st.session_state["chat_result"] = chat_with_file(user_prompt, last_uploaded_file_path)
+                                                #chat_result = st.session_state["chat_result"]
+                                                #chat_result = chat_with_file(input_text, last_uploaded_file_path)
+                                                if "response" in st.session_state["chat_result"]:
+                                                    # Inject custom CSS for answer container
+                                                    st.write("""
+                                                    <style>
+                                                      div[data-testid="stVerticalBlockBorderWrapper"]:has(
+                                                        >div>div>div[data-testid="element-container"] 
+                                                        .red-frame
+                                                      ) {
+                                                        outline: 2px solid #47A06D;
+                                                        border-radius: 12px; 
+                                                      }
+                                                    </style>
+                                                    """, unsafe_allow_html=True)
+                                                    with st.container(border=True):
+                                                        st.write('<span class="red-frame"/>', unsafe_allow_html=True)
+                                                        st.write(st.session_state["chat_result"]["response"])
+
+                                                else:
+                                                    st.success("There is some error occurred, try to give more details to your prompt")
+
                                         except Exception as e:
                                             st.error(f"An error occurred: {str(e)}")
 
