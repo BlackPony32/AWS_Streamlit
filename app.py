@@ -196,7 +196,7 @@ def big_main():
     if 'input_text' not in st.session_state:
         st.session_state.input_text = ''
     if 'my_input' not in st.session_state:
-        st.session_state.input_text = ''
+        st.session_state.my_input = ''
     if 'chat_clicked' not in st.session_state:
         st.session_state.chat_clicked = False
     if 'continue_clicked' not in st.session_state:
