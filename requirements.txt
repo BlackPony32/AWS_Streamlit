@@ -16,6 +16,7 @@ tabulate
 openpyxl
 streamlit
 streamlit-extras
+streamlit-keyup
 plotly
 statsmodels
 pandasai

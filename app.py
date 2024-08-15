@@ -1,5 +1,6 @@
 import streamlit as st
 from streamlit_extras.stylable_container import stylable_container
+from st_keyup import st_keyup
 import pandas as pd
 import os
 import openai
@@ -195,8 +196,12 @@ def big_main():
         st.session_state.AI_appear = False
     if 'input_text' not in st.session_state:
         st.session_state.input_text = ''
+    if 'input_text_img' not in st.session_state:
+        st.session_state.input_text_img = ''
     if 'my_input' not in st.session_state:
         st.session_state.my_input = ''
+    if 'my_input_img' not in st.session_state:
+        st.session_state.my_input_img = ''
     if 'chat_clicked' not in st.session_state:
         st.session_state.chat_clicked = False
     if 'continue_clicked' not in st.session_state:
@@ -254,20 +259,26 @@ def big_main():
                     df_show = df.copy()
                     df_show['Id'] = df_show['Id'].apply(id_str)
                     df_show['Phone number'] = df_show['Phone number'].apply(format_phone_number)
-                    st.dataframe(df_show,width=2500, use_container_width=False)
-                
+                    try:
+                        st.dataframe(df_show, use_container_width=False)
+                    except:
+                        st.warning("Data display error, try reloading the report")
                 elif file_type == "Customer Details report":
                     df_show = df.copy()
                     #df_show['Phone number'] = df_show['Phone number'].apply(format_phone_number)  #error with this report
-                    st.dataframe(df_show,width=2500, use_container_width=False)
-                    
+                    try:
+                        st.dataframe(df_show, use_container_width=False)
+                    except:
+                        st.warning("Data display error, try reloading the report")
                 elif file_type == "Top Customers report":
                     df_show = df.copy()
                     #df_show['Phone number'] = df_show['Phone number'].apply(format_phone_number)  #error with this report
                     #df_show['Contact phone'] = df_show['Contact phone'].apply(format_phone_number)  #TODO error with this report
                     df_show['Total sales'] = df_show['Total sales'].apply(add_dollar_sign)
-                    st.dataframe(df_show,width=2500, use_container_width=False)
-                
+                    try:
+                        st.dataframe(df_show, use_container_width=False)
+                    except:
+                        st.warning("Data display error, try reloading the report")
                 elif file_type == "Order Sales Summary report":
                     df_show = df.copy()
                     df_show['Id'] = df_show['Id'].apply(id_str)
@@ -278,34 +289,44 @@ def big_main():
                     df_show['Total invoice discount'] = df_show['Total invoice discount'].apply(add_dollar_sign)
                     df_show['Customer discount'] = df_show['Customer discount'].apply(add_dollar_sign)
                     df_show['Balance'] = df_show['Balance'].apply(add_dollar_sign)
-                    st.dataframe(df_show,width=2500, use_container_width=False)
-                
+                    try:
+                        st.dataframe(df_show, use_container_width=False)
+                    except:
+                        st.warning("Data display error, try reloading the report")
                 elif file_type == "SKU's Not Ordered report":
                     df_show = df.copy()
                     df_show['Wholesale price'] = df_show['Wholesale price'].apply(add_dollar_sign)
                     df_show['Retail price'] = df_show['Retail price'].apply(add_dollar_sign)
                     df_show['Total revenue'] = df_show['Total revenue'].apply(add_dollar_sign)
-                    st.dataframe(df_show,width=2500, use_container_width=False)
-                
+                    try:
+                        st.dataframe(df_show, use_container_width=False)
+                    except:
+                        st.warning("Data display error, try reloading the report")
                 elif file_type == "Reps Summary report":
                     df_show = df.copy()
                     df_show['Id'] = df_show['Id'].apply(id_str)
                     df_show['Total revenue'] = df_show['Total revenue'].apply(add_dollar_sign)
-                    st.dataframe(df_show,width=2500, use_container_width=False)
-                
+                    try:
+                        st.dataframe(df_show, use_container_width=False)
+                    except:
+                        st.warning("Data display error, try reloading the report")
                 elif file_type == "Low Stock Inventory report":
                     df_show = df.copy()
                     df_show['Wholesale price'] = df_show['Wholesale price'].apply(add_dollar_sign)
                     df_show['Retail price'] = df_show['Retail price'].apply(add_dollar_sign)
-                    st.dataframe(df_show,width=2500, use_container_width=False)
-
+                    try:
+                        st.dataframe(df_show, use_container_width=False)
+                    except:
+                        st.warning("Data display error, try reloading the report")
                 elif file_type =="Best Sellers report":
                     df_show = df.copy()
                     df_show['Wholesale price'] = df_show['Wholesale price'].apply(add_dollar_sign)
                     df_show['Retail price'] = df_show['Retail price'].apply(add_dollar_sign)
                     df_show['Total revenue'] = df_show['Total revenue'].apply(add_dollar_sign)
-                    st.dataframe(df_show,width=2500, use_container_width=False)
-
+                    try:
+                        st.dataframe(df_show, use_container_width=False)
+                    except:
+                        st.warning("Data display error, try reloading the report")
                 elif file_type == "3rd Party Sales Summary report":
                     df_show = df.copy()
                     df_show['Id'] = df_show['Id'].apply(id_str)
@@ -314,13 +335,18 @@ def big_main():
                     df_show['Manufacturer specific discount'] = df_show['Manufacturer specific discount'].apply(add_dollar_sign)
                     df_show['Total invoice discount'] = df_show['Total invoice discount'].apply(add_dollar_sign)
                     df_show['Customer discount'] = df_show['Customer discount'].apply(add_dollar_sign)
-                    st.dataframe(df_show,width=2500, use_container_width=False)
-
+                    try:
+                        st.dataframe(df_show, use_container_width=False)
+                    except:
+                        st.warning("Data display error, try reloading the report")
                 elif file_type == "Current Inventory report":
                     df_show = df.copy()
                     df_show['Wholesale price'] = df_show['Wholesale price'].apply(add_dollar_sign)
                     df_show['Retail price'] = df_show['Retail price'].apply(add_dollar_sign)
-                    st.dataframe(df_show,width=2500, use_container_width=False)
+                    try:
+                        st.dataframe(df_show, use_container_width=False)
+                    except:
+                        st.warning("Data display error, try reloading the report")
                 else:
                     st.dataframe(df,width=2500, use_container_width=False)
     except:
@@ -516,24 +542,32 @@ def big_main():
                              "Generate a concise report of data anomalies or outliers"),
                             index=None,
                             placeholder="Select one of the frequently asked questions?",
-                            label_visibility="collapsed")
+                            label_visibility="collapsed",
+                            key="selected_1")
 
                         def update_text():
                             st.session_state['input_text'] = st.session_state['my_input']
 
                         if option is None:
-                            st.session_state['input_text'] = st.text_area(label='Enter your query:', key='my_input' , placeholder="Enter your request to start a chat", label_visibility="collapsed", on_change=update_text)
+                            value = st_keyup(label='Enter your query:',debounce=400, key='my_input' , placeholder="Enter your request to start a chat", label_visibility="collapsed", on_change=update_text)
+                            st.session_state['input_text'] = value
                             #st.write(f"Current text in func: {st.session_state['input_text']}")
                             input_text = st.session_state['input_text']
+                            #option = None
+                            
                         else:
-                            st.session_state['input_text'] = st.text_area(value=option, label='Enter your query:', placeholder="Type your question or message and press ‘Submit’", label_visibility="collapsed", on_change=update_text)
-                            option = None
+                            value = st_keyup(value=option,debounce=500, label='Enter your query:', placeholder="Type your question or message and press ‘Submit’", label_visibility="collapsed", on_change=update_text,key="1100")
+                            st.session_state['input_text'] = value
+                            #option = None
+                            
                             input_text = st.session_state['input_text']
-                   
+                            
+                        st.success("Solving your Query: " + input_text)
                         if input_text is not None:
                             #\\
                             def click_button():
                                 st.session_state.chat_clicked = True
+                                
 
 
                             with stylable_container(
@@ -650,13 +684,19 @@ def big_main():
                             placeholder="Select one of the frequently asked questions?",
                             label_visibility="collapsed",
                             key=322)
-
+                        def update_text_img():
+                            st.session_state['input_text_img'] = st.session_state['my_input_img']
+                            
+                    
                         if option1 is None:
-                            input_text2 =st.text_area(label = 'Enter your query for the plot', placeholder = "Enter your request to generate a chart", label_visibility="collapsed")
+                            st.session_state['input_text_img'] = st.text_area(label='Enter your query for the plot', key='my_input_img' , placeholder="Enter your request to start a chat", label_visibility="collapsed", on_change=update_text_img)
+                            #st.write(f"Current text in func: {st.session_state['input_text_img']}")
+                            input_text2 = st.session_state['input_text_img']
+                            option1 = None
                         else:
-                            input_text2 = option1
-                            input_text2 =st.text_area(value=input_text2, label = 'Enter your query for the plot', placeholder = "Enter your query to generate a chart and press ‘Submit’", label_visibility="collapsed")
-
+                            st.session_state['input_text_img'] = st.text_area(value=option1, label='Enter your query for the plot', placeholder = "Enter your request to generate a chart", label_visibility="collapsed", on_change=update_text_img)
+                            option1 = None
+                            input_text2 = st.session_state['input_text_img']
 
                         if input_text2 is not None:
                             #\\
@@ -711,8 +751,9 @@ def big_main():
                                     #\\\
                                     if st.session_state.plot_clicked:
                                         #st.session_state.click = True
-                                        st.info("Plotting your Query: " + input_text2)
+                                        st.success("Plotting your Query: " + input_text2)
                                         #result = build_some_chart(df, input_text2)
+                                        st.session_state.chat_clicked = False
                                         try:
                                             st.write("""
                                                 <style>

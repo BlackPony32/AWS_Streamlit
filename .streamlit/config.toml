@@ -1,0 +1,21 @@
+[global]
+
+# By default, Streamlit displays a warning when a user sets both a widget
+# default value in the function defining the widget and a widget value via
+# the widget's key in `st.session_state`.
+# If you'd like to turn off this warning, set this to True.
+# Default: false
+disableWidgetStateDuplicationWarning = false
+
+[theme]
+base="light"
+font = "sans serif"
+[runner]
+fastReruns = false
+
+#[server]
+# List of folders that should not be watched for changes. Relative paths will be taken as relative to the current working directory.
+# Example: ['/home/user1/env', 'relative/path/to/folder']
+# Default: []
+#folderWatchBlacklist = ['']
+#fileWatcherType = "none"
