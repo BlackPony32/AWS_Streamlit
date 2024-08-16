@@ -206,6 +206,8 @@ def big_main():
         st.session_state.chat_clicked = False
     if 'continue_clicked' not in st.session_state:
         st.session_state.continue_clicked = False
+    if 'plot_clicked' not in st.session_state:
+        st.session_state.plot_clicked = False
     #keyy = os.getenv('OPENAI_API_KEY')
     #st.write(keyy)
     try:
@@ -393,7 +395,7 @@ def big_main():
         
         def click_AI_Appear():
             st.session_state.AI_appear = True
-        button_AI_appear = st.button('Use AI technology', on_click=click_AI_Appear, key=888)
+        button_AI_appear = st.button('Analyze with AI', on_click=click_AI_Appear, key=888)
         if st.session_state.AI_appear:
             st.write("""
                 <style>
@@ -626,16 +628,16 @@ def big_main():
                                                     if "response" in st.session_state["chat_result"]:
                                                         # Inject custom CSS for answer container
                                                         st.write("""
-                                                    <style>
-                                                      div[data-testid="stVerticalBlockBorderWrapper"]:has(
-                                                        >div>div>div[data-testid="element-container"] 
-                                                        .red-frame
-                                                      ) {
-                                                        outline: 2px solid #47A06D;
-                                                        border-radius: 12px; 
-                                                      }
-                                                    </style>
-                                                    """, unsafe_allow_html=True)
+                                                            <style>
+                                                              div[data-testid="stVerticalBlockBorderWrapper"]:has(
+                                                                >div>div>div[data-testid="element-container"] 
+                                                                .red-frame
+                                                              ) {
+                                                                outline: 2px solid #47A06D;
+                                                                border-radius: 12px; 
+                                                              }
+                                                            </style>
+                                                            """, unsafe_allow_html=True)
                                                         with st.container(border=True):
                                                             st.write('<span class="red-frame"/>', unsafe_allow_html=True)
                                                             st.write(st.session_state["chat_result"]["response"])
@@ -689,22 +691,20 @@ def big_main():
                             
                     
                         if option1 is None:
-                            st.session_state['input_text_img'] = st.text_area(label='Enter your query for the plot', key='my_input_img' , placeholder="Enter your request to start a chat", label_visibility="collapsed", on_change=update_text_img)
+                            value = st_keyup(label='Enter your query for the plot',debounce=500, key='my_input_img' , placeholder="Enter your request to start a chat", label_visibility="collapsed", on_change=update_text_img)
+                            st.session_state['input_text_img'] = value
                             #st.write(f"Current text in func: {st.session_state['input_text_img']}")
                             input_text2 = st.session_state['input_text_img']
-                            option1 = None
+                            #option1 = None
                         else:
-                            st.session_state['input_text_img'] = st.text_area(value=option1, label='Enter your query for the plot', placeholder = "Enter your request to generate a chart", label_visibility="collapsed", on_change=update_text_img)
-                            option1 = None
+                            value  = st_keyup(value=option1,debounce=500, label='Enter your query for the plot', placeholder = "Enter your request to generate a chart", label_visibility="collapsed", on_change=update_text_img)
+                            st.session_state['input_text_img'] = value
+                            #option1 = None
                             input_text2 = st.session_state['input_text_img']
 
+                        st.success("Plotting your Query: " + input_text2)
                         if input_text2 is not None:
                             #\\
-                            if 'plot_clicked' not in st.session_state:
-                                st.session_state.plot_clicked = False
-                            if 'continue_clicked' not in st.session_state:
-                                st.session_state.continue_clicked = False
-
                             def click_button():
                                 st.session_state.plot_clicked = True
 
@@ -751,7 +751,7 @@ def big_main():
                                     #\\\
                                     if st.session_state.plot_clicked:
                                         #st.session_state.click = True
-                                        st.success("Plotting your Query: " + input_text2)
+                                        
                                         #result = build_some_chart(df, input_text2)
                                         st.session_state.chat_clicked = False
                                         try:
