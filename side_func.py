@@ -4,11 +4,8 @@ import streamlit as st  # Make sure to import streamlit for error logging
 import re
 #from main import file_name
 
-UPLOAD_DIR = "uploads"
-if not os.path.exists(UPLOAD_DIR):
-    os.makedirs(UPLOAD_DIR)
 
-def get_file_name():
+def get_file_name(UPLOAD_DIR):
     file_name = [
         f for f in os.listdir(UPLOAD_DIR) if os.path.isfile(os.path.join(UPLOAD_DIR, f))
     ]
@@ -17,9 +14,9 @@ def get_file_name():
     except Exception as e:
         return "Invalid File"
 
-def identify_file():
+def identify_file(UPLOAD_DIR):
     try:
-        file_name = get_file_name()
+        file_name = get_file_name(UPLOAD_DIR)
         #last_uploaded_file_path = os.path.join(UPLOAD_DIR, file_name)
         #df = pd.read_csv(last_uploaded_file_path, encoding='utf-8')
         #columns = set(df.columns)

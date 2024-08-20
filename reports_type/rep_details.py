@@ -110,13 +110,13 @@ def report_func(df):
             css_styles=["""
                 button {
                     background-color: #ffffff;
-                    border: 2px solid #47A06D;
-                    color: #47A06D;
+                    border: 2px solid #ffffff;
+                    color: #5f6267;
                     padding: 0px;
                     text-align: center;
                     text-decoration: none;
-                    
-                    font-size: 17px;
+                    border-radius: 0%;
+                    font-size: 19px;
                     margin: 4px 2px;
                     border-style: solid;
                     width: 130px;
@@ -126,15 +126,15 @@ def report_func(df):
                 }""",
                 """
                 button:hover {
-                    background-color: #409A65;
+                    background-color: #ffffff;
                     box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
-                    color: #ffffff;
+                    color: #409A65;
                 }""",
                 """
                 button:focus {
-                    background-color: #409A65;
-                    color: #ffffff;
-                    border: 2px #47A06D;
+                    background-color: #ffffff;
+                    color: #409A65;
+                    border: 2px #ffffff;
                 }
                 """],
             ):
@@ -179,13 +179,13 @@ def report_func(df):
             css_styles=["""
                 button {
                     background-color: #ffffff;
-                    border: 2px solid #47A06D;
-                    color: #47A06D;
+                    border: 2px solid #ffffff;
+                    color: #5f6267;
                     padding: 0px;
                     text-align: center;
                     text-decoration: none;
-                    
-                    font-size: 17px;
+                    border-radius: 0%;
+                    font-size: 19px;
                     margin: 4px 2px;
                     border-style: solid;
                     width: 120px;
@@ -195,15 +195,15 @@ def report_func(df):
                 }""",
                 """
                 button:hover {
-                    background-color: #409A65;
+                    background-color: #ffffff;
                     box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
-                    color: #ffffff;
+                    color: #409A65;
                 }""",
                 """
                 button:focus {
-                    background-color: #409A65;
-                    color: #ffffff;
-                    border: 2px #47A06D;
+                    background-color: #ffffff;
+                    color: #409A65;
+                    border: 2px #ffffff;
                 }
                 """],
             ):
