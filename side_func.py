@@ -2,7 +2,43 @@ import pandas as pd
 import os
 import streamlit as st  # Make sure to import streamlit for error logging
 import re
+import csv
 #from main import file_name
+
+UPLOAD_DIR = "uploads"
+if not os.path.exists(UPLOAD_DIR):
+    os.makedirs(UPLOAD_DIR)
+    
+def identify_file_mini(file_name):
+    try:
+        if file_name == 'THIRD_PARTY_SALES_SUMMARY':
+            return "3rd Party Sales Summary"
+        elif file_name == 'ORDER_SALES_SUMMARY':
+            return "Order Sales Summary"
+        elif file_name == 'BEST_SELLERS':
+            return "Best Sellers"
+        elif file_name == 'REP_DETAILS':
+            return "Representative Details"
+        elif file_name == 'REPS_SUMMARY':
+            return "Reps Summary"
+        elif file_name == 'SKU_NOT_ORDERED':
+            return "SKU's Not Ordered"
+        elif file_name == 'LOW_STOCK_INVENTORY':
+            return "Low Stock Inventory"
+        elif file_name == 'CURRENT_INVENTORY':
+            return "Current Inventory"
+        elif file_name == 'TOP_CUSTOMERS':
+            return "Top Customers"
+        elif file_name == 'CUSTOMER_DETAILS':
+            return "Customer Details"
+        else:
+            return "SimplyDepo"
+        
+
+    except Exception as e:
+        # Log the exception for debugging
+        st.error(f"Error reading file: {e}")
+        return "Invalid File"
 
 
 def get_file_name(UPLOAD_DIR):
@@ -14,15 +50,13 @@ def get_file_name(UPLOAD_DIR):
     except Exception as e:
         return "Invalid File"
 
-def identify_file(UPLOAD_DIR):
+def identify_file():
     try:
-        file_name = get_file_name(UPLOAD_DIR)
+        file_name = get_file_name()
         #last_uploaded_file_path = os.path.join(UPLOAD_DIR, file_name)
         #df = pd.read_csv(last_uploaded_file_path, encoding='utf-8')
         #columns = set(df.columns)
 
-        
-        # Identify file type based on columns
         if file_name == 'third_party_sales_summary.csv':
             return "3rd Party Sales Summary report"
         elif file_name == 'order_sales_summary.csv':
@@ -45,6 +79,8 @@ def identify_file(UPLOAD_DIR):
             return "Customer Details report"
         else:
             return "SimplyDepo report"
+        # Identify file type based on columns
+        
         
 
 

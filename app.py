@@ -24,36 +24,77 @@ from langchain.agents.agent_types import AgentType
 from pandasai.llm.openai import OpenAI
 from pandasai import SmartDataframe, Agent
 
-from visualizations import (
-    third_party_sales_viz, order_sales_summary_viz, best_sellers_viz,
-    reps_details_viz, reps_summary_viz, skus_not_ordered_viz,
-    low_stock_inventory_viz, current_inventory_viz, top_customers_viz, customer_details_viz
-)
 from reports_type import (best_sellers, current_inventory, customer_details, low_stock_inventory,
                           order_sales_summary, rep_details, reps_summary, sku_not_ordered,
                           third_party_sales_summary, top_customers)
 
-from side_func import identify_file, get_file_name, get_csv_columns
+from side_func import identify_file, identify_file_mini
 
 load_dotenv()
 
 fastapi_url = os.getenv('FASTAPI_URL')
 
-#file_type = identify_file(UPLOAD_DIR)
-st.set_page_config( page_icon='icon.ico', page_title="SimplyDepo report")
+#def get_upload_file():
+#    link = fastapi_url + "/get_folder_name/"
+#    response = requests.get(link)
+#    response.raise_for_status()  # Raise an exception for HTTP errors
+#    data = response.json()
+#    return data
+
+def window_name():
+
+    try:
+        #temp_upload = get_upload_file()
+        dir_name = st.session_state["user_id"]
+        if "dir_name" not in st.session_state:
+            st.session_state["dir_name"] = dir_name
+        
+        
+        UPLOAD_DIR = f"uploads\\{st.session_state.dir_name}\\"
+        if not os.path.exists(UPLOAD_DIR):
+            os.makedirs(UPLOAD_DIR)
+
+        file_type = identify_file(UPLOAD_DIR)
+        return file_type
+    except Exception:
+        pass
+
+if "buffer_1" not in st.session_state:
+    st.session_state["buffer_1"] = True
+    st.session_state["file_type"] = "SimplyDepo report"
+else:
+    if "file_type" not in st.session_state:
+        st.session_state["file_type"] = "SimplyDepo report"
+    else:
+        st.session_state["file_type"] = window_name()
+
+file_type1 = st.session_state["file_type"]
+    
+    
+st.set_page_config( page_icon='icon.ico', page_title=file_type1)
+
+
 css='''
 <style>
     section.main > div {max-width:75rem}
     
+    
     .stTabs [data-baseweb="tab-highlight"] {
-        background-color:teal;
+        background-color: #409A65;
     }
+    .stTabs [data-baseweb="tab-border"] {
+        width: 104.5%;
+        left: -16px; 
+    }
+    
     div[data-baseweb="select"] > div {
     border-color: #409A65;
+    font-size: 17px;
 }
 </style>
 '''
 st.markdown(css, unsafe_allow_html=True)
+
 
 
 
@@ -238,7 +279,7 @@ def big_main():
             else:
                 if 'report_name' not in st.session_state:
                     st.session_state["report_name"] = file_type
-                st.success(f"This is  {st.session_state.report_name} type. File is available for visualization.")
+                
 
                 if file_type == "Representative Details report":
                     df_show = df.copy()
@@ -359,7 +400,7 @@ def big_main():
             """
             button:hover {
                 background-color: #409A65;
-                box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+                
                 color: #ffffff;
             }""",
             """
@@ -419,12 +460,12 @@ def big_main():
                         padding: 0px;
                         text-align: center;
                         text-decoration: none;
-                        border-radius: 3%;
+                        border-radius: 4px;
                         font-size: 17px;
                         margin: 4px 2px;
                         border-style: solid;
                         width: 450px;
-                        height: 50px;
+                        height: 60px;
                         line-height: 30px;
                         position: relative;
                     }
@@ -432,7 +473,7 @@ def big_main():
                     """
                     button:hover {
                         background-color: #47A06D;
-                        box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+                        box-shadow: 0 12px 16px 0 rgba(0,0,0,0.14), 0 7px 25px 0 rgba(0,0,0,0.09);
                         color: #ffffff;
                     }"""],
             ):
@@ -447,12 +488,12 @@ def big_main():
                         padding: 0px;
                         text-align: center;
                         text-decoration: none;
-                        border-radius: 3%;
+                        border-radius: 4px;
                         font-size: 17px;
                         margin: 4px 2px;
                         border-style: solid;
                         width: 450px;
-                        height: 50px;
+                        height: 60px;
                         line-height: 30px;
                         position: relative;
                     }
@@ -460,7 +501,7 @@ def big_main():
                     """
                     button:hover {
                         background-color: #ffffff;
-                        box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+                        box-shadow: 0 12px 16px 0 rgba(0,0,0,0.14), 0 7px 25px 0 rgba(0,0,0,0.09);
                         color: #000000;
                     }"""],
             ):
@@ -482,37 +523,37 @@ def big_main():
                     with stylable_container(
                     key="custom-tabs-chat-button",
                     css_styles=["""
-                button {
-                    background-color: #ffffff;
-                    border: 2px solid #ffffff;
-                    color: #5f6267;
-                    padding: 0px;
-                    text-align: center;
-                    text-decoration: none;
-                    border-radius: 0%;
-                    font-size: 19px;
-                    margin: 4px 2px;
-                    border-style: solid;
-                    width: 110px;
-                    height: 30px;
-                    line-height: 30px;
-                    position: relative;
-                }""",
-                """
-                button:hover {
-                    background-color: #ffffff;
-                    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
-                    color: #409A65;
-                }""",
-                """
-                button:focus {
-                    background-color: #ffffff;
-                    color: #409A65;
-                    border: 2px #ffffff;
-                }
-                """],
-            ):
-                        tab1, tab2 = st.tabs(["Chat","Build a chart"])
+                    button {
+                        background-color: #ffffff;
+                        border: 2px solid #ffffff;
+                        color: #5f6267;
+                        padding: 0px;
+                        text-align: center;
+                        text-decoration: none;
+                        border-radius: 0%;
+                        font-size: 19px;
+                        margin: 4px 2px;
+                        border-style: solid;
+                        width: 110px;
+                        height: 30px;
+                        line-height: 30px;
+                        position: relative;
+                    }""",
+                    """
+                    button:hover {
+                        background-color: #ffffff;
+
+                        color: #409A65;
+                    }""",
+                    """
+                    button:focus {
+                        background-color: #ffffff;
+                        color: #409A65;
+                        border: 2px #ffffff;
+                    }
+                    """],
+                ):
+                        tab1, tab2 = st.tabs(["Chat","Visualize"])
 
                         with tab1:
                             #st.info("Chat with GPT")
@@ -525,26 +566,27 @@ def big_main():
                                  "Highlight any significant trends or patterns in the data",
                                  "Generate a concise report of data anomalies or outliers"),
                                 index=None,
-                                placeholder="Select one of the frequently asked questions?",
+                                placeholder="Frequently asked questions",
                                 label_visibility="collapsed",
                                 key="selected_1")
 
                             def update_text():
                                 st.session_state['input_text'] = st.session_state['my_input']
 
-                            if option is None:
-                                value = st_keyup(label='Enter your query:',debounce=400, key='my_input' , placeholder="Enter your request to start a chat", label_visibility="collapsed", on_change=update_text)
-                                st.session_state['input_text'] = value
-                                input_text = st.session_state['input_text']
-                                option = None
+                            #if option is None:
+                            #value = st_keyup(label='Enter your query:',debounce=400, key='my_input' , placeholder="Message Ai", label_visibility="collapsed", on_change=update_text)
+                            value = st.text_area("Enter your text here:", height=100, placeholder="Message AI", label_visibility="collapsed", key="uniqy1")
 
-                            else:
-                                value = st_keyup(value=option,debounce=400, label='Enter your query:', placeholder="Type your question or message and press ‘Submit’", label_visibility="collapsed", on_change=update_text,key="1100")
-                                st.session_state['input_text'] = value
-                                option = None
-                                input_text = st.session_state['input_text']
+                            st.session_state['input_text'] = value
+                            input_text = st.session_state['input_text']
+                            #option = None
 
-                            st.success("Solving your Query: " + input_text)
+                            #else:
+                            #    value = st_keyup(value=option,debounce=400, label='Message Ai', placeholder="Message Ai", label_visibility="collapsed", on_change=update_text,key="1100")
+                            #    st.session_state['input_text'] = value
+                            #    option = None
+                            #    input_text = st.session_state['input_text']
+
                             if input_text is not None:
                                 #\\
                                 def click_button():
@@ -562,19 +604,19 @@ def big_main():
                                         padding: 0px;
                                         text-align: center;
                                         text-decoration: none;
-                                        border-radius: 17%;
+                                        border-radius: 4px;
                                         font-size: 17px;
                                         margin: 4px 2px;
                                         border-style: solid;
-                                        width: 100px;
-                                        height: 45px;
+                                        width: 120px;
+                                        height: 35px;
                                         line-height: 30px;
                                         position: relative;
                                     }""",
                                     """
                                     button:hover {
                                         background-color: #409A65;
-                                        box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+                                        box-shadow: 0 12px 16px 0 rgba(0,0,0,0.14), 0 2px 12px 0 rgba(0,0,0,0.09);
                                         color: #ffffff;
                                     }""",
                                     """
@@ -594,53 +636,54 @@ def big_main():
                                             user_prompt = st.session_state['input_text']
                                         st.session_state.chat_clicked = False #TODO real needed?
                                         try:
-                                            if "chat_result" not in st.session_state:
-                                                #with st.spinner(text="In progress..."):
-                                                    #st.write(user_prompt)
-                                                    st.session_state["chat_result"] = chat_with_file(user_prompt, last_uploaded_file_path)
-                                                    #chat_result = st.session_state["chat_result"]
-                                                    #chat_result = chat_with_file(input_text, last_uploaded_file_path)
-                                                    if "response" in st.session_state["chat_result"]:
-                                                        # Inject custom CSS for answer container
-                                                        st.write("""
-                                                            <style>
-                                                              div[data-testid="stVerticalBlockBorderWrapper"]:has(
-                                                                >div>div>div[data-testid="element-container"] 
-                                                                .red-frame
-                                                              ) {
-                                                                outline: 2px solid #47A06D;
-                                                                border-radius: 12px; 
-                                                              }
-                                                            </style>
-                                                            """, unsafe_allow_html=True)
-                                                        with st.container(border=True):
-                                                            st.write('<span class="red-frame"/>', unsafe_allow_html=True)
-                                                            st.write(st.session_state["chat_result"]["response"])
-                                                    else:
-                                                        st.success("There is some error occurred, try to give more details to your prompt")
-                                            else:
-                                                #with st.spinner(text="In progress..."):
-                                                    chat_result = chat_with_file(user_prompt, last_uploaded_file_path)
-                                                    st.session_state["chat_result"] = chat_result
-                                                    #chat_result = chat_with_file(input_text, last_uploaded_file_path)
-                                                    if "response" in st.session_state["chat_result"]:
-                                                        # Inject custom CSS for answer container
-                                                        st.write("""
-                                                    <style>
-                                                      div[data-testid="stVerticalBlockBorderWrapper"]:has(
-                                                        >div>div>div[data-testid="element-container"] 
-                                                        .red-frame
-                                                      ) {
-                                                        outline: 2px solid #47A06D;
-                                                        border-radius: 12px; 
-                                                      }
-                                                    </style>
-                                                    """, unsafe_allow_html=True)
-                                                        with st.container(border=True):
-                                                            st.write('<span class="red-frame"/>', unsafe_allow_html=True)
-                                                            st.write(st.session_state["chat_result"]["response"])
-                                                    else:
-                                                        st.success("There is some error occurred, try to give more details to your prompt")
+                                            with st.spinner(text="Analyzing Your Request..."):
+                                                if "chat_result" not in st.session_state:
+                                                    #with st.spinner(text="In progress..."):
+                                                        #st.write(user_prompt)
+                                                        st.session_state["chat_result"] = chat_with_file(user_prompt, last_uploaded_file_path)
+                                                        #chat_result = st.session_state["chat_result"]
+                                                        #chat_result = chat_with_file(input_text, last_uploaded_file_path)
+                                                        if "response" in st.session_state["chat_result"]:
+                                                            # Inject custom CSS for answer container
+                                                            st.write("""
+                                                                <style>
+                                                                  div[data-testid="stVerticalBlockBorderWrapper"]:has(
+                                                                    >div>div>div[data-testid="element-container"] 
+                                                                    .red-frame
+                                                                  ) {
+                                                                    outline: 2px solid #47A06D;
+                                                                    border-radius: 12px; 
+                                                                  }
+                                                                </style>
+                                                                """, unsafe_allow_html=True)
+                                                            with st.container(border=True):
+                                                                st.write('<span class="red-frame"/>', unsafe_allow_html=True)
+                                                                st.write(st.session_state["chat_result"]["response"])
+                                                        else:
+                                                            st.success("There is some error occurred, try to give more details to your prompt")
+                                                else:
+                                                    #with st.spinner(text="In progress..."):
+                                                        chat_result = chat_with_file(user_prompt, last_uploaded_file_path)
+                                                        st.session_state["chat_result"] = chat_result
+                                                        #chat_result = chat_with_file(input_text, last_uploaded_file_path)
+                                                        if "response" in st.session_state["chat_result"]:
+                                                            # Inject custom CSS for answer container
+                                                            st.write("""
+                                                        <style>
+                                                          div[data-testid="stVerticalBlockBorderWrapper"]:has(
+                                                            >div>div>div[data-testid="element-container"] 
+                                                            .red-frame
+                                                          ) {
+                                                            outline: 2px solid #47A06D;
+                                                            border-radius: 12px; 
+                                                          }
+                                                        </style>
+                                                        """, unsafe_allow_html=True)
+                                                            with st.container(border=True):
+                                                                st.write('<span class="red-frame"/>', unsafe_allow_html=True)
+                                                                st.write(st.session_state["chat_result"]["response"])
+                                                        else:
+                                                            st.success("There is some error occurred, try to give more details to your prompt")
                                         except Exception as e:
                                             st.error(f"An error occurred: {str(e)}")
 
@@ -654,26 +697,27 @@ def big_main():
                                  "Build a distribution of data from the most useful column",
                                  "Build a visualization for the columns that can show useful dependencies"),
                                 index=None,
-                                placeholder="Select one of the frequently asked questions?",
+                                placeholder="Frequently asked questions",
                                 label_visibility="collapsed",
                                 key=322)
                             def update_text_img():
                                 st.session_state['input_text_img'] = st.session_state['my_input_img']
 
 
-                            if option1 is None:
-                                value = st_keyup(label='Enter your query for the plot',debounce=500, key='my_input_img' , placeholder="Enter your request to start a chat", label_visibility="collapsed", on_change=update_text_img)
-                                st.session_state['input_text_img'] = value
-                                #st.write(f"Current text in func: {st.session_state['input_text_img']}")
-                                input_text2 = st.session_state['input_text_img']
+                            #if option1 is None:
+                            #value = st_keyup(label='Enter your query for the plot',debounce=500, key='my_input_img' , placeholder="Message Ai", label_visibility="collapsed", on_change=update_text_img)
+                            value1 = st.text_area("Enter your text here:", height=100, placeholder="Message AI", label_visibility="collapsed", key="uniqy")
+                            st.session_state['input_text_img'] = value1
+                            #st.write(f"Current text in func: {st.session_state['input_text_img']}")
+                            input_text2 = st.session_state['input_text_img']
                                 #option1 = None
-                            else:
-                                value  = st_keyup(value=option1,debounce=500, label='Enter your query for the plot', placeholder = "Enter your request to generate a chart", label_visibility="collapsed", on_change=update_text_img)
-                                st.session_state['input_text_img'] = value
-                                #option1 = None
-                                input_text2 = st.session_state['input_text_img']
+                            #else:
+                            #    value  = st_keyup(value=option1,debounce=500, label='Enter your query for the plot', placeholder = "Message Ai", label_visibility="collapsed", on_change=update_text_img)
+                            #    st.session_state['input_text_img'] = value
+                            #    #option1 = None
+                            #    input_text2 = st.session_state['input_text_img']
 
-                            st.success("Plotting your Query: " + input_text2)
+                            #st.success("Plotting your Query: " + input_text2)
                             if input_text2 is not None:
                                 #\\
                                 def click_button():
@@ -681,25 +725,24 @@ def big_main():
 
 
                                 with stylable_container(
-                                    key="custom-Submit2_button",
+                                    key="custom-Submit2-button",
                                     css_styles=["""
                                         button {
-                                            background-color: #409A65;
-                                            border: 2px solid #47A06D;
-                                            color: #ffffff;
-                                            padding: 0px;
-                                            text-align: center;
-                                            text-decoration: none;
-                                            border-radius: 0%;
-                                            font-size: 17px;
-                                            margin: 4px 2px;
-                                            border-style: solid;
-                                            width: 100px;
-                                            height: 45px;
-                                            border-radius: 17%;
-                                            line-height: 30px;
-                                            position: relative;
-                                        }""",
+                                        background-color: #409A65;
+                                        border: 2px solid #47A06D;
+                                        color: #ffffff;
+                                        padding: 0px;
+                                        text-align: center;
+                                        text-decoration: none;
+                                        border-radius: 4px;
+                                        font-size: 17px;
+                                        margin: 4px 2px;
+                                        border-style: solid;
+                                        width: 120px;
+                                        height: 35px;
+                                        line-height: 30px;
+                                        position: relative;
+                                    }""",
                                         """
                                         button:hover {
                                             background-color: #409A65;
@@ -723,21 +766,22 @@ def big_main():
                                         #result = build_some_chart(df, input_text2)
                                         st.session_state.chat_clicked = False
                                         try:
-                                            st.write("""
-                                                <style>
-                                                  div[data-testid="stVerticalBlockBorderWrapper"]:has(
-                                                    >div>div>div[data-testid="element-container1"] 
-                                                    .red-frame
-                                                  ) {
-                                                    outline: 2px solid #47A06D;
-                                                    border-radius: 12px;
-                                                  }
-                                                </style>
-                                                """, unsafe_allow_html=True)
-                                            with st.container(border=True):
-                                                st.write('<span class="red-frame"/>', unsafe_allow_html=True)
-                                                plot_result = test_plot_maker(df, input_text2)
-                                                st.plotly_chart(plot_result)
+                                            with st.spinner(text="Analyzing Your Request..."):
+                                                st.write("""
+                                                    <style>
+                                                      div[data-testid="stVerticalBlockBorderWrapper"]:has(
+                                                        >div>div>div[data-testid="element-container1"] 
+                                                        .red-frame
+                                                      ) {
+                                                        outline: 2px solid #47A06D;
+                                                        border-radius: 12px;
+                                                      }
+                                                    </style>
+                                                    """, unsafe_allow_html=True)
+                                                with st.container(border=True):
+                                                    st.write('<span class="red-frame"/>', unsafe_allow_html=True)
+                                                    plot_result = test_plot_maker(df, input_text2)
+                                                    st.plotly_chart(plot_result)
                                             #st.success(result)
                                         #except Exception as e:
                                         #    raise ValueError(f"An error occurred: {str(e)}")
@@ -751,8 +795,8 @@ def big_main():
             css_styles=["""
                 button {
                     background-color: #ffffff;
-                    border: 2px solid #47A06D;
-                    color: #47A06D;
+                    border: 2px solid #bfc0c2;
+                    color: #bfc0c2;
                     padding: 0px;
                     text-align: center;
                     text-decoration: none;
@@ -768,8 +812,9 @@ def big_main():
                 """
                 button:hover {
                     background-color: #409A65;
-                    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+                    box-shadow: 0 12px 16px 0 rgba(0,0,0,0), 0 1px 5px 0 rgba(0,0,0,0);
                     color: #ffffff;
+                    border: 2px #47A06D;
                 }""",
                 """
                 button:focus {
@@ -900,8 +945,9 @@ def main_viz():
                 last_uploaded_file_path = convert_excel_to_csv(excel_file)
             except Exception as e:
                 st.warning("Oops, something went wrong. Please try updating the page.")
-    
-    st.title("Report Analysis")
+    #st.success(f"This is   type. File is available for visualization.")
+    report_name_title = identify_file_mini(file_name_)
+    st.title(f"Report: {report_name_title}")
     #add_custom_css()
     #if os.path.exists(last_uploaded_file_path):
     big_main()

@@ -10,7 +10,21 @@ def report_func(df):
     
     columns = get_csv_columns(df)
     reps_summary_viz.preprocess_data(df)
+    css='''
+<style>
+
+    .stTabs [data-baseweb="tab-highlight"] {
+        background-color: #409A65;
+    }
+    .stTabs [data-baseweb="tab-border"] {
+        width: 102.8%;
+        left: -16px; 
+    }
     
+}
+</style>
+'''
+    st.markdown(css, unsafe_allow_html=True)
     if "Orders" in columns and "Total revenue" in columns and "Cases sold" in columns:
         with st.container(border=True):
             col11, col12 = st.columns([10, 0.45])
@@ -49,7 +63,6 @@ def report_func(df):
                 """
                 button:hover {
                     background-color: #ffffff;
-                    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
                     color: #409A65;
                 }""",
                 """

@@ -5,13 +5,15 @@
 # the widget's key in `st.session_state`.
 # If you'd like to turn off this warning, set this to True.
 # Default: false
-disableWidgetStateDuplicationWarning = false
+
+#disableWidgetStateDuplicationWarning = false
 
 [theme]
 base="light"
 font = "sans serif"
-[runner]
-fastReruns = false
+primaryColor = "#47A06D"
+#[runner]
+#fastReruns = false
 
 #[server]
 # List of folders that should not be watched for changes. Relative paths will be taken as relative to the current working directory.

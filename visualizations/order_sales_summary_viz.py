@@ -175,12 +175,27 @@ def visualize_product_analysis2(data, product_col='Product name', grand_total_co
 
 #_________________Discount Analysis Function (with Plotly)__________________________
 def visualize_discount_analysis1(data, discount_type_col='Discount type', total_discount_col='Total invoice discount'):
-    """Visualizes discount analysis by type and top customers."""
+    """Visualizes discount analysis by type and top customers, with error handling."""
     
     st.subheader("Discount Amount by Customer (Top 10)")
 
+    # Check if DataFrame is empty
+    if data.empty:
+        st.warning("The dataset is empty.")
+        return
+
+    # Check if required columns are present
+    if not set([discount_type_col, total_discount_col, 'Customer']).issubset(data.columns):
+        st.warning(f"Required columns are missing: {', '.join([discount_type_col, total_discount_col, 'Customer'])}")
+        return
+
     # Group by customer and sum the total discounts, then get the top 10 customers
     top_customers_discount = data.groupby('Customer')[total_discount_col].sum().nlargest(10)
+
+    # Check if there are no non-zero discounts
+    if top_customers_discount.sum() == 0:
+        st.warning("Visualization is not available when all discounts are zero")
+        return
 
     # Create a bar chart for top customers by discount amount
     fig = go.Figure(data=[go.Bar(
@@ -189,8 +204,8 @@ def visualize_discount_analysis1(data, discount_type_col='Discount type', total_
         hovertemplate='<b>%{x}</b><br>Discount Amount: $%{y:,.2f}<extra></extra>',
         marker=dict(
             color=top_customers_discount.values, 
-            colorscale='Viridis',  # Changed to a more distinguishable colorscale
-            showscale=False  # Hide the color scale
+            colorscale='Viridis',  
+            showscale=False  
         )
     )])
 
@@ -199,8 +214,8 @@ def visualize_discount_analysis1(data, discount_type_col='Discount type', total_
         xaxis_tickangle=-45, 
         yaxis_title="Discount Amount ($)", 
         xaxis_title="Customer",
-        height=500,  # Adjust height for better fit
-        template="plotly_white"  # Optional: change template for better contrast
+        height=500,  
+        template="plotly_white"  
     )
 
     # Display the bar chart in Streamlit
@@ -208,10 +223,25 @@ def visualize_discount_analysis1(data, discount_type_col='Discount type', total_
 
 
 def visualize_discount_analysis2(data, discount_type_col='Discount type', total_discount_col='Total invoice discount'):
-    """Visualizes discount analysis by type and top customers."""
+    """Visualizes discount analysis by type and top customers, with error handling."""
     
+    # Check if DataFrame is empty
+    if data.empty:
+        st.warning("The dataset is empty.")
+        return
+
+    # Check if required columns are present
+    if not set([discount_type_col, total_discount_col]).issubset(data.columns):
+        st.warning(f"Required columns are missing: {', '.join([discount_type_col, total_discount_col])}")
+        return
+
     # Group by discount type and sum the total discounts
     discount_amounts = data.groupby(discount_type_col)[total_discount_col].sum().sort_values(ascending=False)
+
+    # Check if there are no non-zero discounts
+    if discount_amounts.sum() == 0:
+        st.warning("Visualization is not available when all discounts are zero")
+        return
     
     # Create a pie chart for discount distribution by type
     fig = go.Figure(data=[go.Pie(
@@ -219,13 +249,13 @@ def visualize_discount_analysis2(data, discount_type_col='Discount type', total_
         values=discount_amounts.values,
         hovertemplate='<b>%{label}</b><br>Discount Amount: $%{value:,.2f}<br>Percentage: %{percent}<extra></extra>',
         textinfo='percent+label',
-        marker=dict(colors=px.colors.qualitative.Set3)  # Use a distinct color palette
+        marker=dict(colors=px.colors.qualitative.Set3)  
     )])
 
     # Update the layout
     fig.update_layout(
         colorway=px.colors.qualitative.Set3,
-        height=500  # Adjust height for better display
+        height=500  
     )
     
     # Display the pie chart in Streamlit
