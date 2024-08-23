@@ -50,13 +50,15 @@ def get_file_name(UPLOAD_DIR):
     except Exception as e:
         return "Invalid File"
 
-def identify_file():
+def identify_file(UPLOAD_DIR):
     try:
-        file_name = get_file_name()
+        file_name = get_file_name(UPLOAD_DIR)
         #last_uploaded_file_path = os.path.join(UPLOAD_DIR, file_name)
         #df = pd.read_csv(last_uploaded_file_path, encoding='utf-8')
         #columns = set(df.columns)
 
+        
+        # Identify file type based on columns
         if file_name == 'third_party_sales_summary.csv':
             return "3rd Party Sales Summary report"
         elif file_name == 'order_sales_summary.csv':
@@ -79,8 +81,6 @@ def identify_file():
             return "Customer Details report"
         else:
             return "SimplyDepo report"
-        # Identify file type based on columns
-        
         
 
 
@@ -88,6 +88,7 @@ def identify_file():
         # Log the exception for debugging
         st.error(f"Error reading file: {e}")
         return "Invalid File"
+
 
 def extract_filename(url):
     # Extract the filename with extension from the URL
