@@ -33,33 +33,42 @@ def preprocess_data(data):
 
 #_________________Sales Trends Function  (with Plotly)_______________________________
 def visualize_sales_trends1(data, customer_col='Customer', product_col='Product name', 
-                           grand_total_col='Grand total', qty_col='QTY'):
+                            grand_total_col='Grand total', qty_col='QTY'):
     
-        top_customers = data.groupby(customer_col)[grand_total_col].sum().nlargest(10)
-        # Create the plot
-        fig = go.Figure()
-        
-        fig.add_trace(go.Bar(
-            x=top_customers.index,
-            y=top_customers.values,
-            marker=dict(
-                color=top_customers.values,
-                colorscale='Bluyl'
-            ),
-            hovertemplate='<b>Customer:</b> %{x}<br><b>Sales Amount:</b> $%{y:.2f}<extra></extra>'
-        ))
-        
-        # Update the layout
-        fig.update_layout(
-            title="Top 10 Customers by Sales Amount",
-            xaxis_tickangle=45,
-            yaxis_title="Sales Amount",
-            xaxis_title="Customer",
-            coloraxis_colorbar=dict(title="Sales Amount")
-        )
-        
-        # Display the chart in Streamlit
-        st.plotly_chart(fig, use_container_width=True)
+    # Ensure the grand total column is numeric
+    data[grand_total_col] = pd.to_numeric(data[grand_total_col], errors='coerce')
+
+    # Handle potential NaN values after conversion
+    data = data.dropna(subset=[grand_total_col])
+
+    # Calculate the top customers
+    top_customers = data.groupby(customer_col)[grand_total_col].sum().nlargest(10)
+
+    # Create the plot
+    fig = go.Figure()
+    
+    fig.add_trace(go.Bar(
+        x=top_customers.index,
+        y=top_customers.values,
+        marker=dict(
+            color=top_customers.values,
+            colorscale='Bluyl'
+        ),
+        hovertemplate='<b>Customer:</b> %{x}<br><b>Sales Amount:</b> $%{y:.2f}<extra></extra>'
+    ))
+    
+    # Update the layout
+    fig.update_layout(
+        title="Top 10 Customers by Sales Amount",
+        xaxis_tickangle=45,
+        yaxis_title="Sales Amount",
+        xaxis_title="Customer",
+        coloraxis_colorbar=dict(title="Sales Amount")
+    )
+    
+    # Display the chart in Streamlit
+    st.plotly_chart(fig, use_container_width=True)
+
 
 def visualize_sales_trends2(data, customer_col='Customer', product_col='Product name', 
                            grand_total_col='Grand total', qty_col='QTY'):
@@ -189,6 +198,12 @@ def visualize_discount_analysis1(data, discount_type_col='Discount type', total_
         st.warning(f"Required columns are missing: {', '.join([discount_type_col, total_discount_col, 'Customer'])}")
         return
 
+    # Ensure the total discount column is numeric
+    data[total_discount_col] = pd.to_numeric(data[total_discount_col], errors='coerce')
+
+    # Handle potential NaN values after conversion
+    data = data.dropna(subset=[total_discount_col])
+
     # Group by customer and sum the total discounts, then get the top 10 customers
     top_customers_discount = data.groupby('Customer')[total_discount_col].sum().nlargest(10)
 
@@ -220,6 +235,7 @@ def visualize_discount_analysis1(data, discount_type_col='Discount type', total_
 
     # Display the bar chart in Streamlit
     st.plotly_chart(fig, use_container_width=True)
+
 
 
 def visualize_discount_analysis2(data, discount_type_col='Discount type', total_discount_col='Total invoice discount'):

@@ -1,6 +1,6 @@
 import streamlit as st
 from streamlit_extras.stylable_container import stylable_container
-from st_keyup import st_keyup
+#from st_keyup import st_keyup
 import pandas as pd
 import os
 import openai
@@ -83,7 +83,7 @@ css='''
         background-color: #409A65;
     }
     .stTabs [data-baseweb="tab-border"] {
-        width: 104.5%;
+        width: 102.8%;
         left: -16px; 
     }
     
@@ -279,102 +279,105 @@ def big_main():
             else:
                 if 'report_name' not in st.session_state:
                     st.session_state["report_name"] = file_type
-                
-
-                if file_type == "Representative Details report":
-                    df_show = df.copy()
-                    df_show['Id'] = df_show['Id'].apply(id_str)
-                    df_show['Phone number'] = df_show['Phone number'].apply(format_phone_number)
-                    try:
-                        st.dataframe(df_show, use_container_width=False)
-                    except:
-                        st.warning("Data display error, try reloading the report")
-                elif file_type == "Customer Details report":
-                    df_show = df.copy()
-                    #df_show['Phone number'] = df_show['Phone number'].apply(format_phone_number)  #error with this report
-                    try:
-                        st.dataframe(df_show, use_container_width=False)
-                    except:
-                        st.warning("Data display error, try reloading the report")
-                elif file_type == "Top Customers report":
-                    df_show = df.copy()
-                    #df_show['Phone number'] = df_show['Phone number'].apply(format_phone_number)  #error with this report
-                    #df_show['Contact phone'] = df_show['Contact phone'].apply(format_phone_number)  #TODO error with this report
-                    df_show['Total sales'] = df_show['Total sales'].apply(add_dollar_sign)
-                    try:
-                        st.dataframe(df_show, use_container_width=False)
-                    except:
-                        st.warning("Data display error, try reloading the report")
-                elif file_type == "Order Sales Summary report":
-                    df_show = df.copy()
-                    df_show['Id'] = df_show['Id'].apply(id_str)
-                    df_show['Id'] = df_show['Id'].apply(id_str)
-                    df_show['Grand total'] = df_show['Grand total'].apply(add_dollar_sign)
-                    df_show['Item specific discount'] = df_show['Item specific discount'].apply(add_dollar_sign)
-                    df_show['Manufacturer specific discount'] = df_show['Manufacturer specific discount'].apply(add_dollar_sign)
-                    df_show['Total invoice discount'] = df_show['Total invoice discount'].apply(add_dollar_sign)
-                    df_show['Customer discount'] = df_show['Customer discount'].apply(add_dollar_sign)
-                    df_show['Balance'] = df_show['Balance'].apply(add_dollar_sign)
-                    try:
-                        st.dataframe(df_show, use_container_width=False)
-                    except:
-                        st.warning("Data display error, try reloading the report")
-                elif file_type == "SKU's Not Ordered report":
-                    df_show = df.copy()
-                    df_show['Wholesale price'] = df_show['Wholesale price'].apply(add_dollar_sign)
-                    df_show['Retail price'] = df_show['Retail price'].apply(add_dollar_sign)
-                    df_show['Total revenue'] = df_show['Total revenue'].apply(add_dollar_sign)
-                    try:
-                        st.dataframe(df_show, use_container_width=False)
-                    except:
-                        st.warning("Data display error, try reloading the report")
-                elif file_type == "Reps Summary report":
-                    df_show = df.copy()
-                    df_show['Id'] = df_show['Id'].apply(id_str)
-                    df_show['Total revenue'] = df_show['Total revenue'].apply(add_dollar_sign)
-                    try:
-                        st.dataframe(df_show, use_container_width=False)
-                    except:
-                        st.warning("Data display error, try reloading the report")
-                elif file_type == "Low Stock Inventory report":
-                    df_show = df.copy()
-                    df_show['Wholesale price'] = df_show['Wholesale price'].apply(add_dollar_sign)
-                    df_show['Retail price'] = df_show['Retail price'].apply(add_dollar_sign)
-                    try:
-                        st.dataframe(df_show, width=1200, use_container_width=False)
-                    except:
-                        st.warning("Data display error, try reloading the report")
-                elif file_type =="Best Sellers report":
-                    df_show = df.copy()
-                    df_show['Wholesale price'] = df_show['Wholesale price'].apply(add_dollar_sign)
-                    df_show['Retail price'] = df_show['Retail price'].apply(add_dollar_sign)
-                    df_show['Total revenue'] = df_show['Total revenue'].apply(add_dollar_sign)
-                    try:
-                        st.dataframe(df_show, use_container_width=False)
-                    except:
-                        st.warning("Data display error, try reloading the report")
-                elif file_type == "3rd Party Sales Summary report":
-                    df_show = df.copy()
-                    df_show['Id'] = df_show['Id'].apply(id_str)
-                    df_show['Grand total'] = df_show['Grand total'].apply(add_dollar_sign)
-                    df_show['Item specific discount'] = df_show['Item specific discount'].apply(add_dollar_sign)
-                    df_show['Manufacturer specific discount'] = df_show['Manufacturer specific discount'].apply(add_dollar_sign)
-                    df_show['Total invoice discount'] = df_show['Total invoice discount'].apply(add_dollar_sign)
-                    df_show['Customer discount'] = df_show['Customer discount'].apply(add_dollar_sign)
-                    try:
-                        st.dataframe(df_show, use_container_width=False)
-                    except:
-                        st.warning("Data display error, try reloading the report")
-                elif file_type == "Current Inventory report":
-                    df_show = df.copy()
-                    df_show['Wholesale price'] = df_show['Wholesale price'].apply(add_dollar_sign)
-                    df_show['Retail price'] = df_show['Retail price'].apply(add_dollar_sign)
-                    try:
-                        st.dataframe(df_show, use_container_width=False)
-                    except:
-                        st.warning("Data display error, try reloading the report")
+                if df.empty:
+                    st.dataframe(df)
+                    st.warning("### This data report is empty - try downloading another one to get better visualizations")
                 else:
-                    st.dataframe(df,width=2500, use_container_width=False)
+
+                    if file_type == "Representative Details report":
+                        df_show = df.copy()
+                        df_show['Id'] = df_show['Id'].apply(id_str)
+                        df_show['Phone number'] = df_show['Phone number'].apply(format_phone_number)
+                        try:
+                            st.dataframe(df_show, use_container_width=False)
+                        except:
+                            st.warning("Data display error, try reloading the report")
+                    elif file_type == "Customer Details report":
+                        df_show = df.copy()
+                        #df_show['Phone number'] = df_show['Phone number'].apply(format_phone_number)  #error with this report
+                        try:
+                            st.dataframe(df_show, use_container_width=False)
+                        except:
+                            st.warning("Data display error, try reloading the report")
+                    elif file_type == "Top Customers report":
+                        df_show = df.copy()
+                        #df_show['Phone number'] = df_show['Phone number'].apply(format_phone_number)  #error with this report
+                        #df_show['Contact phone'] = df_show['Contact phone'].apply(format_phone_number)  #TODO error with this report
+                        df_show['Total sales'] = df_show['Total sales'].apply(add_dollar_sign)
+                        try:
+                            st.dataframe(df_show, use_container_width=False)
+                        except:
+                            st.warning("Data display error, try reloading the report")
+                    elif file_type == "Order Sales Summary report":
+                        df_show = df.copy()
+                        df_show['Id'] = df_show['Id'].apply(id_str)
+                        df_show['Id'] = df_show['Id'].apply(id_str)
+                        df_show['Grand total'] = df_show['Grand total'].apply(add_dollar_sign)
+                        df_show['Item specific discount'] = df_show['Item specific discount'].apply(add_dollar_sign)
+                        df_show['Manufacturer specific discount'] = df_show['Manufacturer specific discount'].apply(add_dollar_sign)
+                        df_show['Total invoice discount'] = df_show['Total invoice discount'].apply(add_dollar_sign)
+                        df_show['Customer discount'] = df_show['Customer discount'].apply(add_dollar_sign)
+                        df_show['Balance'] = df_show['Balance'].apply(add_dollar_sign)
+                        try:
+                            st.dataframe(df_show, use_container_width=False)
+                        except:
+                            st.warning("Data display error, try reloading the report")
+                    elif file_type == "SKU's Not Ordered report":
+                        df_show = df.copy()
+                        df_show['Wholesale price'] = df_show['Wholesale price'].apply(add_dollar_sign)
+                        df_show['Retail price'] = df_show['Retail price'].apply(add_dollar_sign)
+                        df_show['Total revenue'] = df_show['Total revenue'].apply(add_dollar_sign)
+                        try:
+                            st.dataframe(df_show, use_container_width=False)
+                        except:
+                            st.warning("Data display error, try reloading the report")
+                    elif file_type == "Reps Summary report":
+                        df_show = df.copy()
+                        df_show['Id'] = df_show['Id'].apply(id_str)
+                        df_show['Total revenue'] = df_show['Total revenue'].apply(add_dollar_sign)
+                        try:
+                            st.dataframe(df_show, use_container_width=False)
+                        except:
+                            st.warning("Data display error, try reloading the report")
+                    elif file_type == "Low Stock Inventory report":
+                        df_show = df.copy()
+                        df_show['Wholesale price'] = df_show['Wholesale price'].apply(add_dollar_sign)
+                        df_show['Retail price'] = df_show['Retail price'].apply(add_dollar_sign)
+                        try:
+                            st.dataframe(df_show, width=1200, use_container_width=False)
+                        except:
+                            st.warning("Data display error, try reloading the report")
+                    elif file_type =="Best Sellers report":
+                        df_show = df.copy()
+                        df_show['Wholesale price'] = df_show['Wholesale price'].apply(add_dollar_sign)
+                        df_show['Retail price'] = df_show['Retail price'].apply(add_dollar_sign)
+                        df_show['Total revenue'] = df_show['Total revenue'].apply(add_dollar_sign)
+                        try:
+                            st.dataframe(df_show, use_container_width=False)
+                        except:
+                            st.warning("Data display error, try reloading the report")
+                    elif file_type == "3rd Party Sales Summary report":
+                        df_show = df.copy()
+                        df_show['Id'] = df_show['Id'].apply(id_str)
+                        df_show['Grand total'] = df_show['Grand total'].apply(add_dollar_sign)
+                        df_show['Item specific discount'] = df_show['Item specific discount'].apply(add_dollar_sign)
+                        df_show['Manufacturer specific discount'] = df_show['Manufacturer specific discount'].apply(add_dollar_sign)
+                        df_show['Total invoice discount'] = df_show['Total invoice discount'].apply(add_dollar_sign)
+                        df_show['Customer discount'] = df_show['Customer discount'].apply(add_dollar_sign)
+                        try:
+                            st.dataframe(df_show, use_container_width=False)
+                        except:
+                            st.warning("Data display error, try reloading the report")
+                    elif file_type == "Current Inventory report":
+                        df_show = df.copy()
+                        df_show['Wholesale price'] = df_show['Wholesale price'].apply(add_dollar_sign)
+                        df_show['Retail price'] = df_show['Retail price'].apply(add_dollar_sign)
+                        try:
+                            st.dataframe(df_show, use_container_width=False)
+                        except:
+                            st.warning("Data display error, try reloading the report")
+                    else:
+                        st.dataframe(df,width=2500, use_container_width=False)
     except:
         st.warning("Data display error, try reloading the report")
 
@@ -795,7 +798,7 @@ def big_main():
             css_styles=["""
                 button {
                     background-color: #ffffff;
-                    border: 2px solid #bfc0c2;
+                    border: 1px solid #bfc0c2;
                     color: #bfc0c2;
                     padding: 0px;
                     text-align: center;
@@ -840,10 +843,7 @@ def big_main():
         if file_type in report_function_map:
             report_function_map[file_type](df)
         else:
-            if df.empty:
-                st.warning("### This data report is empty - try downloading another one to get better visualizations")
-            else:
-                st.warning("###Unrecognized error")
+            st.warning("###Unrecognized error")
 
 
 
@@ -904,8 +904,8 @@ def main_viz():
     #filename = get_file_name(UPLOAD_DIR)
     if "clean" not in st.session_state:
         st.session_state["clean"] = True
-        cleanup_uploads_folder(UPLOAD_DIR)
-        
+    cleanup_uploads_folder(UPLOAD_DIR) #if wanna make one time than add in iff state "clean"
+
     #clean_csv_files(UPLOAD_DIR)
     
         
@@ -950,6 +950,9 @@ def main_viz():
     st.title(f"Report: {report_name_title}")
     #add_custom_css()
     #if os.path.exists(last_uploaded_file_path):
+    if "one_rerun" not in st.session_state:
+        st.session_state["one_rerun"] = True
+        st.rerun()
     big_main()
     #else:
     #    st.rerun() # TODO: danger zone for reruning
