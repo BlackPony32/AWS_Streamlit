@@ -282,6 +282,7 @@ def big_main():
                 if df.empty:
                     st.dataframe(df)
                     st.warning("### This data report is empty - try downloading another one to get better visualizations")
+                    st.stop()
                 else:
 
                     if file_type == "Representative Details report":
