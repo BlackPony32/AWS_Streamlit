@@ -578,7 +578,7 @@ def big_main():
                                 st.session_state['input_text'] = st.session_state['my_input']
 
                             if option is None:
-                                value = st.text_area("Enter your text here:", height=100, placeholder="Message AI", label_visibility="collapsed", key="uniqy1")
+                                value = st.text_area("Enter your text here:", height=100, placeholder="Message AI", label_visibility="collapsed", key="uniqy")
                                 st.session_state['input_text'] = value
                                 input_text = st.session_state['input_text']
 
