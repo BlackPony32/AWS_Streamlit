@@ -577,19 +577,16 @@ def big_main():
                             def update_text():
                                 st.session_state['input_text'] = st.session_state['my_input']
 
-                            #if option is None:
-                            #value = st_keyup(label='Enter your query:',debounce=400, key='my_input' , placeholder="Message Ai", label_visibility="collapsed", on_change=update_text)
-                            value = st.text_area("Enter your text here:", height=100, placeholder="Message AI", label_visibility="collapsed", key="uniqy1")
+                            if option is None:
+                                value = st.text_area("Enter your text here:", height=100, placeholder="Message AI", label_visibility="collapsed", key="uniqy1")
+                                st.session_state['input_text'] = value
+                                input_text = st.session_state['input_text']
 
-                            st.session_state['input_text'] = value
-                            input_text = st.session_state['input_text']
-                            #option = None
-
-                            #else:
-                            #    value = st_keyup(value=option,debounce=400, label='Message Ai', placeholder="Message Ai", label_visibility="collapsed", on_change=update_text,key="1100")
-                            #    st.session_state['input_text'] = value
-                            #    option = None
-                            #    input_text = st.session_state['input_text']
+                            else:
+                                value = st.text_area(value=option, label='Message Ai', placeholder="Message Ai", label_visibility="collapsed", on_change=update_text,key="1100")
+                                st.session_state['input_text'] = value
+                                option = None
+                                input_text = st.session_state['input_text']
 
                             if input_text is not None:
                                 #\\
@@ -708,20 +705,17 @@ def big_main():
                                 st.session_state['input_text_img'] = st.session_state['my_input_img']
 
 
-                            #if option1 is None:
-                            #value = st_keyup(label='Enter your query for the plot',debounce=500, key='my_input_img' , placeholder="Message Ai", label_visibility="collapsed", on_change=update_text_img)
-                            value1 = st.text_area("Enter your text here:", height=100, placeholder="Message AI", label_visibility="collapsed", key="uniqy")
-                            st.session_state['input_text_img'] = value1
-                            #st.write(f"Current text in func: {st.session_state['input_text_img']}")
-                            input_text2 = st.session_state['input_text_img']
-                                #option1 = None
-                            #else:
-                            #    value  = st_keyup(value=option1,debounce=500, label='Enter your query for the plot', placeholder = "Message Ai", label_visibility="collapsed", on_change=update_text_img)
-                            #    st.session_state['input_text_img'] = value
-                            #    #option1 = None
-                            #    input_text2 = st.session_state['input_text_img']
+                            if option1 is None:
+                                value1 = st.text_area("Enter your text here:", height=100, placeholder="Message AI", label_visibility="collapsed", key="uniqy1")
+                                st.session_state['input_text_img'] = value1
+                                input_text2 = st.session_state['input_text_img']
 
-                            #st.success("Plotting your Query: " + input_text2)
+                            else:
+                                value1 = st.text_area(value=option1, label='Message Ai', placeholder="Message Ai", label_visibility="collapsed", on_change=update_text_img,key="1101")
+                                st.session_state['input_text_img'] = value1
+                                option1 = None
+                                input_text2 = st.session_state['input_text_img']
+                                
                             if input_text2 is not None:
                                 #\\
                                 def click_button():
