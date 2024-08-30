@@ -110,38 +110,43 @@ def plot_revenue_by_month_and_role(df):
 
 #Visualize visits and travel distance for each name
 def plot_visits_and_travel_distance_by_name(df):
-   df['Travel distance'] = pd.to_numeric(df['Travel distance'].str.replace(' mi', ''))
-   grouped_data = df.groupby('Name')[['Visits', 'Travel distance']].sum()
+    df = df.copy()
+    if df['Travel distance'].dtype == 'object':
+         if df['Travel distance'].str.contains(' mi').any():
+             df['Travel distance'] = pd.to_numeric(df['Travel distance'].str.replace(' mi', ''), errors='coerce')
+    
+    grouped_data = df.groupby('Name')[['Visits', 'Travel distance']].sum()
 
-   fig = go.Figure()
-
-   for column in grouped_data.columns:
-       fig.add_trace(go.Bar(
-           x=grouped_data.index,
-           y=grouped_data[column],
-           name=column,
-           text=grouped_data[column].apply(lambda x: f'{x:.2f}'),
-           textposition='auto',
-           hovertemplate='<b>%{x}</b><br>' +
-                         f'{column}: ' + '%{y:.2f}' +
-                         ('<br>Miles' if column == 'Travel distance' else '<br>Visits') +
-                         '<extra></extra>'
-       ))
-
-   fig.update_layout(
-       xaxis_title="Name",
-       yaxis_title="Count / Distance",
-       barmode='group',
-       template="plotly_white",
-       legend_title="Metrics",
-       xaxis_tickangle=45,
-       hoverlabel=dict(bgcolor="white", font_size=12)
-   )
-
-   st.plotly_chart(fig, use_container_width=True)
+    fig = go.Figure()
+    
+    for column in grouped_data.columns:
+        fig.add_trace(go.Bar(
+            x=grouped_data.index,
+            y=grouped_data[column],
+            name=column,
+            text=grouped_data[column].apply(lambda x: f'{x:.2f}'),
+            textposition='auto',
+            hovertemplate='<b>%{x}</b><br>' +
+                          f'{column}: ' + '%{y:.2f}' +
+                          ('<br>Miles' if column == 'Travel distance' else '<br>Visits') +
+                          '<extra></extra>'
+        ))
+    
+    fig.update_layout(
+        xaxis_title="Name",
+        yaxis_title="Count / Distance",
+        barmode='group',
+        template="plotly_white",
+        legend_title="Metrics",
+        xaxis_tickangle=45,
+        hoverlabel=dict(bgcolor="white", font_size=12)
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
 
 #Visualize the number of cases sold for each day of the week
 def plot_cases_sold_by_day_of_week(df):
+    df = df.copy()
     df['Day of Week'] = pd.to_datetime(df['Date']).dt.dayofweek
     weekday_counts = df['Day of Week'].value_counts().sort_index()
 
@@ -178,6 +183,7 @@ def plot_cases_sold_by_day_of_week(df):
 
 #Visualizing Revenue Trends over Time for Each Role
 def plot_revenue_trend_by_month_and_role(df):
+    df = df.copy()
     df['Month'] = pd.to_datetime(df['Date']).dt.month
     monthly_revenue = df.groupby(['Month', 'Role'])['Total revenue'].sum().unstack(fill_value=0)
 
@@ -214,6 +220,7 @@ def plot_revenue_trend_by_month_and_role(df):
 def plot_orders_vs_visits_with_regression(df):
     # Calculate the OLS trendline
     from scipy import stats
+    df = df.copy()
     slope, intercept, r_value, p_value, std_err = stats.linregress(df['Visits'], df['Orders'])
     line = slope * df['Visits'] + intercept
 
@@ -260,6 +267,7 @@ def plot_orders_vs_visits_with_regression(df):
 
 #Comparing Performance Metrics for Different Roles
 def plot_multiple_metrics_by_role(df):
+    df = df.copy()
     grouped_data = df.groupby('Role')[['Visits', 'Orders', 'Cases sold']].sum()
 
     fig = go.Figure()
@@ -290,9 +298,12 @@ def plot_multiple_metrics_by_role(df):
 #Identifying Potential High-Value Clients
 def plot_revenue_vs_cases_sold_with_size_and_color(df):
     df = df.copy()  # Create a copy of the DataFrame
-    if not pd.api.types.is_numeric_dtype(df['Travel distance']):
-        df['Travel distance'] = pd.to_numeric(df['Travel distance'].str.replace(' mi', ''))
+    if df['Travel distance'].dtype == 'object':
+        if df['Travel distance'].str.contains(' mi').any():
+            df['Travel distance'] = pd.to_numeric(df['Travel distance'].str.replace(' mi', ''), errors='coerce')
 
+    
+    # Plotting with Plotly
     fig = go.Figure()
 
     fig.add_trace(go.Scatter(

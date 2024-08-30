@@ -31,25 +31,45 @@ def preprocess_data(data):
 
     return data
 
-def low_stock_analysis_app1(df):
+def low_stock_analysis_app1(df, threshold=0.01):
     category_counts = df.groupby("Category name")["Product name"].count().reset_index()
+    total_sum = category_counts["Product name"].sum()
+    
+    # Calculate percentages
+    category_counts['percentage'] = category_counts["Product name"] / total_sum
+    
+    # Group smaller categories into 'Other'
+    main_data = category_counts[category_counts['percentage'] >= threshold]
+    other_data = category_counts[category_counts['percentage'] < threshold]
+    
+    if not other_data.empty:
+        other_sum = other_data["Product name"].sum()
+        other_row = pd.DataFrame({'Category name': ['Other'], 'Product name': [other_sum], 'percentage': [other_sum / total_sum]})
+        main_data = pd.concat([main_data, other_row], ignore_index=True)
+    
     fig1 = go.Figure(go.Pie(
-        labels=category_counts["Category name"],
-        values=category_counts["Product name"],
+        labels=main_data["Category name"],
+        values=main_data["Product name"],
         hole=0.3,
         textinfo='percent+label',
         marker=dict(colors=px.colors.qualitative.Pastel),
         hovertemplate="<b>Category:</b> %{label}<br><b>Count:</b> %{value}<br><b>Percentage:</b> %{percent}<extra></extra>"
     ))
     fig1.update_layout(
-        title="Low Stock Items by Category",
-        legend=dict(title="Category", orientation="h", y=1.1, x=0.5, xanchor='center')
+        legend=dict(title="Category", orientation="h", y=1.1, x=0.5, xanchor='center'),
+        margin=dict(t=0, b=0, l=0, r=0)
     )
     st.plotly_chart(fig1, use_container_width=True)
 
 
 def low_stock_analysis_app2(df):
-    df_positive_qty = df[df['Available cases (QTY)'] > 0]  
+    # Filter data for positive quantities and non-null wholesale prices
+    df_positive_qty = df[(df['Available cases (QTY)'] > 0) & (df['Wholesale price'].notna())]
+
+    if df_positive_qty.empty:
+        st.write("No data available for plotting. Please check your dataset.")
+        return
+
     fig2 = go.Figure(data=go.Scatter(
         x=df_positive_qty["Wholesale price"],
         y=df_positive_qty["Available cases (QTY)"],
@@ -57,19 +77,20 @@ def low_stock_analysis_app2(df):
         marker=dict(
             size=df_positive_qty["Available cases (QTY)"],
             color=df_positive_qty["Wholesale price"],
-            #colorscale='Pastel',
+            colorscale='Viridis',  # Choose a colorscale for better visualization
             showscale=True
         ),
         text=df_positive_qty['Product name'],
         hovertemplate="<b>%{text}</b><br>Wholesale Price: %{x}<br>Available Cases (QTY): %{y}<extra></extra>"
     ))
+
     fig2.update_layout(
-        title="Wholesale Price vs. Available Quantity",
         xaxis_title="Wholesale Price",
         yaxis_title="Available Cases (QTY)",
         template="plotly_white",
-        legend=dict(title="Category", orientation="h", y=1.1, x=0.5, xanchor='center')
+        margin=dict(t=0, b=0, l=0, r=0)
     )
+
     st.plotly_chart(fig2, use_container_width=True)
 
     

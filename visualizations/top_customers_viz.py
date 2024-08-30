@@ -54,24 +54,46 @@ def customer_analysis_app1(df):
     st.plotly_chart(fig, use_container_width=True)
 
     
-def customer_analysis_app2(df):
-    """Creates a Streamlit app with tabs for analyzing customer data using plots."""
+def customer_analysis_app2(df, threshold=0.01):
+    """Creates a Streamlit app with a pie chart for analyzing sales distribution by territory."""
 
-    
     st.subheader("Sales by Territory")
+    
+    # Group sales by territory
     territory_sales = df.groupby('Territory')['Total sales'].sum().reset_index()
+    
+    # Calculate the total sales for percentage calculation
+    total_sales_sum = territory_sales['Total sales'].sum()
+    
+    # Calculate the percentage of each territory's sales
+    territory_sales['percentage'] = territory_sales['Total sales'] / total_sales_sum
+    
+    # Group smaller territories into 'Other'
+    main_data = territory_sales[territory_sales['percentage'] >= threshold]
+    other_data = territory_sales[territory_sales['percentage'] < threshold]
+    
+    if not other_data.empty:
+        other_sales_sum = other_data['Total sales'].sum()
+        other_row = pd.DataFrame({'Territory': ['Other'], 'Total sales': [other_sales_sum], 'percentage': [other_sales_sum / total_sales_sum]})
+        main_data = pd.concat([main_data, other_row], ignore_index=True)
+    
+    # Create the pie chart
     fig = go.Figure(data=go.Pie(
-        labels=territory_sales['Territory'],
-        values=territory_sales['Total sales'],
+        labels=main_data['Territory'],
+        values=main_data['Total sales'],
         hole=0.3,
-        marker=dict(colors=px.colors.qualitative.Pastel),
+        marker=dict(colors=px.colors.qualitative.Dark2),
         hovertemplate='<b>Territory:</b> %{label}<br><b>Total Sales:</b> $%{value:,.2f}<br><b>Percentage:</b> %{percent}<extra></extra>',
         textinfo='percent+label'
     ))
+
+    # Update the layout of the pie chart
     fig.update_layout(
         title="Sales Distribution by Territory",
-    height=550  # Set the height of the plot
-)
+        height=550  # Set the height of the plot
+    )
+
+    # Display the chart in Streamlit
     st.plotly_chart(fig, use_container_width=True)
 
 

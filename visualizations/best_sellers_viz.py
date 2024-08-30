@@ -167,22 +167,31 @@ def price_comparison_app2(df):
     st.plotly_chart(fig2, use_container_width=True)
 
 def create_revenue_vs_profit_plot1(df):
+    # Calculate Profit
     df['Profit'] = (df['Retail price'] - df['Wholesale price']) * df['Cases sold']
+    
+    # Calculate Revenue by Category (if needed)
     category_revenue = df.groupby('Category name')['Total revenue'].sum()
 
+    # Assign colors to products
     product_colors = colors.qualitative.Plotly
     product_color_map = {product: color for product, color in zip(df['Product name'].unique(), product_colors)}
     
+    # Create the plot
     fig1 = go.Figure()
     
     for product in df['Product name'].unique():
         product_data = df[df['Product name'] == product]
+        
+        # Use .get() to avoid KeyError
+        color = product_color_map.get(product, 'green')  # Default to 'green' if product not found in product_color_map
+        
         fig1.add_trace(go.Scatter(
             x=product_data['Total revenue'],
             y=product_data['Profit'],
             mode='markers',
             marker=dict(
-                color=product_color_map[product],
+                color=color,
                 size=10
             ),
             name=product,
@@ -198,7 +207,9 @@ def create_revenue_vs_profit_plot1(df):
         legend=dict(title="Products")
     )
     
+    # Display the plot in Streamlit
     st.plotly_chart(fig1, use_container_width=True)
+
     
             
 def create_revenue_vs_profit_plot2(df):

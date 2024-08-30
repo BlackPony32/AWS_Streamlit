@@ -2,13 +2,46 @@ import pandas as pd
 import os
 import streamlit as st  # Make sure to import streamlit for error logging
 import re
+import csv
 #from main import file_name
 
 UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
+    
+def identify_file_mini(file_name):
+    try:
+        if file_name == 'THIRD_PARTY_SALES_SUMMARY':
+            return "3rd Party Sales Summary"
+        elif file_name == 'ORDER_SALES_SUMMARY':
+            return "Order Sales Summary"
+        elif file_name == 'BEST_SELLERS':
+            return "Best Sellers"
+        elif file_name == 'REP_DETAILS':
+            return "Representative Details"
+        elif file_name == 'REPS_SUMMARY':
+            return "Reps Summary"
+        elif file_name == 'SKU_NOT_ORDERED':
+            return "SKU's Not Ordered"
+        elif file_name == 'LOW_STOCK_INVENTORY':
+            return "Low Stock Inventory"
+        elif file_name == 'CURRENT_INVENTORY':
+            return "Current Inventory"
+        elif file_name == 'TOP_CUSTOMERS':
+            return "Top Customers"
+        elif file_name == 'CUSTOMER_DETAILS':
+            return "Customer Details"
+        else:
+            return "SimplyDepo"
+        
 
-def get_file_name():
+    except Exception as e:
+        # Log the exception for debugging
+        st.error(f"Error reading file: {e}")
+        return "Invalid File"
+
+
+def get_file_name(UPLOAD_DIR):
     file_name = [
         f for f in os.listdir(UPLOAD_DIR) if os.path.isfile(os.path.join(UPLOAD_DIR, f))
     ]
@@ -17,12 +50,12 @@ def get_file_name():
     except Exception as e:
         return "Invalid File"
 
-def identify_file(uploaded_file):
+def identify_file(UPLOAD_DIR):
     try:
-        file_name = get_file_name()
-        last_uploaded_file_path = os.path.join(UPLOAD_DIR, file_name)
-        df = pd.read_csv(last_uploaded_file_path, encoding='utf-8')
-        columns = set(df.columns)
+        file_name = get_file_name(UPLOAD_DIR)
+        #last_uploaded_file_path = os.path.join(UPLOAD_DIR, file_name)
+        #df = pd.read_csv(last_uploaded_file_path, encoding='utf-8')
+        #columns = set(df.columns)
 
         
         # Identify file type based on columns
@@ -47,7 +80,7 @@ def identify_file(uploaded_file):
         elif file_name == 'customer_details.csv':
             return "Customer Details report"
         else:
-            return "Unknown"
+            return "SimplyDepo report"
         
 
 
@@ -55,6 +88,7 @@ def identify_file(uploaded_file):
         # Log the exception for debugging
         st.error(f"Error reading file: {e}")
         return "Invalid File"
+
 
 def extract_filename(url):
     # Extract the filename with extension from the URL
