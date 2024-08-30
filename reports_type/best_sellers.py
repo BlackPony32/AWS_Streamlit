@@ -13,7 +13,7 @@ def report_func(df):
     
     if "Available cases (QTY)" in columns and "Product name" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -42,7 +42,7 @@ def report_func(df):
     
     if "Product name" in columns and "Total revenue" in columns and "Cases sold" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -113,7 +113,7 @@ def report_func(df):
     
     if "Cases sold" in columns and "Total revenue" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -144,7 +144,7 @@ def report_func(df):
     # bar_chart()
     if "Category name" in columns and "Wholesale price" in columns and "Retail price" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -216,7 +216,7 @@ def report_func(df):
     
     if "Total revenue" in columns and "Product name" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>

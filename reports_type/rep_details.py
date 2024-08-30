@@ -13,7 +13,7 @@ def report_func(df):
     
     if "Total working hours" in columns and "Total visits" in columns and "Assigned customers" in columns and "Role"in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -38,7 +38,7 @@ def report_func(df):
     
     if "Role" in columns and "Active customers" in columns and "Total visits" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -63,7 +63,7 @@ def report_func(df):
     
     if "Total travel distance" in columns and "Total visits" in columns and "Role" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -91,7 +91,7 @@ def report_func(df):
     #wih cc2:
     if "Total working hours" in columns and "Total break hours" in columns and "Total travel distance" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -154,7 +154,7 @@ def report_func(df):
     
     if "Role" in columns and "Total visits" in columns and "Total photos" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -211,7 +211,7 @@ def report_func(df):
     
     if "Role" in columns and "Assigned customers" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>

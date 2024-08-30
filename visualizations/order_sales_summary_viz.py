@@ -357,27 +357,36 @@ def visualize_payment_analysis(data, payment_status_col='Payment status'):
 
 # _________________Combined Analysis Function (with Plotly)___________________________
 def visualize_combined_analysis1(data, product_col='Product name', 
-                               grand_total_col='Grand total', qty_col='QTY', 
-                               delivery_status_col='Delivery status'):
+                                 grand_total_col='Grand total', qty_col='QTY', 
+                                 delivery_status_col='Delivery status'):
+    max_legend_length = 50  # Adjust the maximum legend length 
 
-        scatter_data = [
-            go.Scatter(
-                x=data[data[product_col] == product][qty_col], 
-                y=data[data[product_col] == product][grand_total_col],
-                mode='markers',
-                name=product,
-                text=data[data[product_col] == product][product_col],
-                hovertemplate='Quantity: %{x}<br>Sales Amount: %{y}<br>Product: %{text}<extra></extra>'
-            ) for product in data[product_col].unique()
-        ]
-        fig = go.Figure(data=scatter_data)
-        fig.update_layout(
-            xaxis_title="Quantity",
-            yaxis_title="Sales Amount",
-            xaxis_tickangle=45,
-            template="plotly_white"
+    scatter_data = [
+        go.Scatter(
+            x=data[data[product_col] == product][qty_col], 
+            y=data[data[product_col] == product][grand_total_col],
+            mode='markers',
+            name=(product if len(product) <= max_legend_length else product[:max_legend_length] + '...'),
+            text=data[data[product_col] == product][product_col],
+            hovertemplate='Quantity: %{x}<br>Sales Amount: %{y}<br>Product: %{text}<extra></extra>'
+        ) for product in data[product_col].unique()
+    ]
+    fig = go.Figure(data=scatter_data)
+    fig.update_layout(
+        xaxis_title="Quantity",
+        yaxis_title="Sales Amount",
+        xaxis_tickangle=45,
+        template="plotly_white",
+        legend=dict(
+            title="Products",
+            traceorder="normal",
+            font=dict(
+                size=10  # Adjust font size for legend if needed
+            )
         )
-        st.plotly_chart(fig, use_container_width=True)
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
 
 
 

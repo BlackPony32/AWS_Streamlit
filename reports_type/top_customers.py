@@ -12,7 +12,7 @@ def report_func(df):
     top_customers_viz.preprocess_data(df)
     if "Name" in columns and "Total sales" in columns and "Territory" in columns and "Payment terms" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -82,7 +82,7 @@ def report_func(df):
     
     if "Payment terms" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -107,7 +107,7 @@ def report_func(df):
     #wih cc2:
     if "Total sales" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -132,7 +132,7 @@ def report_func(df):
     
     if "Group" in columns and "Billing city" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>

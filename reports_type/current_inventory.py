@@ -13,7 +13,7 @@ def report_func(df):
     if "Available cases (QTY)" in columns and "Wholesale price" in columns and "Category name" in columns:
         
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -38,7 +38,7 @@ def report_func(df):
     
     if "Available cases (QTY)" in columns and "Retail price" in columns and "Category name" in columns and "Wholesale price" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])#([1, 1.705])
+            col11, col12 = st.columns([10, 0.50])#([1, 1.705])
             with col11:
                 st.markdown("""
                 <style>
@@ -64,7 +64,7 @@ def report_func(df):
     
     if "Available cases (QTY)" in columns and "Wholesale price" in columns and "Manufacturer name" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])#([1, 1.95])
+            col11, col12 = st.columns([10, 0.50])#([1, 1.95])
             with col11:
                 st.markdown("""
                 <style>
@@ -90,7 +90,7 @@ def report_func(df):
     #wih cc2:
     if "Wholesale price" in columns and "Available cases (QTY)" in columns and "Product name" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])#([1, 2.35])
+            col11, col12 = st.columns([10, 0.50])#([1, 2.35])
             with col11:
                 st.markdown("""
                 <style>
@@ -113,7 +113,7 @@ def report_func(df):
     
     if "Retail price" in columns and "Category name" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])#([1, 2])
+            col11, col12 = st.columns([10, 0.50])#([1, 2])
             with col11:
                 st.markdown("""
                 <style>

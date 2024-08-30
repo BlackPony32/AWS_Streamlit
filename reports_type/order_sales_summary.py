@@ -13,7 +13,7 @@ def report_func(df):
     
     if "Customer" in columns and "Product name" in columns and "Created at" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -83,7 +83,7 @@ def report_func(df):
     
     if "Product name" in columns and "Grand total" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -153,7 +153,7 @@ def report_func(df):
     
     if "Discount type" in columns and "Total invoice discount" in columns and "Customer" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -225,7 +225,7 @@ def report_func(df):
     # bar_chart()
     if "Delivery status" in columns and "Delivery methods" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -296,7 +296,7 @@ def report_func(df):
     
     if "Payment status" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -324,7 +324,7 @@ def report_func(df):
     
     if "Product name" in columns and "Grand total" in columns and "QTY" in columns and "Delivery status"in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>

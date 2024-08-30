@@ -13,7 +13,7 @@ def report_func(df):
     
     if "Group" in columns and "Total orders" in columns and "Total sales" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -38,7 +38,7 @@ def report_func(df):
     
     if "Payment terms" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -64,7 +64,7 @@ def report_func(df):
     #wih cc2:
     if "Total sales" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -90,7 +90,7 @@ def report_func(df):
         
     if "Total sales" in columns and "Group" in columns and "Billing state" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>

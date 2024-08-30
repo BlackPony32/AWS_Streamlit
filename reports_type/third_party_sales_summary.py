@@ -10,7 +10,7 @@ def report_func(df):
     third_party_sales_viz.preprocess_data(df)
     if "Product name" in columns and "Grand total" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -76,7 +76,7 @@ def report_func(df):
     
     if "Customer" in columns and "Product name" in columns and "QTY" in columns and "Grand total" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -101,7 +101,7 @@ def report_func(df):
     
     if "Product name" in columns and "QTY" in columns and "Grand total" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -126,7 +126,7 @@ def report_func(df):
     
     if "Discount type" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -150,7 +150,7 @@ def report_func(df):
         st.warning("There is no Discount type, so visualizing can not be ready")
     if "Grand total" in columns and "Manufacturer specific discount" in columns and "Customer discount" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>

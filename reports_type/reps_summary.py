@@ -27,7 +27,7 @@ def report_func(df):
     st.markdown(css, unsafe_allow_html=True)
     if "Orders" in columns and "Total revenue" in columns and "Cases sold" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -91,7 +91,7 @@ def report_func(df):
     
     if "Date" in columns and "Role" in columns and "Total revenue" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -116,7 +116,7 @@ def report_func(df):
     
     if "Date" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -141,7 +141,7 @@ def report_func(df):
     
     if "Date" in columns and "Total revenue" in columns and "Role" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -167,7 +167,7 @@ def report_func(df):
     #wih cc2:
     if "Name" in columns and "Visits" in columns and "Travel distance" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -192,7 +192,7 @@ def report_func(df):
     
     if "Visits" in columns and "Orders" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -218,7 +218,7 @@ def report_func(df):
     
     if "Role" in columns and "Visits" in columns and "Orders" in columns and "Cases sold" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
@@ -243,7 +243,7 @@ def report_func(df):
     
     if "Cases sold" in columns and "Total revenue" in columns and "Visits" in columns and "Travel distance" in columns:
         with st.container(border=True):
-            col11, col12 = st.columns([10, 0.45])
+            col11, col12 = st.columns([10, 0.50])
             with col11:
                 st.markdown("""
                 <style>
