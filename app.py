@@ -210,7 +210,7 @@ def add_dollar_sign(value):
         return value
 
 def big_main():
-    st.write(st.session_state.last_uploaded_file_path)
+    #st.write(st.session_state.last_uploaded_file_path)
     df = cache_df(st.session_state.last_uploaded_file_path)
     df.index = range(1, len(df) + 1)
     file_type = identify_file(UPLOAD_DIR)
@@ -234,7 +234,7 @@ def big_main():
         st.session_state.plot_clicked = False
     #keyy = os.getenv('OPENAI_API_KEY')
     #st.write(keyy)
-    st.write(st.session_state["user_id"])
+    #st.write(st.session_state["user_id"])
     try:
         # #
         with stylable_container(
@@ -871,8 +871,8 @@ def main_viz():
                 for filename in files:
                     file_path = os.path.join(upload_dir, filename)
                     os.unlink(file_path)
-            else:
-                st.info("Only one file found in the folder; no cleanup necessary.")
+            #else:
+            #    st.info("Only one file found in the folder; no cleanup necessary.")
 
         except Exception as e:
             st.warning(f"Something went wrong during cleanup: {e}")
