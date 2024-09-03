@@ -1,6 +1,5 @@
 import streamlit as st
 from streamlit_extras.stylable_container import stylable_container
-#from st_keyup import st_keyup
 import pandas as pd
 import os
 import openai
@@ -33,13 +32,6 @@ from side_func import identify_file, identify_file_mini
 load_dotenv()
 
 fastapi_url = os.getenv('FASTAPI_URL')
-
-#def get_upload_file():
-#    link = fastapi_url + "/get_folder_name/"
-#    response = requests.get(link)
-#    response.raise_for_status()  # Raise an exception for HTTP errors
-#    data = response.json()
-#    return data
 
 def window_name():
 

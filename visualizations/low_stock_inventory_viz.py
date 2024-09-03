@@ -63,35 +63,43 @@ def low_stock_analysis_app1(df, threshold=0.01):
 
 
 def low_stock_analysis_app2(df):
-    # Filter data for positive quantities and non-null wholesale prices
-    df_positive_qty = df[(df['Available cases (QTY)'] > 0) & (df['Wholesale price'].notna())]
+    # Filter data for non-null wholesale prices (allowing negative and zero quantities)
+    df_valid_prices = df[df['Wholesale price'].notna()]
 
-    if df_positive_qty.empty:
+    # Check if the DataFrame is empty after filtering
+    if df_valid_prices.empty:
         st.write("No data available for plotting. Please check your dataset.")
         return
 
     fig2 = go.Figure(data=go.Scatter(
-        x=df_positive_qty["Wholesale price"],
-        y=df_positive_qty["Available cases (QTY)"],
+        x=df_valid_prices["Wholesale price"],
+        y=df_valid_prices["Available cases (QTY)"],
         mode='markers',
         marker=dict(
-            size=df_positive_qty["Available cases (QTY)"],
-            color=df_positive_qty["Wholesale price"],
+            size=10,  # Increased marker size for better visibility
+            color=df_valid_prices["Wholesale price"],
             colorscale='Viridis',  # Choose a colorscale for better visualization
             showscale=True
         ),
-        text=df_positive_qty['Product name'],
+        text=df_valid_prices['Product name'],
         hovertemplate="<b>%{text}</b><br>Wholesale Price: %{x}<br>Available Cases (QTY): %{y}<extra></extra>"
     ))
 
     fig2.update_layout(
-        xaxis_title="Wholesale Price",
-        yaxis_title="Available Cases (QTY)",
+        xaxis=dict(
+            title="Wholesale Price",
+            range=[df_valid_prices["Wholesale price"].min() - 1, df_valid_prices["Wholesale price"].max() + 1]
+        ),
+        yaxis=dict(
+            title="Available Cases (QTY)",
+            range=[df_valid_prices["Available cases (QTY)"].min() - 1, df_valid_prices["Available cases (QTY)"].max() + 1]
+        ),
         template="plotly_white",
         margin=dict(t=0, b=0, l=0, r=0)
     )
 
     st.plotly_chart(fig2, use_container_width=True)
+
 
     
 

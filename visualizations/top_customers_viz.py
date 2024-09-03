@@ -34,7 +34,6 @@ def preprocess_data(data):
 def customer_analysis_app1(df):
     """Creates a Streamlit app with tabs for analyzing customer data using plots."""
 
-    st.subheader("Top 10 Customers")
     top_10_customers = df.groupby('Name')['Total sales'].sum().nlargest(10).reset_index()
     fig = go.Figure(data=go.Bar(
         x=top_10_customers['Name'],
@@ -57,7 +56,6 @@ def customer_analysis_app1(df):
 def customer_analysis_app2(df, threshold=0.01):
     """Creates a Streamlit app with a pie chart for analyzing sales distribution by territory."""
 
-    st.subheader("Sales by Territory")
     
     # Group sales by territory
     territory_sales = df.groupby('Territory')['Total sales'].sum().reset_index()
@@ -102,7 +100,6 @@ def customer_analysis_app3(df):
     """Creates a Streamlit app with tabs for analyzing customer data using plots."""
 
 
-    st.subheader("Sales by Payment Terms")
     payment_terms_sales = df.groupby('Payment terms')['Total sales'].sum().reset_index()
     fig = go.Figure(data=go.Bar(
         x=payment_terms_sales['Payment terms'],
