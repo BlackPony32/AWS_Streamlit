@@ -59,7 +59,7 @@ def report_func(df):
                 }
                 """],
             ):
-                tab1, tab2 = st.tabs(["Total Sales", "Order Distribution"])
+                tab1, tab2 = st.tabs(["Top Customers", "Monthly Trend"])
                 with tab1:
                     if condition == True:
                         st.markdown("""
@@ -72,10 +72,8 @@ def report_func(df):
                 with tab2:
                     if condition == True:
                         st.markdown("""
-                    This bar chart shows the number of orders for each product, providing insights into:
-                    * **Product Popularity:** Identify products with high order volumes, indicating popularity or demand.
-                    * **Inventory Planning:** Use order volume to inform inventory management and prevent stock shortages for popular items. 
-                    * **Performance Comparison:** See which products have relatively low order numbers, which might suggest areas for improvement.
+                    This line plot shows the Monthly Sales Trend over time, allowing you to quickly identify patterns, such as seasonal fluctuations or significant changes in sales. 
+                    It helps in making informed decisions for planning inventory, marketing strategies, and resource allocation.
                     """)
                     order_sales_summary_viz.visualize_sales_trends2(df)
     else:
@@ -129,7 +127,8 @@ def report_func(df):
                 }
                 """],
             ):
-                tab1, tab2 = st.tabs(["Top Customers", "Monthly Trend"])
+                
+                tab1, tab2 = st.tabs(["Total Sales", "Order Distribution"])
                 with tab1:
                     if condition == True:
                         st.markdown("""

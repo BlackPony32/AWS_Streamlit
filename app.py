@@ -1,6 +1,5 @@
 import streamlit as st
 from streamlit_extras.stylable_container import stylable_container
-#from st_keyup import st_keyup
 import pandas as pd
 import os
 import openai
@@ -8,7 +7,7 @@ import asyncio
 import json
 from dotenv import load_dotenv
 import httpx
-from fastapi import Response
+from fastapi import HTTPException, Response
 import requests
 import glob
 
@@ -33,13 +32,6 @@ from side_func import identify_file, identify_file_mini
 load_dotenv()
 
 fastapi_url = os.getenv('FASTAPI_URL')
-
-#def get_upload_file():
-#    link = fastapi_url + "/get_folder_name/"
-#    response = requests.get(link)
-#    response.raise_for_status()  # Raise an exception for HTTP errors
-#    data = response.json()
-#    return data
 
 def window_name():
 
@@ -210,8 +202,8 @@ def add_dollar_sign(value):
         return value
 
 def big_main():
-    #st.write(st.session_state)
-    df = cache_df(last_uploaded_file_path)
+    #st.write(st.session_state.last_uploaded_file_path)
+    df = cache_df(st.session_state.last_uploaded_file_path)
     df.index = range(1, len(df) + 1)
     file_type = identify_file(UPLOAD_DIR)
 
@@ -234,6 +226,7 @@ def big_main():
         st.session_state.plot_clicked = False
     #keyy = os.getenv('OPENAI_API_KEY')
     #st.write(keyy)
+    #st.write(st.session_state["user_id"])
     try:
         # #
         with stylable_container(
@@ -838,7 +831,7 @@ def big_main():
         if file_type in report_function_map:
             report_function_map[file_type](df)
         else:
-            st.warning("###Unrecognized error")
+            st.warning("##Unrecognized error")
 
 
 
@@ -862,12 +855,20 @@ def main_viz():
 
     def cleanup_uploads_folder(upload_dir: str):
         try:
-            for filename in os.listdir(upload_dir):
-                file_path = os.path.join(upload_dir, filename)
-                if os.path.isfile(file_path):
+            # List all files in the directory
+            files = [file for file in os.listdir(upload_dir) if os.path.isfile(os.path.join(upload_dir, file))]
+
+            # If there is more than one file, proceed with cleanup
+            if len(files) > 1:
+                for filename in files:
+                    file_path = os.path.join(upload_dir, filename)
                     os.unlink(file_path)
+            #else:
+            #    st.info("Only one file found in the folder; no cleanup necessary.")
+
         except Exception as e:
-            logging.error(f"Error cleaning up uploads folder: {str(e)}")
+            st.warning(f"Something went wrong during cleanup: {e}")
+                #logging.error(f"Error cleaning up uploads folder: {str(e)}")
     
     try:
         if "result" not in st.session_state:
@@ -937,10 +938,14 @@ def main_viz():
         #clean_csv_files(UPLOAD_DIR)
         for excel_file in excel_files:
             try:
-                last_uploaded_file_path = convert_excel_to_csv(excel_file)
+                if "last_uploaded_file_path" not in st.session_state:
+                    st.session_state.last_uploaded_file_path = convert_excel_to_csv(excel_file)
+                else:
+                    st.session_state.last_uploaded_file_path = convert_excel_to_csv(excel_file)
             except Exception as e:
                 st.warning("Oops, something went wrong. Please try updating the page.")
     #st.success(f"This is   type. File is available for visualization.")
+    last_uploaded_file_path = st.session_state.last_uploaded_file_path
     report_name_title = identify_file_mini(file_name_)
     st.title(f"Report: {report_name_title}")
     #add_custom_css()
@@ -948,11 +953,11 @@ def main_viz():
     if "one_rerun" not in st.session_state:
         st.session_state["one_rerun"] = True
         st.rerun()
+    
     big_main()
-    #else:
-    #    st.rerun() # TODO: danger zone for reruning
+    
 
-
+@st.cache_data(show_spinner=False)
 def test_plot_maker(df, text):
     from lida import Manager, TextGenerationConfig, llm
     from lida.datamodel import Goal
