@@ -92,6 +92,7 @@ def bar_plot_sorted_with_percentages(df, col='Payment terms'):
         y=df_plot['Count'],
         text=df_plot['Percentage'].apply(lambda x: f'{x:.1f}%'),
         textposition='outside',
+        marker_color=px.colors.qualitative.Dark24,  # Apply Dark24 color palette
         hovertemplate='<b>Category:</b> %{x}<br><b>Count:</b> %{y}<br><b>Percentage:</b> %{text}<extra></extra>'
     ))
 

@@ -80,7 +80,6 @@ def report_func(df):
                 # Check the state of the button
             if condition == True:
                 st.markdown("""
-                ## Travel Efficiency: Distance vs. Visits
                 This scatter plot shows the relationship between total travel distance and the number of visits. Each point represents a team member, colored by their role.
                 Use this plot to identify trends, outliers, and opportunities to optimize travel routes.
                 """)

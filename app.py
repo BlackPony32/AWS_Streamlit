@@ -305,7 +305,6 @@ def big_main():
                     elif file_type == "Order Sales Summary report":
                         df_show = df.copy()
                         df_show['Id'] = df_show['Id'].apply(id_str)
-                        df_show['Id'] = df_show['Id'].apply(id_str)
                         df_show['Grand total'] = df_show['Grand total'].apply(add_dollar_sign)
                         df_show['Item specific discount'] = df_show['Item specific discount'].apply(add_dollar_sign)
                         df_show['Manufacturer specific discount'] = df_show['Manufacturer specific discount'].apply(add_dollar_sign)
@@ -338,7 +337,7 @@ def big_main():
                         df_show['Wholesale price'] = df_show['Wholesale price'].apply(add_dollar_sign)
                         df_show['Retail price'] = df_show['Retail price'].apply(add_dollar_sign)
                         try:
-                            st.dataframe(df_show, width=1200, use_container_width=False)
+                            st.dataframe(df_show, use_container_width=False)
                         except:
                             st.warning("Data display error, try reloading the report")
                     elif file_type =="Best Sellers report":
@@ -371,7 +370,7 @@ def big_main():
                         except:
                             st.warning("Data display error, try reloading the report")
                     else:
-                        st.dataframe(df,width=2500, use_container_width=False)
+                        st.dataframe(df, use_container_width=False)
     except:
         st.warning("Data display error, try reloading the report")
 
@@ -624,16 +623,12 @@ def big_main():
                                     button_Submit1 = st.button('Submit', on_click=click_button, key=1)
 
                                 if st.session_state.chat_clicked == True:
-                                    if st.session_state.chat_clicked:
                                         if 'input_text' in st.session_state:
-                                            #st.write(f"Current text: {st.session_state['input_text']}")
                                             user_prompt = st.session_state['input_text']
-                                        st.session_state.chat_clicked = False #TODO real needed?
+                                        st.session_state.chat_clicked = False
                                         try:
                                             with st.spinner(text="Analyzing Your Request..."):
                                                 if "chat_result" not in st.session_state:
-                                                    #with st.spinner(text="In progress..."):
-                                                        #st.write(user_prompt)
                                                         st.session_state["chat_result"] = chat_with_file(user_prompt, last_uploaded_file_path)
                                                         #chat_result = st.session_state["chat_result"]
                                                         #chat_result = chat_with_file(input_text, last_uploaded_file_path)
@@ -679,7 +674,8 @@ def big_main():
                                                         else:
                                                             st.success("There is some error occurred, try to give more details to your prompt")
                                         except Exception as e:
-                                            st.error(f"An error occurred: {str(e)}")
+                                            st.warning("There is some error occurred with AI, try again")
+                                            st.stop()
 
                         #with col2:
                         with tab2:
@@ -753,8 +749,6 @@ def big_main():
                                 if button_Submit2:
                                     #\\\
                                     if st.session_state.plot_clicked:
-                                        #st.session_state.click = True
-                                        #result = build_some_chart(df, input_text2)
                                         st.session_state.chat_clicked = False
                                         try:
                                             with st.spinner(text="Analyzing Your Request..."):
@@ -773,9 +767,7 @@ def big_main():
                                                     st.write('<span class="red-frame"/>', unsafe_allow_html=True)
                                                     plot_result = test_plot_maker(df, input_text2)
                                                     st.plotly_chart(plot_result)
-                                            #st.success(result)
-                                        #except Exception as e:
-                                        #    raise ValueError(f"An error occurred: {str(e)}")
+
                                         except Exception as e:
                                             st.warning("There is some error with data visualization, try to make query more details")
 
@@ -831,7 +823,7 @@ def big_main():
         if file_type in report_function_map:
             report_function_map[file_type](df)
         else:
-            st.warning("##Unrecognized error")
+            st.warning("Your report is not standard, so there are no additional visualizations")
 
 
 
@@ -841,17 +833,6 @@ def big_main():
 def main_viz():
     global last_uploaded_file_path
     global UPLOAD_DIR
-    
-    def clean_csv_files(folder_path):
-        # Define the pattern for CSV files
-        csv_files_pattern = os.path.join(folder_path, '*.csv')
-
-        # Use glob to find all CSV files in the folder
-        csv_files = glob.glob(csv_files_pattern)
-
-        # Delete all CSV files
-        for csv_file in csv_files:
-            os.remove(csv_file)
 
     def cleanup_uploads_folder(upload_dir: str):
         try:
@@ -869,11 +850,14 @@ def main_viz():
         except Exception as e:
             st.warning(f"Something went wrong during cleanup: {e}")
                 #logging.error(f"Error cleaning up uploads folder: {str(e)}")
-    
+
     try:
         if "result" not in st.session_state:
-            st.session_state["result"] = fetch_file_info()
-
+            try:
+                st.session_state["result"] = fetch_file_info()
+            except Exception as e:
+                st.warnings("Something wrong with data")
+                st.stop()
         result = st.session_state["result"]
     except Exception as e:
         st.success("Important Update")
@@ -900,13 +884,10 @@ def main_viz():
     #filename = get_file_name(UPLOAD_DIR)
     if "clean" not in st.session_state:
         st.session_state["clean"] = True
-    cleanup_uploads_folder(UPLOAD_DIR) #if wanna make one time than add in iff state "clean"
+    cleanup_uploads_folder(UPLOAD_DIR) #if wanna make one time than add in if state "clean"
 
-    #clean_csv_files(UPLOAD_DIR)
-    
-        
     #last_uploaded_file_path = os.path.join(UPLOAD_DIR, filename)
-    
+
     report_type_filenames = {
         'CUSTOMER_DETAILS': 'customer_details.xlsx',
         'TOP_CUSTOMERS': 'top_customers.xlsx',
@@ -919,8 +900,13 @@ def main_viz():
         'REP_DETAILS': 'rep_details.xlsx',
         'REPS_SUMMARY': 'reps_summary.xlsx',
     }
-    response = requests.get(url_name, stream=True)
-    response.raise_for_status()
+    try:
+        response = requests.get(url_name, stream=True)
+        response.raise_for_status()
+    except Exception as e: #if error with file_link
+        st.warning("Something wrong with data. Try to rerun the report.")
+        st.stop()
+
     friendly_filename = report_type_filenames.get(file_name_, 'unknown.xlsx')
     excel_file_path = os.path.join(UPLOAD_DIR, friendly_filename)
     
@@ -932,10 +918,8 @@ def main_viz():
     
     # Use glob to find all Excel files in the folder
     excel_files = glob.glob(excel_files_pattern)
-    
-    #csv_file = ''
+
     if excel_files:
-        #clean_csv_files(UPLOAD_DIR)
         for excel_file in excel_files:
             try:
                 if "last_uploaded_file_path" not in st.session_state:
@@ -948,8 +932,7 @@ def main_viz():
     last_uploaded_file_path = st.session_state.last_uploaded_file_path
     report_name_title = identify_file_mini(file_name_)
     st.title(f"Report: {report_name_title}")
-    #add_custom_css()
-    #if os.path.exists(last_uploaded_file_path):
+    
     if "one_rerun" not in st.session_state:
         st.session_state["one_rerun"] = True
         st.rerun()

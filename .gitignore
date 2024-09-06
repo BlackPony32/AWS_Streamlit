@@ -1,5 +1,6 @@
 .env
 .conda
+.vscode
 /venv
 /dont_need
 __pycache__
