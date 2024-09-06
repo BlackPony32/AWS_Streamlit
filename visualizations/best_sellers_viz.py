@@ -65,7 +65,6 @@ def create_available_cases_plot(df):
 
 
 def product_analysis_app1(df):
-    st.title("Product Sales Analysis")
     product_data = df.groupby('Product name')[['Total revenue', 'Cases sold']].sum()
 
     
@@ -84,7 +83,6 @@ def product_analysis_app1(df):
     st.plotly_chart(fig1, use_container_width=True)
         
 def product_analysis_app2(df):
-    st.title("Product Sales Analysis")
     product_data = df.groupby('Product name')[['Total revenue', 'Cases sold']].sum()
 
     fig2 = px.funnel(
