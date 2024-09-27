@@ -179,7 +179,7 @@ def df_analyze_inventory_value_per_unit(df):
     product_value = df.groupby("Product name")["Total Value"].sum().reset_index()
 
     fig = go.Figure()
-
+    product_value['Product name'] = product_value['Product name'].apply(lambda x: x[:35] + '...' if len(x) > 35 else x)
     for _, row in product_value.iterrows():
         fig.add_trace(go.Bar(
             x=[row['Product name']],

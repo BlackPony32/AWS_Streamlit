@@ -104,27 +104,41 @@ def low_stock_analysis_app2(df):
     
 
 def create_profit_margin_analysis_plot(df):
+    # Calculate Profit Margin
     df["Profit Margin"] = df["Retail price"] - df["Wholesale price"]
     df_sorted = df.sort_values(by="Profit Margin", ascending=False)
 
+    # Create the bar chart with a green color scale
     fig = go.Figure(go.Bar(
         x=df_sorted['Product name'],
         y=df_sorted['Profit Margin'],
-        marker=dict(color=df_sorted['Profit Margin'], colorscale='teal'),
+        marker=dict(color=df_sorted['Profit Margin'], colorscale='greens'),  # Green color scale
         text=df_sorted['Profit Margin'].apply(lambda x: f'${x:,.2f}'),
         hovertemplate="<b>%{x}</b><br>Profit Margin: %{y:.2f}<extra></extra>"
     ))
-    
+
+    # Update layout with more style and clarity
     fig.update_layout(
         xaxis_title="Product Name",
-        yaxis_title="Profit Margin",
+        yaxis_title="Profit Margin (in $)",
         xaxis_tickangle=45,
-        xaxis={'categoryorder':'total descending'},
+        xaxis={'categoryorder': 'total descending'},
         template="plotly_white",
+        plot_bgcolor="rgba(0,0,0,0)",  # Transparent background
+        yaxis=dict(
+            gridcolor='lightgray', 
+            title_font=dict(size=14, color='darkgreen'),
+            tickfont=dict(size=15)  # Make y-axis labels bigger
+        ),
+        font=dict(family="Arial, sans-serif", size=12),
+        xaxis_title_font=dict(size=14, color='darkgreen'),
+        hoverlabel=dict(bgcolor="lightgreen", font_size=12),
         legend=dict(title="Profit Margin", orientation="h", y=1.1, x=0.5, xanchor='center')
     )
-    
+
+    # Display the chart in Streamlit
     st.plotly_chart(fig, use_container_width=True)
+
 
 
 def create_low_stock_by_manufacturer_bar_plot(df):

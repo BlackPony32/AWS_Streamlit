@@ -152,8 +152,9 @@ def fetch_file_info():
         data = response.json()
         return data
     except Exception as e:
-        st.success("Important Update")
-        st.warning("This page was reloaded, so you need to run the report again. After running the report, you may close this page.")
+        st.success("""**Important Notice**
+        \nThis page was reloaded due to a manual refresh.\n To proceed, please close this window and run the report again from **Simply Depo**. Avoid refreshing the page to ensure smooth operation and avoid interruptions. Thank you for your cooperation.
+        """)
         st.stop()
     except requests.RequestException as e:
         st.error(f"Error fetching file info: {e}")
@@ -168,12 +169,13 @@ def cache_df(last_uploaded_file_path):
         st.warning("There is some error with data, try to update the session")
     return df
 
-def id_str(Id):
-    id_str = str(Id)
-    if not str(id_str).startswith('$'):
-        return f"{float(id_str):.0f}"
+def id_str(value):
+    if isinstance(value, (int, float)):
+        return f"{value:.0f}"
+    elif isinstance(value, str) and value.replace(",", "").isdigit():
+        return f"{float(value.replace(',', '')):.0f}"
     else:
-        return id_str
+        return value
 
 def format_phone_number(phone_number):
     phone_str = str(phone_number)
@@ -288,7 +290,9 @@ def big_main():
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "Customer Details report":
                         df_show = df.copy()
-                        #df_show['Phone number'] = df_show['Phone number'].apply(format_phone_number)  #error with this report
+                        df_show['Total sales'] = df_show['Total sales'].apply(add_dollar_sign)
+                        #df_show['Phone'] = df_show['Phone'].apply(format_phone_number)  #error with this report
+                        #df_show['Contact phone'] = df_show['Contact phone'].apply(format_phone_number)
                         try:
                             st.dataframe(df_show, use_container_width=False)
                         except:
@@ -304,6 +308,7 @@ def big_main():
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "Order Sales Summary report":
                         df_show = df.copy()
+                        df_show['Customer ID'] = df_show['Customer ID'].apply(id_str)
                         df_show['Id'] = df_show['Id'].apply(id_str)
                         df_show['Grand total'] = df_show['Grand total'].apply(add_dollar_sign)
                         df_show['Item specific discount'] = df_show['Item specific discount'].apply(add_dollar_sign)
@@ -424,7 +429,7 @@ def big_main():
                 st.session_state.continue_clicked = True
             st.markdown("""
                 <div class="custom-container">
-                    <p>By clicking 'Continue', you will be connected to ChatGPT service. All information will be provided directly to the OpenAI server. For more information, read their privacy documents.</p>
+                    <p>By clicking 'Continue', you will be connected to ChatGPT service. All information will be provided directly to the OpenAI server. For more information, read the <a href="https://openai.com/policies/privacy-policy/" target="_blank">OpenAI privacy documents</a>.</p>
                 </div>
             """, unsafe_allow_html=True)
             # css for text information inside inform container
@@ -860,9 +865,10 @@ def main_viz():
                 st.stop()
         result = st.session_state["result"]
     except Exception as e:
-        st.success("Important Update")
-        st.warning("This page was reloaded, so you need to run the report again. After running the report, you may close this page.")
-    
+        st.success("""**Important Notice**
+        \nThis page was reloaded due to a manual refresh.\n To proceed, please close this window and run the report again from **Simply Depo**. Avoid refreshing the page to ensure smooth operation and avoid interruptions. Thank you for your cooperation.
+        """)
+        
     if "url" not in st.session_state:
         if "file_name" not in st.session_state:
             if "user_id" not in st.session_state:

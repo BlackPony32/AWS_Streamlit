@@ -159,7 +159,7 @@ def create_interactive_average_sales_heatmap(df):
         z=average_sales.values,
         x=average_sales.columns,
         y=average_sales.index,
-        colorscale='YlGnBu',
+        colorscale='greens',
         colorbar=dict(title="Average Sales"),
         hovertemplate='<b>Customer Group:</b> %{y}<br><b>Billing State:</b> %{x}<br><b>Average Sales:</b> $%{z:.2f}<extra></extra>'
     ))
@@ -175,3 +175,41 @@ def create_interactive_average_sales_heatmap(df):
     )
     st.plotly_chart(fig, use_container_width=True)
     
+    
+import pandas as pd
+import plotly.graph_objects as go
+import streamlit as st
+
+def create_sales_trend_by_group(df):
+    # Group by 'Group' and sum up the 'Total sales'
+    sales_by_group = df.groupby('Group')['Total sales'].sum().reset_index()
+
+    # Sort by Total Sales for better visualization
+    sales_by_group.sort_values(by='Total sales', ascending=False, inplace=True)
+
+    fig = go.Figure()
+
+    # Add a line for total sales across different customer groups
+    fig.add_trace(go.Scatter(
+        x=sales_by_group['Group'],
+        y=sales_by_group['Total sales'],
+        mode='lines+markers',
+        name='Total Sales by Customer Group',
+        marker=dict(color='blue'),
+        line=dict(color='blue'),
+        hovertemplate='<b>Group:</b> %{x}<br><b>Total Sales:</b> %{y}<extra></extra>',
+    ))
+
+    fig.update_layout(
+        title="Total Sales Trend by Customer Group",
+        xaxis_title="Customer Group",
+        yaxis_title="Total Sales",
+        xaxis=dict(tickangle=-45),
+        margin=dict(l=0, r=0, t=50, b=100)
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+# Example usage with your DataFrame
+# df = pd.read_csv('your_data_file.csv')
+# create_sales_trend_by_group(df)

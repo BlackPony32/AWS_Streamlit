@@ -114,6 +114,11 @@ def report_func(df):
                 - **Efficiently allocate resources and manage inventory.**
                 """)
             customer_details_viz.create_interactive_average_sales_heatmap(df)
+            
+            #This line chart gives a clear picture of how total sales compare across different customer groups, making it easy to see which groups are performing better or worse.
+            customer_details_viz.create_sales_trend_by_group(df)
+            
     else:
         st.warning("There is no Total sales or Group or Billing state columns, so visualizing can not be ready")
+        
         
