@@ -201,7 +201,6 @@ def create_sales_trend_by_group(df):
     ))
 
     fig.update_layout(
-        title="Total Sales Trend by Customer Group",
         xaxis_title="Customer Group",
         yaxis_title="Total Sales",
         xaxis=dict(tickangle=-45),

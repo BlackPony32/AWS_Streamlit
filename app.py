@@ -356,6 +356,7 @@ def big_main():
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "3rd Party Sales Summary report":
                         df_show = df.copy()
+                        df_show['Customer ID'] = df_show['Customer ID'].apply(id_str)
                         df_show['Id'] = df_show['Id'].apply(id_str)
                         df_show['Grand total'] = df_show['Grand total'].apply(add_dollar_sign)
                         df_show['Item specific discount'] = df_show['Item specific discount'].apply(add_dollar_sign)
@@ -933,7 +934,8 @@ def main_viz():
                 else:
                     st.session_state.last_uploaded_file_path = convert_excel_to_csv(excel_file)
             except Exception as e:
-                st.warning("Oops, something went wrong. Please try updating the page.")
+                st.warning("Oops, something went wrong with data. Please try updating the page.")
+                st.stop()
     #st.success(f"This is   type. File is available for visualization.")
     last_uploaded_file_path = st.session_state.last_uploaded_file_path
     report_name_title = identify_file_mini(file_name_)
