@@ -314,7 +314,7 @@ def report_func(df):
                 This chart provides valuable insights into whether more visits translate to higher revenue.
                 It helps in understanding which roles are more effective in converting visits into revenue and where there might be inefficiencies.
                 """)
-                reps_summary_viz.Total_Visits_vs_Total_Revenue(df)
+            reps_summary_viz.Total_Visits_vs_Total_Revenue(df)
     else:
         st.warning("There is no Total revenue or Orders total or Role columns, so visualizing can not be ready")
     
