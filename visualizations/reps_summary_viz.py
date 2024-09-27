@@ -373,7 +373,6 @@ def total_revenue_and_conversion_rate(df):
 
     # Update layout to include two y-axes
     fig.update_layout(
-        title='Total Revenue and Conversion Rate by Representative',
         xaxis_title='Representative',
         yaxis_title='Total Revenue (INR)',
         yaxis2=dict(
@@ -429,7 +428,6 @@ def Total_Visits_vs_Total_Revenue(df):
 
     # Update layout to include two y-axes
     fig.update_layout(
-        title='Total Revenue and Orders by Role',
         xaxis_title='Role',
         yaxis_title='Total Revenue',
         yaxis2=dict(

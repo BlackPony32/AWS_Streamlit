@@ -160,9 +160,10 @@ def fetch_file_info():
         st.error(f"Error fetching file info: {e}")
         return None
 
+@st.cache_data(show_spinner=False)
 def cache_df(last_uploaded_file_path):
     if 'df' not in st.session_state:
-            st.session_state["df"] = pd.read_csv(last_uploaded_file_path)
+            st.session_state["df"] = pd.read_csv(last_uploaded_file_path,low_memory=False)
     try:
         df = st.session_state["df"]
     except Exception as e:
