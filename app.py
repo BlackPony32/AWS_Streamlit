@@ -32,6 +32,7 @@ from side_func import identify_file, identify_file_mini
 load_dotenv()
 
 fastapi_url = os.getenv('FASTAPI_URL')
+NUMBER_SHOWN_ROWS = 8000
 
 def window_name():
 
@@ -164,7 +165,7 @@ def fetch_file_info():
 def cache_df(last_uploaded_file_path):
     if 'df' not in st.session_state:
             df = pd.read_csv(last_uploaded_file_path, low_memory=False)
-            df_limited = df.head(8000)
+            df_limited = df.head(NUMBER_SHOWN_ROWS)
             st.session_state["df"] = df_limited
     try:
         df = st.session_state["df"]
@@ -211,7 +212,7 @@ def big_main():
     df = cache_df(st.session_state.last_uploaded_file_path)
     df.index = range(1, len(df) + 1)
     file_type = identify_file(UPLOAD_DIR)
-
+    
     #session block
     if 'AI_appear' not in st.session_state:
         st.session_state.AI_appear = False
@@ -285,6 +286,7 @@ def big_main():
 
                     if file_type == "Representative Details report":
                         df_show = df.copy()
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
                         df_show['Id'] = df_show['Id'].apply(id_str)
                         df_show['Phone number'] = df_show['Phone number'].apply(format_phone_number)
                         try:
@@ -293,6 +295,7 @@ def big_main():
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "Customer Details report":
                         df_show = df.copy()
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
                         df_show['Total sales'] = df_show['Total sales'].apply(add_dollar_sign)
                         #df_show['Phone'] = df_show['Phone'].apply(format_phone_number)  #error with this report
                         #df_show['Contact phone'] = df_show['Contact phone'].apply(format_phone_number)
@@ -302,6 +305,7 @@ def big_main():
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "Top Customers report":
                         df_show = df.copy()
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
                         #df_show['Phone number'] = df_show['Phone number'].apply(format_phone_number)  #error with this report
                         #df_show['Contact phone'] = df_show['Contact phone'].apply(format_phone_number)  #TODO error with this report
                         df_show['Total sales'] = df_show['Total sales'].apply(add_dollar_sign)
@@ -311,6 +315,7 @@ def big_main():
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "Order Sales Summary report":
                         df_show = df.copy()
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
                         df_show['Customer ID'] = df_show['Customer ID'].apply(id_str)
                         df_show['Id'] = df_show['Id'].apply(id_str)
                         df_show['Grand total'] = df_show['Grand total'].apply(add_dollar_sign)
@@ -325,6 +330,7 @@ def big_main():
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "SKU's Not Ordered report":
                         df_show = df.copy()
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
                         df_show['Wholesale price'] = df_show['Wholesale price'].apply(add_dollar_sign)
                         df_show['Retail price'] = df_show['Retail price'].apply(add_dollar_sign)
                         df_show['Total revenue'] = df_show['Total revenue'].apply(add_dollar_sign)
@@ -334,6 +340,7 @@ def big_main():
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "Reps Summary report":
                         df_show = df.copy()
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
                         df_show['Id'] = df_show['Id'].apply(id_str)
                         df_show['Total revenue'] = df_show['Total revenue'].apply(add_dollar_sign)
                         try:
@@ -342,6 +349,7 @@ def big_main():
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "Low Stock Inventory report":
                         df_show = df.copy()
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
                         df_show['Wholesale price'] = df_show['Wholesale price'].apply(add_dollar_sign)
                         df_show['Retail price'] = df_show['Retail price'].apply(add_dollar_sign)
                         try:
@@ -350,6 +358,7 @@ def big_main():
                             st.warning("Data display error, try reloading the report")
                     elif file_type =="Best Sellers report":
                         df_show = df.copy()
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
                         df_show['Wholesale price'] = df_show['Wholesale price'].apply(add_dollar_sign)
                         df_show['Retail price'] = df_show['Retail price'].apply(add_dollar_sign)
                         df_show['Total revenue'] = df_show['Total revenue'].apply(add_dollar_sign)
@@ -359,6 +368,7 @@ def big_main():
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "3rd Party Sales Summary report":
                         df_show = df.copy()
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
                         df_show['Customer ID'] = df_show['Customer ID'].apply(id_str)
                         df_show['Id'] = df_show['Id'].apply(id_str)
                         df_show['Grand total'] = df_show['Grand total'].apply(add_dollar_sign)
@@ -372,6 +382,7 @@ def big_main():
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "Current Inventory report":
                         df_show = df.copy()
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
                         df_show['Wholesale price'] = df_show['Wholesale price'].apply(add_dollar_sign)
                         df_show['Retail price'] = df_show['Retail price'].apply(add_dollar_sign)
                         try:
