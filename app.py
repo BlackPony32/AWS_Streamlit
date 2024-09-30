@@ -32,7 +32,7 @@ from side_func import identify_file, identify_file_mini
 load_dotenv()
 
 fastapi_url = os.getenv('FASTAPI_URL')
-NUMBER_SHOWN_ROWS = 7500
+NUMBER_SHOWN_ROWS = 8000
 
 def window_name():
 
@@ -165,8 +165,8 @@ def fetch_file_info():
 def cache_df(last_uploaded_file_path):
     if 'df' not in st.session_state:
             df = pd.read_csv(last_uploaded_file_path, low_memory=False)
-            df_limited = df.head(NUMBER_SHOWN_ROWS)
-            st.session_state["df"] = df_limited
+            #df_limited = df.head(NUMBER_SHOWN_ROWS)
+            st.session_state["df"] = df  #df_limited
     try:
         df = st.session_state["df"]
     except Exception as e:
@@ -335,6 +335,7 @@ def big_main():
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "Order Sales Summary report":
                         df_show = df.copy()
+                        NUMBER_SHOWN_ROWS = 6000
                         df_show  = df_show.head(NUMBER_SHOWN_ROWS)
 
                         for column, func in column_functions.items():
