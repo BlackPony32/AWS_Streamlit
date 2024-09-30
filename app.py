@@ -295,6 +295,8 @@ def big_main():
                         'Balance': add_dollar_sign,
                         'Wholesale price': add_dollar_sign,
                         'Retail price': add_dollar_sign,
+                        'Phone number': format_phone_number,
+                        'Total sales' : add_dollar_sign,
                         'Total revenue': add_dollar_sign
                     }
 
@@ -305,6 +307,8 @@ def big_main():
                         for column, func in column_functions.items():
                             if column in df_show.columns:
                                 df_show[column] = df_show[column].apply(func)
+                            else:
+                                pass
                         try:
                             st.dataframe(df_show, use_container_width=False)
                         except:
@@ -335,8 +339,8 @@ def big_main():
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "Order Sales Summary report":
                         df_show = df.copy()
-                        NUMBER_SHOWN_ROWS = 6000
-                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
+                        _NUMBER_SHOWN_ROWS = 6000
+                        df_show  = df_show.head(_NUMBER_SHOWN_ROWS)
 
                         for column, func in column_functions.items():
                             if column in df_show.columns:
@@ -420,7 +424,8 @@ def big_main():
                             st.warning("Data display error, try reloading the report")
                     else:
                         st.dataframe(df, use_container_width=False)
-    except:
+    except Exception as e:
+        #st.write(str(e))
         st.warning("Data display error, try reloading the report")
 
     with stylable_container(
