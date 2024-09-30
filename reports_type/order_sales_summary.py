@@ -11,7 +11,7 @@ def report_func(df):
     columns = get_csv_columns(df)
     order_sales_summary_viz.preprocess_data(df)
     
-    if "Customer" in columns and "Product name" in columns and "Created at" in columns:
+    if "Customer" in columns and "Grand total" in columns and "Product name" in columns and "Created at" in columns:
         with st.container(border=True):
             col11, col12 = st.columns([10, 0.50])
             with col11:
