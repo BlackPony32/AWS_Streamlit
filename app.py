@@ -284,32 +284,32 @@ def big_main():
                     st.stop()
                 else:
 
-                    #column_functions = {
-                    #    'Customer ID': id_str,
-                    #    'Id': id_str,
-                    #    'Grand total': add_dollar_sign,
-                    #    'Item specific discount': add_dollar_sign,
-                    #    'Manufacturer specific discount': add_dollar_sign,
-                    #    'Total invoice discount': add_dollar_sign,
-                    #    'Customer discount': add_dollar_sign,
-                    #    'Balance': add_dollar_sign,
-                    #    'Wholesale price': add_dollar_sign,
-                    #    'Retail price': add_dollar_sign,
-                    #    'Phone number': format_phone_number,
-                    #    'Total sales' : add_dollar_sign,
-                    #    'Shipping zip' : id_str,
-                    #    'Total revenue': add_dollar_sign
-                    #}
+                    column_functions = {
+                        'Customer ID': id_str,
+                        'Id': id_str,
+                        'Grand total': add_dollar_sign,
+                        'Item specific discount': add_dollar_sign,
+                        'Manufacturer specific discount': add_dollar_sign,
+                        'Total invoice discount': add_dollar_sign,
+                        'Customer discount': add_dollar_sign,
+                        'Balance': add_dollar_sign,
+                        'Wholesale price': add_dollar_sign,
+                        'Retail price': add_dollar_sign,
+                        'Phone number': format_phone_number,
+                        'Total sales' : add_dollar_sign,
+                        'Shipping zip' : id_str,
+                        'Total revenue': add_dollar_sign
+                    }
 
                     if file_type == "Representative Details report":
                         df_show = df.copy()
                         df_show  = df_show.head(NUMBER_SHOWN_ROWS)
 
-                        #for column, func in column_functions.items():
-                        #    if column in df_show.columns:
-                        #        df_show[column] = df_show[column].apply(func)
-                        #    else:
-                        #        pass
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
+                            else:
+                                pass
                         try:
                             st.dataframe(df_show, use_container_width=False)
                         except:
@@ -318,9 +318,9 @@ def big_main():
                         df_show = df.copy()
                         df_show  = df_show.head(NUMBER_SHOWN_ROWS)
 
-                        #for column, func in column_functions.items():
-                        #    if column in df_show.columns:
-                        #        df_show[column] = df_show[column].apply(func)
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
 
                         try:
                             st.dataframe(df_show, use_container_width=False)
@@ -330,9 +330,9 @@ def big_main():
                         df_show = df.copy()
                         df_show  = df_show.head(NUMBER_SHOWN_ROWS)
 
-                        #for column, func in column_functions.items():
-                        #    if column in df_show.columns:
-                        #        df_show[column] = df_show[column].apply(func)
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
 
                         try:
                             st.dataframe(df_show, use_container_width=False)
@@ -343,9 +343,9 @@ def big_main():
                         _NUMBER_SHOWN_ROWS = 6000
                         df_show  = df_show.head(_NUMBER_SHOWN_ROWS)
 
-                        #for column, func in column_functions.items():
-                        #    if column in df_show.columns:
-                        #        df_show[column] = df_show[column].apply(func)
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
 
                         try:
                             st.dataframe(df_show, use_container_width=False)
@@ -355,9 +355,9 @@ def big_main():
                         df_show = df.copy()
                         df_show  = df_show.head(NUMBER_SHOWN_ROWS)
 
-                        #for column, func in column_functions.items():
-                        #    if column in df_show.columns:
-                        #        df_show[column] = df_show[column].apply(func)
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
 
                         
                         try:
@@ -368,9 +368,9 @@ def big_main():
                         df_show = df.copy()
                         df_show  = df_show.head(NUMBER_SHOWN_ROWS)
 
-                        #for column, func in column_functions.items():
-                        #    if column in df_show.columns:
-                        #        df_show[column] = df_show[column].apply(func)
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
                         
                         try:
                             st.dataframe(df_show, use_container_width=False)
@@ -380,9 +380,9 @@ def big_main():
                         df_show = df.copy()
                         df_show  = df_show.head(NUMBER_SHOWN_ROWS)
                         
-                        #for column, func in column_functions.items():
-                        #    if column in df_show.columns:
-                        #        df_show[column] = df_show[column].apply(func)
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
                         try:
                             st.dataframe(df_show, use_container_width=False)
                         except:
@@ -391,9 +391,9 @@ def big_main():
                         df_show = df.copy()
                         df_show  = df_show.head(NUMBER_SHOWN_ROWS)
                         
-                        #for column, func in column_functions.items():
-                        #    if column in df_show.columns:
-                        #        df_show[column] = df_show[column].apply(func)
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
                         
                         try:
                             st.dataframe(df_show, use_container_width=False)
@@ -403,9 +403,9 @@ def big_main():
                         df_show = df.copy()
                         df_show  = df_show.head(NUMBER_SHOWN_ROWS)
                         
-                        #for column, func in column_functions.items():
-                        #    if column in df_show.columns:
-                        #        df_show[column] = df_show[column].apply(func)
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
                         
                         try:
                             st.dataframe(df_show, use_container_width=False)
@@ -415,9 +415,9 @@ def big_main():
                         df_show = df.copy()
                         df_show  = df_show.head(NUMBER_SHOWN_ROWS)
                         
-                        #for column, func in column_functions.items():
-                        #    if column in df_show.columns:
-                        #        df_show[column] = df_show[column].apply(func)
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
                         
                         try:
                             st.dataframe(df_show, use_container_width=False)
