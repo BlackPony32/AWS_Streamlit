@@ -14,8 +14,8 @@ python-multipart
 uvicorn
 tabulate
 openpyxl
-streamlit
-streamlit-extras
+streamlit==1.38.0
+streamlit-extras==0.4.7
 plotly
 statsmodels
 pandasai
