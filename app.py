@@ -297,6 +297,7 @@ def big_main():
                         'Retail price': add_dollar_sign,
                         'Phone number': format_phone_number,
                         'Total sales' : add_dollar_sign,
+                        'Shipping zip' : id_str,
                         'Total revenue': add_dollar_sign
                     }
 
