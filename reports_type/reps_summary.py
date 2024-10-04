@@ -103,30 +103,30 @@ def report_func(df):
         st.warning("There is no Date or Total revenue or Role columns, so visualizing can not be ready")
     
     #wih cc2:
-    if "Name" in columns and "Visits" in columns and "Travel distance" in columns:
-        with st.container(border=True):
-            col11, col12 = st.columns([10, 0.50])
-            with col11:
-                st.markdown("""
-                <style>
-                .big-font {
-                    font-size:20px !important;
-                }</style>""", unsafe_allow_html=True)
-                st.markdown('<p class="big-font">Individual Performance: Visits and Travel</p>', unsafe_allow_html=True)
-            with col12:
-                if st.button("🛈", key=468, help="Get some plot information", use_container_width=False):
-                    #if render_circle_button(22):
-                    condition = True
-                else:
-                    condition = False
-                # Check the state of the button
-            if condition == True:
-                st.markdown("""
-                This bar chart provides a comparative view of the total visits and travel distance covered by each sales representative. By analyzing individual performance metrics, you can identify top performers, potential areas for improvement in travel efficiency, and opportunities for optimized resource allocation.
-                """)
-            reps_summary_viz.plot_visits_and_travel_distance_by_name(df)
-    else:
-        st.warning("There is no Name or Visits or Travel distance columns, so visualizing can not be ready")
+    #if "Name" in columns and "Visits" in columns and "Travel distance" in columns:
+    #    with st.container(border=True):
+    #        col11, col12 = st.columns([10, 0.50])
+    #        with col11:
+    #            st.markdown("""
+    #            <style>
+    #            .big-font {
+    #                font-size:20px !important;
+    #            }</style>""", unsafe_allow_html=True)
+    #            st.markdown('<p class="big-font">Individual Performance: Visits and Travel</p>', unsafe_allow_html=True)
+    #        with col12:
+    #            if st.button("🛈", key=468, help="Get some plot information", use_container_width=False):
+    #                #if render_circle_button(22):
+    #                condition = True
+    #            else:
+    #                condition = False
+    #            # Check the state of the button
+    #        if condition == True:
+    #            st.markdown("""
+    #            This bar chart provides a comparative view of the total visits and travel distance covered by each sales representative. By analyzing individual performance metrics, you can identify top performers, potential areas for improvement in travel efficiency, and opportunities for optimized resource allocation.
+    #            """)
+    #        reps_summary_viz.plot_visits_and_travel_distance_by_name(df)
+    #else:
+    #    st.warning("There is no Name or Visits or Travel distance columns, so visualizing can not be ready")
 
     if "Role" in columns and "Visits" in columns and "Total revenue" in columns and "Orders total" in columns:
         with st.container(border=True):
@@ -184,3 +184,9 @@ def report_func(df):
     else:
         st.warning("There is no Total revenue or Orders total or Role columns, so visualizing can not be ready")
     
+    if True:
+        try:
+            reps_summary_viz.revenue_conversion_and_trend(df)
+            reps_summary_viz.total_revenue_and_conversion_rate(df)
+        except Exception as e:
+            st.write("There is some error with new viz:", e)

@@ -25,7 +25,7 @@ from pandasai import SmartDataframe, Agent
 
 from reports_type import (best_sellers, current_inventory, customer_details, low_stock_inventory,
                           order_sales_summary, rep_details, reps_summary, sku_not_ordered,
-                          third_party_sales_summary, top_customers)
+                          third_party_sales_summary, top_customers, inventory_depletion)
 
 from side_func import identify_file, identify_file_mini
 
@@ -873,7 +873,8 @@ def big_main():
             'Low Stock Inventory report': low_stock_inventory.report_func,
             'Current Inventory report': current_inventory.report_func,
             'Top Customers report': top_customers.report_func,
-            'Customer Details report': customer_details.report_func
+            'Customer Details report': customer_details.report_func,
+            'Inventory Depletion report': inventory_depletion.report_func
         }
         if file_type in report_function_map:
             report_function_map[file_type](df)
@@ -955,6 +956,7 @@ def main_viz():
         'SKU_NOT_ORDERED': 'sku_not_ordered.xlsx',
         'REP_DETAILS': 'rep_details.xlsx',
         'REPS_SUMMARY': 'reps_summary.xlsx',
+        'INVENTORY_DEPLETION': 'inventory_depletion.xlsx'
     }
     try:
         response = requests.get(url_name, stream=True)
