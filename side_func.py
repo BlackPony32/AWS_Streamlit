@@ -31,6 +31,8 @@ def identify_file_mini(file_name):
             return "Top Customers"
         elif file_name == 'CUSTOMER_DETAILS':
             return "Customer Details"
+        elif file_name == 'INVENTORY_DEPLETION':
+            return "Inventory depletion"
         else:
             return "SimplyDepo"
         
@@ -79,6 +81,8 @@ def identify_file(UPLOAD_DIR):
             return "Top Customers report"
         elif file_name == 'customer_details.csv':
             return "Customer Details report"
+        elif file_name == 'inventory_depletion.csv':
+            return "Inventory Depletion report"
         else:
             return "SimplyDepo report"
         

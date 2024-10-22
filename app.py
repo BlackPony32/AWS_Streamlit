@@ -25,13 +25,14 @@ from pandasai import SmartDataframe, Agent
 
 from reports_type import (best_sellers, current_inventory, customer_details, low_stock_inventory,
                           order_sales_summary, rep_details, reps_summary, sku_not_ordered,
-                          third_party_sales_summary, top_customers)
+                          third_party_sales_summary, top_customers, inventory_depletion)
 
 from side_func import identify_file, identify_file_mini
 
 load_dotenv()
 
 fastapi_url = os.getenv('FASTAPI_URL')
+NUMBER_SHOWN_ROWS = 8000
 
 def window_name():
 
@@ -152,28 +153,33 @@ def fetch_file_info():
         data = response.json()
         return data
     except Exception as e:
-        st.success("Important Update")
-        st.warning("This page was reloaded, so you need to run the report again. After running the report, you may close this page.")
+        st.success("""**Important Notice**
+        \nThis page was reloaded due to a manual refresh.\n To proceed, please close this window and run the report again from **Simply Depo**. Avoid refreshing the page to ensure smooth operation and avoid interruptions. Thank you for your cooperation.
+        """)
         st.stop()
     except requests.RequestException as e:
         st.error(f"Error fetching file info: {e}")
         return None
 
+#@st.cache_data(show_spinner=False)
 def cache_df(last_uploaded_file_path):
     if 'df' not in st.session_state:
-            st.session_state["df"] = pd.read_csv(last_uploaded_file_path)
+            df = pd.read_csv(last_uploaded_file_path, low_memory=False)
+            #df_limited = df.head(NUMBER_SHOWN_ROWS)
+            st.session_state["df"] = df  #df_limited
     try:
         df = st.session_state["df"]
     except Exception as e:
         st.warning("There is some error with data, try to update the session")
     return df
 
-def id_str(Id):
-    id_str = str(Id)
-    if not str(id_str).startswith('$'):
-        return f"{float(id_str):.0f}"
+def id_str(value):
+    if isinstance(value, (int, float)):
+        return f"{value:.0f}"
+    elif isinstance(value, str) and value.replace(",", "").isdigit():
+        return f"{float(value.replace(',', '')):.0f}"
     else:
-        return id_str
+        return value
 
 def format_phone_number(phone_number):
     phone_str = str(phone_number)
@@ -206,7 +212,7 @@ def big_main():
     df = cache_df(st.session_state.last_uploaded_file_path)
     df.index = range(1, len(df) + 1)
     file_type = identify_file(UPLOAD_DIR)
-
+    
     #session block
     if 'AI_appear' not in st.session_state:
         st.session_state.AI_appear = False
@@ -278,100 +284,149 @@ def big_main():
                     st.stop()
                 else:
 
+                    column_functions = {
+                        'Customer ID': id_str,
+                        'Id': id_str,
+                        'Grand total': add_dollar_sign,
+                        'Item specific discount': add_dollar_sign,
+                        'Manufacturer specific discount': add_dollar_sign,
+                        'Total invoice discount': add_dollar_sign,
+                        'Customer discount': add_dollar_sign,
+                        'Balance': add_dollar_sign,
+                        'Wholesale price': add_dollar_sign,
+                        'Retail price': add_dollar_sign,
+                        'Phone number': format_phone_number,
+                        'Total sales' : add_dollar_sign,
+                        'Shipping zip' : id_str,
+                        'Total revenue': add_dollar_sign
+                    }
+
                     if file_type == "Representative Details report":
                         df_show = df.copy()
-                        df_show['Id'] = df_show['Id'].apply(id_str)
-                        df_show['Phone number'] = df_show['Phone number'].apply(format_phone_number)
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
+
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
+                            else:
+                                pass
                         try:
                             st.dataframe(df_show, use_container_width=False)
                         except:
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "Customer Details report":
                         df_show = df.copy()
-                        #df_show['Phone number'] = df_show['Phone number'].apply(format_phone_number)  #error with this report
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
+
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
+
                         try:
                             st.dataframe(df_show, use_container_width=False)
                         except:
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "Top Customers report":
                         df_show = df.copy()
-                        #df_show['Phone number'] = df_show['Phone number'].apply(format_phone_number)  #error with this report
-                        #df_show['Contact phone'] = df_show['Contact phone'].apply(format_phone_number)  #TODO error with this report
-                        df_show['Total sales'] = df_show['Total sales'].apply(add_dollar_sign)
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
+
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
+
                         try:
                             st.dataframe(df_show, use_container_width=False)
                         except:
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "Order Sales Summary report":
                         df_show = df.copy()
-                        df_show['Id'] = df_show['Id'].apply(id_str)
-                        df_show['Grand total'] = df_show['Grand total'].apply(add_dollar_sign)
-                        df_show['Item specific discount'] = df_show['Item specific discount'].apply(add_dollar_sign)
-                        df_show['Manufacturer specific discount'] = df_show['Manufacturer specific discount'].apply(add_dollar_sign)
-                        df_show['Total invoice discount'] = df_show['Total invoice discount'].apply(add_dollar_sign)
-                        df_show['Customer discount'] = df_show['Customer discount'].apply(add_dollar_sign)
-                        df_show['Balance'] = df_show['Balance'].apply(add_dollar_sign)
+                        _NUMBER_SHOWN_ROWS = 6000
+                        df_show  = df_show.head(_NUMBER_SHOWN_ROWS)
+
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
+
                         try:
                             st.dataframe(df_show, use_container_width=False)
                         except:
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "SKU's Not Ordered report":
                         df_show = df.copy()
-                        df_show['Wholesale price'] = df_show['Wholesale price'].apply(add_dollar_sign)
-                        df_show['Retail price'] = df_show['Retail price'].apply(add_dollar_sign)
-                        df_show['Total revenue'] = df_show['Total revenue'].apply(add_dollar_sign)
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
+
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
+
+                        
                         try:
                             st.dataframe(df_show, use_container_width=False)
                         except:
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "Reps Summary report":
                         df_show = df.copy()
-                        df_show['Id'] = df_show['Id'].apply(id_str)
-                        df_show['Total revenue'] = df_show['Total revenue'].apply(add_dollar_sign)
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
+
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
+                        
                         try:
                             st.dataframe(df_show, use_container_width=False)
                         except:
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "Low Stock Inventory report":
                         df_show = df.copy()
-                        df_show['Wholesale price'] = df_show['Wholesale price'].apply(add_dollar_sign)
-                        df_show['Retail price'] = df_show['Retail price'].apply(add_dollar_sign)
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
+                        
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
                         try:
                             st.dataframe(df_show, use_container_width=False)
                         except:
                             st.warning("Data display error, try reloading the report")
                     elif file_type =="Best Sellers report":
                         df_show = df.copy()
-                        df_show['Wholesale price'] = df_show['Wholesale price'].apply(add_dollar_sign)
-                        df_show['Retail price'] = df_show['Retail price'].apply(add_dollar_sign)
-                        df_show['Total revenue'] = df_show['Total revenue'].apply(add_dollar_sign)
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
+                        
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
+                        
                         try:
                             st.dataframe(df_show, use_container_width=False)
                         except:
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "3rd Party Sales Summary report":
                         df_show = df.copy()
-                        df_show['Id'] = df_show['Id'].apply(id_str)
-                        df_show['Grand total'] = df_show['Grand total'].apply(add_dollar_sign)
-                        df_show['Item specific discount'] = df_show['Item specific discount'].apply(add_dollar_sign)
-                        df_show['Manufacturer specific discount'] = df_show['Manufacturer specific discount'].apply(add_dollar_sign)
-                        df_show['Total invoice discount'] = df_show['Total invoice discount'].apply(add_dollar_sign)
-                        df_show['Customer discount'] = df_show['Customer discount'].apply(add_dollar_sign)
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
+                        
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
+                        
                         try:
                             st.dataframe(df_show, use_container_width=False)
                         except:
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "Current Inventory report":
                         df_show = df.copy()
-                        df_show['Wholesale price'] = df_show['Wholesale price'].apply(add_dollar_sign)
-                        df_show['Retail price'] = df_show['Retail price'].apply(add_dollar_sign)
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
+                        
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
+                        
                         try:
                             st.dataframe(df_show, use_container_width=False)
                         except:
                             st.warning("Data display error, try reloading the report")
                     else:
                         st.dataframe(df, use_container_width=False)
-    except:
+    except Exception as e:
+        #st.write(str(e))
         st.warning("Data display error, try reloading the report")
 
     with stylable_container(
@@ -424,7 +479,7 @@ def big_main():
                 st.session_state.continue_clicked = True
             st.markdown("""
                 <div class="custom-container">
-                    <p>By clicking 'Continue', you will be connected to ChatGPT service. All information will be provided directly to the OpenAI server. For more information, read their privacy documents.</p>
+                    <p>By clicking 'Continue', you will be connected to ChatGPT service. All information will be provided directly to the OpenAI server. For more information, read the <a href="https://openai.com/policies/privacy-policy/" target="_blank">OpenAI privacy documents</a>.</p>
                 </div>
             """, unsafe_allow_html=True)
             # css for text information inside inform container
@@ -818,7 +873,8 @@ def big_main():
             'Low Stock Inventory report': low_stock_inventory.report_func,
             'Current Inventory report': current_inventory.report_func,
             'Top Customers report': top_customers.report_func,
-            'Customer Details report': customer_details.report_func
+            'Customer Details report': customer_details.report_func,
+            'Inventory Depletion report': inventory_depletion.report_func
         }
         if file_type in report_function_map:
             report_function_map[file_type](df)
@@ -860,9 +916,10 @@ def main_viz():
                 st.stop()
         result = st.session_state["result"]
     except Exception as e:
-        st.success("Important Update")
-        st.warning("This page was reloaded, so you need to run the report again. After running the report, you may close this page.")
-    
+        st.success("""**Important Notice**
+        \nThis page was reloaded due to a manual refresh.\n To proceed, please close this window and run the report again from **Simply Depo**. Avoid refreshing the page to ensure smooth operation and avoid interruptions. Thank you for your cooperation.
+        """)
+        
     if "url" not in st.session_state:
         if "file_name" not in st.session_state:
             if "user_id" not in st.session_state:
@@ -899,6 +956,7 @@ def main_viz():
         'SKU_NOT_ORDERED': 'sku_not_ordered.xlsx',
         'REP_DETAILS': 'rep_details.xlsx',
         'REPS_SUMMARY': 'reps_summary.xlsx',
+        'INVENTORY_DEPLETION': 'inventory_depletion.xlsx'
     }
     try:
         response = requests.get(url_name, stream=True)
@@ -927,7 +985,8 @@ def main_viz():
                 else:
                     st.session_state.last_uploaded_file_path = convert_excel_to_csv(excel_file)
             except Exception as e:
-                st.warning("Oops, something went wrong. Please try updating the page.")
+                st.warning("Oops, something went wrong with data. Please try updating the page.")
+                st.stop()
     #st.success(f"This is   type. File is available for visualization.")
     last_uploaded_file_path = st.session_state.last_uploaded_file_path
     report_name_title = identify_file_mini(file_name_)
