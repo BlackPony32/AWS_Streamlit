@@ -25,7 +25,7 @@ from pandasai import SmartDataframe, Agent
 
 from reports_type import (best_sellers, current_inventory, customer_details, low_stock_inventory,
                           order_sales_summary, rep_details, reps_summary, sku_not_ordered,
-                          third_party_sales_summary, top_customers, inventory_depletion)
+                          third_party_sales_summary, top_customers, inventory_depletion, reps_visits)
 
 from side_func import identify_file, identify_file_mini
 
@@ -412,6 +412,30 @@ def big_main():
                         except:
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "Current Inventory report":
+                        df_show = df.copy()
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
+                        
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
+                        
+                        try:
+                            st.dataframe(df_show, use_container_width=False)
+                        except:
+                            st.warning("Data display error, try reloading the report")
+                    elif file_type == "Inventory Depletion report":
+                        df_show = df.copy()
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
+                        
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
+                        
+                        try:
+                            st.dataframe(df_show, use_container_width=False)
+                        except:
+                            st.warning("Data display error, try reloading the report")
+                    elif file_type == "Reps visits report":
                         df_show = df.copy()
                         df_show  = df_show.head(NUMBER_SHOWN_ROWS)
                         
@@ -874,7 +898,8 @@ def big_main():
             'Current Inventory report': current_inventory.report_func,
             'Top Customers report': top_customers.report_func,
             'Customer Details report': customer_details.report_func,
-            'Inventory Depletion report': inventory_depletion.report_func
+            'Inventory Depletion report': inventory_depletion.report_func,
+            'Reps visits report': reps_visits.report_func
         }
         if file_type in report_function_map:
             report_function_map[file_type](df)
@@ -956,7 +981,8 @@ def main_viz():
         'SKU_NOT_ORDERED': 'sku_not_ordered.xlsx',
         'REP_DETAILS': 'rep_details.xlsx',
         'REPS_SUMMARY': 'reps_summary.xlsx',
-        'INVENTORY_DEPLETION': 'inventory_depletion.xlsx'
+        'INVENTORY_DEPLETION': 'inventory_depletion.xlsx',
+        'REPS_VISITS': 'reps_visits.xlsx'
     }
     try:
         response = requests.get(url_name, stream=True)
