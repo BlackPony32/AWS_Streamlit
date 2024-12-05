@@ -80,7 +80,6 @@ def Sales_Performance_Visualization(df):
     
     # Update layout
     fig.update_layout(
-        title="Direct vs. 3rd Party Sales Performance by Business",
         xaxis_title="Business Name",
         yaxis_title="Cases Sold",
         barmode="group",

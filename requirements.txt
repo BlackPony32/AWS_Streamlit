@@ -16,7 +16,7 @@ tabulate
 openpyxl
 streamlit==1.38.0
 streamlit-extras==0.4.7
-plotly
+plotly==5.3.1
 statsmodels
 pandasai
 qdrant_client
