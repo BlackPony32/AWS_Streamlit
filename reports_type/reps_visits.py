@@ -65,7 +65,7 @@ potential areas for improvement or expansion.
                 .big-font {
                     font-size:20px !important;
                 }</style>""", unsafe_allow_html=True)
-                st.markdown('<p class="big-font">Total Cases Sold Over Time by Sales Representativ</p>', unsafe_allow_html=True)
+                st.markdown('<p class="big-font">Total Cases Sold Over Time by Sales Representative</p>', unsafe_allow_html=True)
             with col12:
                 if st.button("🛈", key=466, help="Get some plot information", use_container_width=False):
                     #if render_circle_button(22):

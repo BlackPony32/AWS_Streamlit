@@ -65,7 +65,9 @@ def Sales_Performance_Visualization(df):
         name='Direct Sales',
         marker_color='rgb(55, 83, 109)',
         text=aggregated_data['direct_sales'],
-        textposition='auto'
+        textposition='auto',
+        hovertemplate="<b>Business Name: %{x}</b><br>Sales Representative: Direct Sales" "<br>Cases Sold: %{y:.0f}<extra></extra>"
+        
     ))
     
     # Add bars for 3rd party sales
@@ -75,7 +77,9 @@ def Sales_Performance_Visualization(df):
         name='3rd Party Sales',
         marker_color='rgb(255, 127, 80)',
         text=aggregated_data['third_party_sales'],
-        textposition='auto'
+        textposition='auto',
+        hovertemplate="<b>Business Name: %{x}</b><br>Sales Representative: 3rd Party Sales" "<br>Cases Sold: %{y:.0f}<extra></extra>"
+        
     ))
     
     # Update layout
@@ -92,6 +96,8 @@ def Sales_Performance_Visualization(df):
         ),
         template="plotly",
         xaxis_tickangle=-45  # Rotate x-axis labels for better readability
+        
+        
     )
     
     # Update traces to format text
@@ -134,7 +140,9 @@ def Sales_Trend_Visualization(df):
             marker=dict(size=8),
             line=dict(width=2),
             text=sales_data['total_cases_sold'],
-            textposition='top center'
+            textposition='top center',
+            hovertemplate="<b>Date: %{x}</b><br>Sales Representative: " + name + "<br>Total cases sold: %{y:.0f}<extra></extra>"
+        
         ))
     
     # Update layout
