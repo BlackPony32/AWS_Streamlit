@@ -733,9 +733,9 @@ def big_main():
                                                     #with st.spinner(text="In progress..."):
                                                         chat_result = chat_with_file(user_prompt, last_uploaded_file_path)
                                                         st.session_state["chat_result"] = chat_result
-                                                        rr = os.getenv("OPENAI_API_KEY")
-                                                        st.write(rr)
-                                                        st.write(st.session_state["chat_result"])
+                                                        #rr = os.getenv("OPENAI_API_KEY")
+                                                        #st.write(rr)
+                                                        #st.write(st.session_state["chat_result"])
                                                         #chat_result = chat_with_file(input_text, last_uploaded_file_path)
                                                         if "response" in st.session_state["chat_result"]:
                                                             # Inject custom CSS for answer container
