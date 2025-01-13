@@ -119,7 +119,6 @@ def visualize_sales_trends(data, customer_col='Customer', product_col='Product n
         xaxis_title="Customer",
         yaxis_title="Sales Amount",
         xaxis_tickangle=45,
-        yaxis_autorange="reversed",
         hoverlabel=dict(bgcolor="white", font_size=12)
     )
 
@@ -201,11 +200,11 @@ def area_visualisation(data):
             mode='lines',
             stackgroup='one',
             name=column,
-            hovertemplate='Index: %{x}<br>Amount: $%{y:,.2f}<extra></extra>'
+            hovertemplate='Data row number: %{x}<br>Amount: $%{y:,.2f}<extra></extra>'
         ))
     
     fig.update_layout(
-        xaxis_title="Index",
+        xaxis_title="Data row number",
         yaxis_title="Amount",
         hovermode="x unified"
     )

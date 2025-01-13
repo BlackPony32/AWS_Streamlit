@@ -3,6 +3,7 @@ from streamlit_extras.stylable_container import stylable_container
 import pandas as pd
 import os
 import openai
+import logging
 import asyncio
 import json
 from dotenv import load_dotenv
@@ -33,6 +34,16 @@ load_dotenv()
 
 fastapi_url = os.getenv('FASTAPI_URL')
 NUMBER_SHOWN_ROWS = 8000
+log_file_path = "logging_file.log"
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(log_file_path),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 def window_name():
 
@@ -298,6 +309,9 @@ def big_main():
                         'Phone number': format_phone_number,
                         'Total sales' : add_dollar_sign,
                         'Shipping zip' : id_str,
+                        'Shipping Zip' : id_str,
+                        'Billing zip' : id_str,
+                        'Billing Zip' : id_str,
                         'Total revenue': add_dollar_sign
                     }
 
@@ -1047,12 +1061,14 @@ def test_plot_maker(df, text):
                 summary_method="default", textgen_config=textgen_config) 
     textgen_config = TextGenerationConfig(n=1, temperature=0.1, model="gpt-4o", use_cache=True)
     visualizations = lida.visualize(summary=summary, goal=goals[0], textgen_config=textgen_config, library=visualization_libraries)
+    
     if visualizations:  # Check if the visualizations list is not empty
         selected_viz = visualizations[0]
         exec_globals = {'data': df}
         exec(selected_viz.code, exec_globals)
         return exec_globals['chart']
     else:
+        logger.error(f"AI visualization generate: {visualizations}")
         st.warning("No visualizations were generated for this query.")    
 
 

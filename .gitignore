@@ -1,6 +1,7 @@
 .env
 .conda
 .vscode
+logging_file.log
 /venv
 /dont_need
 __pycache__

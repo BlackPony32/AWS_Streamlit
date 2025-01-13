@@ -43,7 +43,10 @@ def Inventory_Depletion_Visualization(df):
     """
     # Copy the DataFrame to avoid modifying the original
     data = df.copy()
+    columns_to_remove = ['Billing Zip', 'Billing zip', 'Shipping zip', 'Shipping Zip']
 
+    # Drop columns if they exist
+    data = data.drop(columns=[col for col in columns_to_remove if col in df.columns])
     # Validate presence of 'Business name' column
     if 'Business name' not in data.columns:
         st.error("The column 'Business name' is missing in the dataset.")
