@@ -3,6 +3,7 @@ from streamlit_extras.stylable_container import stylable_container
 import pandas as pd
 import os
 import openai
+import time
 import logging
 import asyncio
 import json
@@ -21,8 +22,6 @@ from langchain.agents.format_scratchpad import format_to_openai_function_message
 from langchain.agents.output_parsers import OpenAIFunctionsAgentOutputParser
 from langchain.agents.agent_types import AgentType
 
-from pandasai.llm.openai import OpenAI
-from pandasai import SmartDataframe, Agent
 
 from reports_type import (best_sellers, current_inventory, customer_details, low_stock_inventory,
                           order_sales_summary, rep_details, reps_summary, sku_not_ordered,
@@ -932,8 +931,11 @@ def main_viz():
     global last_uploaded_file_path
     global UPLOAD_DIR
 
-    def cleanup_uploads_folder(upload_dir: str):
+    async def cleanup_uploads_folder(upload_dir: str):
         try:
+            # Pause for 0.5 seconds asynchronously
+            await asyncio.sleep(0.3)
+
             # List all files in the directory
             files = [file for file in os.listdir(upload_dir) if os.path.isfile(os.path.join(upload_dir, file))]
 
@@ -942,11 +944,12 @@ def main_viz():
                 for filename in files:
                     file_path = os.path.join(upload_dir, filename)
                     os.unlink(file_path)
-            #else:
+            # else:
             #    st.info("Only one file found in the folder; no cleanup necessary.")
 
         except Exception as e:
-            st.warning(f"Something went wrong during cleanup: {e}")
+            logger.error(f"Something went wrong during cleanup: {e}")
+            #st.warning(f"Something went wrong during cleanup: {e}")
                 #logging.error(f"Error cleaning up uploads folder: {str(e)}")
 
     try:
@@ -983,7 +986,7 @@ def main_viz():
     #filename = get_file_name(UPLOAD_DIR)
     if "clean" not in st.session_state:
         st.session_state["clean"] = True
-    cleanup_uploads_folder(UPLOAD_DIR) #if wanna make one time than add in if state "clean"
+    asyncio.run(cleanup_uploads_folder(UPLOAD_DIR)) #if wanna make one time than add in if state "clean"
 
     #last_uploaded_file_path = os.path.join(UPLOAD_DIR, filename)
 
@@ -1016,7 +1019,7 @@ def main_viz():
             file.write(chunk)
     
     excel_files_pattern = os.path.join(UPLOAD_DIR, '*.xls*')
-    
+    time.sleep(0.3)
     # Use glob to find all Excel files in the folder
     excel_files = glob.glob(excel_files_pattern)
 
