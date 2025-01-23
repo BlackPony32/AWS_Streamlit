@@ -3,6 +3,8 @@ from streamlit_extras.stylable_container import stylable_container
 import pandas as pd
 import os
 import openai
+import time
+import logging
 import asyncio
 import json
 from dotenv import load_dotenv
@@ -14,14 +16,8 @@ import glob
 from langchain_openai import ChatOpenAI
 from langchain.agents import AgentExecutor
 from langchain_experimental.agents.agent_toolkits import create_csv_agent
-from langchain.prompts import ChatPromptTemplate
-from langchain_core.utils.function_calling import convert_to_openai_function
-from langchain.agents.format_scratchpad import format_to_openai_function_messages
-from langchain.agents.output_parsers import OpenAIFunctionsAgentOutputParser
 from langchain.agents.agent_types import AgentType
 
-from pandasai.llm.openai import OpenAI
-from pandasai import SmartDataframe, Agent
 
 from reports_type import (best_sellers, current_inventory, customer_details, low_stock_inventory,
                           order_sales_summary, rep_details, reps_summary, sku_not_ordered,
@@ -33,6 +29,16 @@ load_dotenv()
 
 fastapi_url = os.getenv('FASTAPI_URL')
 NUMBER_SHOWN_ROWS = 8000
+log_file_path = "logging_file.log"
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(log_file_path),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 def window_name():
 
@@ -287,6 +293,8 @@ def big_main():
                     column_functions = {
                         'Customer ID': id_str,
                         'Id': id_str,
+                        'Order Id': id_str,
+                        'Order ID': id_str,
                         'Grand total': add_dollar_sign,
                         'Item specific discount': add_dollar_sign,
                         'Manufacturer specific discount': add_dollar_sign,
@@ -298,6 +306,9 @@ def big_main():
                         'Phone number': format_phone_number,
                         'Total sales' : add_dollar_sign,
                         'Shipping zip' : id_str,
+                        'Shipping Zip' : id_str,
+                        'Billing zip' : id_str,
+                        'Billing Zip' : id_str,
                         'Total revenue': add_dollar_sign
                     }
 
@@ -918,8 +929,11 @@ def main_viz():
     global last_uploaded_file_path
     global UPLOAD_DIR
 
-    def cleanup_uploads_folder(upload_dir: str):
+    async def cleanup_uploads_folder(upload_dir: str):
         try:
+            # Pause for 0.5 seconds asynchronously
+            await asyncio.sleep(0.3)
+
             # List all files in the directory
             files = [file for file in os.listdir(upload_dir) if os.path.isfile(os.path.join(upload_dir, file))]
 
@@ -928,11 +942,12 @@ def main_viz():
                 for filename in files:
                     file_path = os.path.join(upload_dir, filename)
                     os.unlink(file_path)
-            #else:
+            # else:
             #    st.info("Only one file found in the folder; no cleanup necessary.")
 
         except Exception as e:
-            st.warning(f"Something went wrong during cleanup: {e}")
+            logger.error(f"Something went wrong during cleanup: {e}")
+            #st.warning(f"Something went wrong during cleanup: {e}")
                 #logging.error(f"Error cleaning up uploads folder: {str(e)}")
 
     try:
@@ -969,7 +984,7 @@ def main_viz():
     #filename = get_file_name(UPLOAD_DIR)
     if "clean" not in st.session_state:
         st.session_state["clean"] = True
-    cleanup_uploads_folder(UPLOAD_DIR) #if wanna make one time than add in if state "clean"
+    asyncio.run(cleanup_uploads_folder(UPLOAD_DIR)) #if wanna make one time than add in if state "clean"
 
     #last_uploaded_file_path = os.path.join(UPLOAD_DIR, filename)
 
@@ -1002,7 +1017,7 @@ def main_viz():
             file.write(chunk)
     
     excel_files_pattern = os.path.join(UPLOAD_DIR, '*.xls*')
-    
+    time.sleep(0.3)
     # Use glob to find all Excel files in the folder
     excel_files = glob.glob(excel_files_pattern)
 
@@ -1047,12 +1062,14 @@ def test_plot_maker(df, text):
                 summary_method="default", textgen_config=textgen_config) 
     textgen_config = TextGenerationConfig(n=1, temperature=0.1, model="gpt-4o", use_cache=True)
     visualizations = lida.visualize(summary=summary, goal=goals[0], textgen_config=textgen_config, library=visualization_libraries)
+    
     if visualizations:  # Check if the visualizations list is not empty
         selected_viz = visualizations[0]
         exec_globals = {'data': df}
         exec(selected_viz.code, exec_globals)
         return exec_globals['chart']
     else:
+        logger.error(f"AI visualization generate: {visualizations}")
         st.warning("No visualizations were generated for this query.")    
 
 
