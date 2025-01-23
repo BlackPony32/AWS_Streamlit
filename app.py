@@ -16,10 +16,6 @@ import glob
 from langchain_openai import ChatOpenAI
 from langchain.agents import AgentExecutor
 from langchain_experimental.agents.agent_toolkits import create_csv_agent
-from langchain.prompts import ChatPromptTemplate
-from langchain_core.utils.function_calling import convert_to_openai_function
-from langchain.agents.format_scratchpad import format_to_openai_function_messages
-from langchain.agents.output_parsers import OpenAIFunctionsAgentOutputParser
 from langchain.agents.agent_types import AgentType
 
 
@@ -297,6 +293,8 @@ def big_main():
                     column_functions = {
                         'Customer ID': id_str,
                         'Id': id_str,
+                        'Order Id': id_str,
+                        'Order ID': id_str,
                         'Grand total': add_dollar_sign,
                         'Item specific discount': add_dollar_sign,
                         'Manufacturer specific discount': add_dollar_sign,

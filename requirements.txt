@@ -21,6 +21,5 @@ plotly==5.3.1
 kaleido==0.2.1
 statsmodels
 qdrant_client
-chromadb
 lida
 tenacity==8.3.0
