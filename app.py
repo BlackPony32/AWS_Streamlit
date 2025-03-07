@@ -962,15 +962,19 @@ def main_viz():
         st.success("""**Important Notice**
         \nThis page was reloaded due to a manual refresh.\n To proceed, please close this window and run the report again from **Simply Depo**. Avoid refreshing the page to ensure smooth operation and avoid interruptions. Thank you for your cooperation.
         """)
-        
-    if "url" not in st.session_state:
-        if "file_name" not in st.session_state:
-            if "user_id" not in st.session_state:
-                st.session_state["user_id"] = result.get("user_id")
-                st.session_state["url"] = result.get("url")
-                st.session_state["file_name"] = result.get("file_name")
+    try:    
+        if "url" not in st.session_state:
+            if "file_name" not in st.session_state:
+                if "user_id" not in st.session_state:
+                    st.session_state["user_id"] = result.get("user_id")
+                    st.session_state["url"] = result.get("url")
+                    st.session_state["file_name"] = result.get("file_name")
 
-    
+    except Exception as e:
+        st.success("""**Important Notice**
+        \nThis page was reloaded due to a manual refresh.\n To proceed, please close this window and run the report again from **Simply Depo**. Avoid refreshing the page to ensure smooth operation and avoid interruptions. Thank you for your cooperation.
+        """)
+        st.stop()
         
     url_name = st.session_state["url"]
     file_name_ = st.session_state["file_name"]
