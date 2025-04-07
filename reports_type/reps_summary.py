@@ -27,30 +27,30 @@ def report_func(df):
 '''
     st.markdown(css, unsafe_allow_html=True)
 
-    if "Date" in columns and "Role" in columns and "Total revenue" in columns:
-        with st.container(border=True):
-            col11, col12 = st.columns([10, 0.50])
-            with col11:
-                st.markdown("""
-                <style>
-                .big-font {
-                    font-size:20px !important;
-                }</style>""", unsafe_allow_html=True)
-                st.markdown('<p class="big-font">Revenue Trends: Monthly Performance by Role</p>', unsafe_allow_html=True)
-            with col12:
-                if st.button("🛈", key=465, help="Get some plot information", use_container_width=False):
-                    #if render_circle_button(22):
-                    condition = True
-                else:
-                    condition = False
-                # Check the state of the button
-            if condition == True:
-                st.markdown("""
-                This bar chart presents a breakdown of revenue generated each month, categorized by sales role. Analyze these trends to identify periods of strong performance, potential seasonal variations, and opportunities for targeted improvements in specific months or for particular roles. 
-                """)
-            reps_summary_viz.plot_revenue_by_month_and_role(df)
-    else:
-        st.warning("There is no Date or Role or Total revenue columns, so visualizing can not be ready")
+    #if "Date" in columns and "Role" in columns and "Total revenue" in columns:
+    #    with st.container(border=True):
+    #        col11, col12 = st.columns([10, 0.50])
+    #        with col11:
+    #            st.markdown("""
+    #            <style>
+    #            .big-font {
+    #                font-size:20px !important;
+    #            }</style>""", unsafe_allow_html=True)
+    #            st.markdown('<p class="big-font">Revenue Trends: Monthly Performance by Role</p>', unsafe_allow_html=True)
+    #        with col12:
+    #            if st.button("🛈", key=465, help="Get some plot information", use_container_width=False):
+    #                #if render_circle_button(22):
+    #                condition = True
+    #            else:
+    #                condition = False
+    #            # Check the state of the button
+    #        if condition == True:
+    #            st.markdown("""
+    #            This bar chart presents a breakdown of revenue generated each month, categorized by sales role. Analyze these trends to identify periods of strong performance, potential seasonal variations, and opportunities for targeted improvements in specific months or for particular roles. 
+    #            """)
+    #        reps_summary_viz.plot_revenue_by_month_and_role(df)
+    #else:
+    #    st.warning("There is no Date or Role or Total revenue columns, so visualizing can not be ready")
     
     if "Date" in columns:
         with st.container(border=True):
