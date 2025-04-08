@@ -54,4 +54,4 @@ across various locations.
             inventory_depletion_viz.Inventory_Depletion_Visualization(df)
     except Exception as e:
         print(e)
-        st.warning("There is some error with plot, so visualizing can not be ready")
+        st.success("This visualization is temporarily unavailable")
