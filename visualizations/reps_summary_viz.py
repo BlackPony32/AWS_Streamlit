@@ -34,63 +34,95 @@ def preprocess_data(data):
 
 #Visualize the relationships between Orders/Cases Sold and Revenue
 def plot_sales_relationships1(df):
+    # Preprocess the data
+    df = df.dropna(subset=["Orders total", "Total revenue"])
+    df["Orders total"] = pd.to_numeric(df["Orders total"], errors='coerce')
+    df["Total revenue"] = pd.to_numeric(df["Total revenue"], errors='coerce')
+    df = df.dropna(subset=["Orders total", "Total revenue"])
     
+    # Create the scatter plot
     fig = go.Figure()
     fig.add_trace(go.Scatter(
-        x=df["Orders"],
+        x=df["Orders total"],
         y=df["Total revenue"],
         mode='markers',
         marker=dict(color='LightSkyBlue', opacity=0.7),
-        text=df["Orders"],
-        hovertemplate="<b>Orders: %{x}</b><br>Total Revenue: %{y}<extra></extra>"
-    ))  
-    fig.update_layout(
-        xaxis_title="Orders",
-        yaxis_title="Total Revenue",
-        template="plotly_white",
-        coloraxis_colorbar=dict(title="Orders")
-    )
-    st.plotly_chart(fig, use_container_width=True)
-
+        hovertemplate="<b>Orders Total: %{x}</b><br>Total Revenue: %{y}<extra></extra>"
+    ))
     
+    # Update layout with a title
+    fig.update_layout(
+        title="Relationship between Orders Total and Total Revenue",
+        xaxis_title="Orders Total",
+        yaxis_title="Total Revenue",
+        template="plotly_white"
+    )
+    
+    # Display in Streamlit
+    st.plotly_chart(fig, use_container_width=True)
 
 
 def plot_sales_relationships2(df):
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(
-            x=df["Cases sold"],
-            y=df["Total revenue"],
-            mode='markers',
-            marker=dict(color='darkgreen', opacity=0.7),
-            text=df["Cases sold"],
-            hovertemplate="<b>Cases Sold: %{x}</b><br>Total Revenue: %{y}<extra></extra>"
-        ))
-        
-        fig.update_layout(
-            xaxis_title="Cases Sold",
-            yaxis_title="Total Revenue",
-            template="plotly_white",
-            coloraxis_colorbar=dict(title="Cases Sold")
-        )
-        st.plotly_chart(fig, use_container_width=True)
+    # Preprocess the data
+    df = df.dropna(subset=["Cases sold total", "Total revenue"])
+    df["Cases sold total"] = pd.to_numeric(df["Cases sold total"], errors='coerce')
+    df["Total revenue"] = pd.to_numeric(df["Total revenue"], errors='coerce')
+    df = df.dropna(subset=["Cases sold total", "Total revenue"])
+    
+    # Create the scatter plot
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=df["Cases sold total"],
+        y=df["Total revenue"],
+        mode='markers',
+        marker=dict(color='darkgreen', opacity=0.7),
+        hovertemplate="<b>Cases Sold Total: %{x}</b><br>Total Revenue: %{y}<extra></extra>"
+    ))
+    
+    # Update layout with a title
+    fig.update_layout(
+        title="Relationship between Cases Sold Total and Total Revenue",
+        xaxis_title="Cases Sold Total",
+        yaxis_title="Total Revenue",
+        template="plotly_white"
+    )
+    
+    # Display in Streamlit
+    st.plotly_chart(fig, use_container_width=True)
 
 
 #Revenue by Month and Role
 def plot_revenue_by_month_and_role(df):
-    df['Month'] = pd.to_datetime(df['Date']).dt.month
+    # Convert 'Total revenue' to numeric, coercing non-numeric values to NaN
+    df['Total revenue'] = pd.to_numeric(df['Total revenue'], errors='coerce')
+    
+    # Convert 'Date' to datetime, coercing invalid dates to NaT
+    df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+    df['Month'] = df['Date'].dt.month
+    
+    # Drop rows where 'Month' is NaN (invalid dates) or 'Role' is None
+    df = df.dropna(subset=['Month'])
+    df = df[df['Role'].notnull()]
+    
+    # Convert 'Month' to integer type to avoid float indices
+    df['Month'] = df['Month'].astype(int)
+    
+    # Group by 'Month' and 'Role', sum 'Total revenue'
     grouped_data = df.groupby(['Month', 'Role'])['Total revenue'].sum().unstack(fill_value=0)
-
+    
+    # Create the figure
     fig = go.Figure()
     for role in grouped_data.columns:
         fig.add_trace(go.Bar(
             x=grouped_data.index,
             y=grouped_data[role],
-            name=role,
+            name=str(role),  # Convert role to string to avoid any issues
             text=grouped_data[role],
             texttemplate='%{text:.2s}',
-            hovertemplate="<b>Month: %{x}</b><br>Role: " + role + "<br>Total Revenue: %{y}<extra></extra>"
+            hovertemplate="<b>Month: %{x}</b><br>Role: " + str(role) + "<br>Total Revenue: %{y}<extra></extra>"
         ))
     
+    # Update layout
     fig.update_layout(
         xaxis_title="Month",
         yaxis_title="Total Revenue",
@@ -105,6 +137,7 @@ def plot_revenue_by_month_and_role(df):
         )
     )
     
+    # Display the plot
     st.plotly_chart(fig, use_container_width=True)
 
 
@@ -144,27 +177,39 @@ def plot_visits_and_travel_distance_by_name(df):
     
     st.plotly_chart(fig, use_container_width=True)
 
-#Visualize the number of cases sold for each day of the week
 def plot_cases_sold_by_day_of_week(df):
+    # Create a copy to avoid modifying the original DataFrame
     df = df.copy()
-    df['Day of Week'] = pd.to_datetime(df['Date']).dt.dayofweek
-    weekday_counts = df['Day of Week'].value_counts().sort_index()
-
+    
+    # Convert 'Date' to datetime, coercing errors to NaT
+    df['Day of Week'] = pd.to_datetime(df['Date'], errors='coerce').dt.dayofweek
+    
+    # Drop rows where 'Day of Week' is NaN (invalid dates)
+    df = df.dropna(subset=['Day of Week'])
+    
+    # Ensure 'Day of Week' is integer type
+    df['Day of Week'] = df['Day of Week'].astype(int)
+    
+    # Sum 'Cases sold total' by 'Day of Week' and include all days (0-6)
+    cases_sold_by_day = df.groupby('Day of Week')['Cases sold total'].sum().reindex(range(7), fill_value=0)
+    
+    # Define day names
     days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-
+    
+    # Create the plot
     fig = go.Figure()
-
+    
     fig.add_trace(go.Scatter(
-        x=weekday_counts.index,
-        y=weekday_counts.values,
+        x=cases_sold_by_day.index,
+        y=cases_sold_by_day.values,
         mode='lines+markers',
         name='Cases Sold',
         line=dict(color='#636EFA', width=2),
         marker=dict(size=8, color='#636EFA'),
         hovertemplate='<b>%{text}</b><br>Cases Sold: %{y}<extra></extra>',
-        text=[days[i] for i in weekday_counts.index]
+        text=[days[i] for i in cases_sold_by_day.index]
     ))
-
+    
     fig.update_layout(
         title="Cases Sold by Day of the Week",
         xaxis_title="Day of the Week",
@@ -172,47 +217,64 @@ def plot_cases_sold_by_day_of_week(df):
         template="plotly_white",
         xaxis=dict(
             tickmode='array',
-            tickvals=weekday_counts.index,
+            tickvals=list(range(7)),
             ticktext=days
         ),
         hovermode="x unified"
     )
-
+    
     st.plotly_chart(fig, use_container_width=True)
 
 
-#Visualizing Revenue Trends over Time for Each Role
 def plot_revenue_trend_by_month_and_role(df):
+    # Create a copy to avoid modifying the original DataFrame
     df = df.copy()
-    df['Month'] = pd.to_datetime(df['Date']).dt.month
+    
+    # Convert 'Total revenue' to numeric, coercing errors to NaN
+    df['Total revenue'] = pd.to_numeric(df['Total revenue'], errors='coerce')
+    
+    # Convert 'Date' to datetime, coercing invalid dates to NaT
+    df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+    
+    # Extract month period (e.g., '2022-01') for grouping
+    df['Month'] = df['Date'].dt.to_period('M')
+    
+    # Drop rows with invalid 'Month', 'Role', or 'Total revenue'
+    df = df.dropna(subset=['Month', 'Role', 'Total revenue'])
+    
+    # Group by 'Month' and 'Role', summing 'Total revenue'
     monthly_revenue = df.groupby(['Month', 'Role'])['Total revenue'].sum().unstack(fill_value=0)
-
+    
+    # Create the figure
     fig = go.Figure()
-
+    
+    # Add traces for each role
     for role in monthly_revenue.columns:
         fig.add_trace(go.Scatter(
-            x=monthly_revenue.index,
+            x=monthly_revenue.index.astype(str),  # Convert Period to string (e.g., '2022-01')
             y=monthly_revenue[role],
             mode='lines+markers',
             name=role,
             hovertemplate='<b>%{text}</b><br>' + role + ': $%{y:,.2f}<extra></extra>',
-            text=[calendar.month_abbr[m] for m in monthly_revenue.index]
+            text=[str(m) for m in monthly_revenue.index]  # Hover text shows 'YYYY-MM'
         ))
-
+    
+    # Update layout for clarity
     fig.update_layout(
         title="Revenue Trend by Month and Role",
-        xaxis_title="Month",
+        xaxis_title="Month (YYYY-MM)",
         yaxis_title="Total Revenue",
         template="plotly_white",
         xaxis=dict(
             tickmode='array',
-            tickvals=monthly_revenue.index,
-            ticktext=[calendar.month_abbr[m] for m in monthly_revenue.index]
+            tickvals=monthly_revenue.index.astype(str),
+            ticktext=[str(m) for m in monthly_revenue.index]  # X-axis shows 'YYYY-MM'
         ),
         hovermode="x unified",
         legend_title="Role"
     )
-
+    
+    # Display the plot in Streamlit
     st.plotly_chart(fig, use_container_width=True)
 
     
@@ -264,7 +326,6 @@ def plot_orders_vs_visits_with_regression(df):
 
     st.plotly_chart(fig, use_container_width=True)
 
-
 #Comparing Performance Metrics for Different Roles
 def plot_multiple_metrics_by_role(df):
     df = df.copy()
@@ -292,8 +353,6 @@ def plot_multiple_metrics_by_role(df):
     )
 
     st.plotly_chart(fig, use_container_width=True)
-
-    
 
 #Identifying Potential High-Value Clients
 def plot_revenue_vs_cases_sold_with_size_and_color(df):
@@ -335,8 +394,6 @@ def plot_revenue_vs_cases_sold_with_size_and_color(df):
 
 
 #__new____
-import plotly.graph_objects as go
-import streamlit as st
 
 def revenue_and_conversion_rate_comparison(df):
     data = df.copy()

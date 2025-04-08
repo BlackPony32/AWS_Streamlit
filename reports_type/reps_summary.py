@@ -27,132 +27,93 @@ def report_func(df):
 '''
     st.markdown(css, unsafe_allow_html=True)
 
-    #if "Date" in columns and "Role" in columns and "Total revenue" in columns:
-    #    with st.container(border=True):
-    #        col11, col12 = st.columns([10, 0.50])
-    #        with col11:
-    #            st.markdown("""
-    #            <style>
-    #            .big-font {
-    #                font-size:20px !important;
-    #            }</style>""", unsafe_allow_html=True)
-    #            st.markdown('<p class="big-font">Revenue Trends: Monthly Performance by Role</p>', unsafe_allow_html=True)
-    #        with col12:
-    #            if st.button("🛈", key=465, help="Get some plot information", use_container_width=False):
-    #                #if render_circle_button(22):
-    #                condition = True
-    #            else:
-    #                condition = False
-    #            # Check the state of the button
-    #        if condition == True:
-    #            st.markdown("""
-    #            This bar chart presents a breakdown of revenue generated each month, categorized by sales role. Analyze these trends to identify periods of strong performance, potential seasonal variations, and opportunities for targeted improvements in specific months or for particular roles. 
-    #            """)
-    #        reps_summary_viz.plot_revenue_by_month_and_role(df)
-    #else:
-    #    st.warning("There is no Date or Role or Total revenue columns, so visualizing can not be ready")
+    if "Date" in columns and "Role" in columns and "Total revenue" in columns:
+        try:
+            with st.container(border=True):
+                col11, col12 = st.columns([10, 0.50])
+                with col11:
+                    st.markdown("""
+                    <style>
+                    .big-font {
+                        font-size:20px !important;
+                    }</style>""", unsafe_allow_html=True)
+                    st.markdown('<p class="big-font">Revenue Trends: Monthly Performance by Role</p>', unsafe_allow_html=True)
+                with col12:
+                    if st.button("🛈", key=465, help="Get some plot information", use_container_width=False):
+                        #if render_circle_button(22):
+                        condition = True
+                    else:
+                        condition = False
+                    # Check the state of the button
+                if condition == True:
+                    st.markdown("""
+                    This bar chart presents a breakdown of revenue generated each month, categorized by sales role. Analyze these trends to identify periods of strong performance, potential seasonal variations, and opportunities for targeted improvements in specific months or for particular roles. 
+                    """)
+                reps_summary_viz.plot_revenue_by_month_and_role(df)
+        except Exception as e:
+            print("Error in plot_revenue_by_month_and_role:", e)
+            st.success("This visualization is temporarily unavailable")
+    else:
+        st.warning("There is no Date or Role or Total revenue columns, so visualizing can not be ready")
     
     if "Date" in columns:
-        with st.container(border=True):
-            col11, col12 = st.columns([10, 0.50])
-            with col11:
-                st.markdown("""
-                <style>
-                .big-font {
-                    font-size:20px !important;
-                }</style>""", unsafe_allow_html=True)
-                st.markdown('<p class="big-font">Sales Patterns: Cases Sold by Day of the Week</p>', unsafe_allow_html=True)
-            with col12:
-                if st.button("🛈", key=466, help="Get some plot information", use_container_width=False):
-                    #if render_circle_button(22):
-                    condition = True
-                else:
-                    condition = False
-                # Check the state of the button
-            if condition == True:
-                st.markdown("""
-                This line chart presents the number of cases sold for each day of the week, highlighting the weekly sales trend. By analyzing these patterns, you can identify peak sales days, understand customer behavior, and optimize resource allocation, such as staffing and marketing efforts, to align with weekly sales trends.
-                """)
-            reps_summary_viz.plot_cases_sold_by_day_of_week(df)
+        try:
+            with st.container(border=True):
+                col11, col12 = st.columns([10, 0.50])
+                with col11:
+                    st.markdown("""
+                    <style>
+                    .big-font {
+                        font-size:20px !important;
+                    }</style>""", unsafe_allow_html=True)
+                    st.markdown('<p class="big-font">Sales Patterns: Cases Sold by Day of the Week</p>', unsafe_allow_html=True)
+                with col12:
+                    if st.button("🛈", key=466, help="Get some plot information", use_container_width=False):
+                        #if render_circle_button(22):
+                        condition = True
+                    else:
+                        condition = False
+                    # Check the state of the button
+                if condition == True:
+                    st.markdown("""
+                    This line chart presents the number of cases sold for each day of the week, highlighting the weekly sales trend. By analyzing these patterns, you can identify peak sales days, understand customer behavior, and optimize resource allocation, such as staffing and marketing efforts, to align with weekly sales trends.
+                    """)
+                reps_summary_viz.plot_cases_sold_by_day_of_week(df)
+        except Exception as e:
+            print("Error in plot_cases_sold_by_day_of_week:", e)
+            st.success("This visualization is temporarily unavailable")
     else:
         st.warning("There is no Date column, so visualizing can not be ready")
     
     if "Date" in columns and "Total revenue" in columns and "Role" in columns:
-        with st.container(border=True):
-            col11, col12 = st.columns([10, 0.50])
-            with col11:
-                st.markdown("""
-                <style>
-                .big-font {
-                    font-size:20px !important;
-                }</style>""", unsafe_allow_html=True)
-                st.markdown('<p class="big-font">Revenue Trends: Monthly Performance by Role</p>', unsafe_allow_html=True)
-            with col12:
-                if st.button("🛈", key=467, help="Get some plot information", use_container_width=False):
-                    #if render_circle_button(22):
-                    condition = True
-                else:
-                    condition = False
-                # Check the state of the button
-            if condition == True:
-                st.markdown("""
-                This line chart tracks the revenue generated by Merchandisers and Sales Representatives each month, allowing you to visualize revenue fluctuations and compare performance trends between roles. Analyze these trends to identify seasonal patterns, the impact of sales strategies, and opportunities for growth.
-                """)
-            reps_summary_viz.plot_revenue_trend_by_month_and_role(df)
+        try:
+            with st.container(border=True):
+                col11, col12 = st.columns([10, 0.50])
+                with col11:
+                    st.markdown("""
+                    <style>
+                    .big-font {
+                        font-size:20px !important;
+                    }</style>""", unsafe_allow_html=True)
+                    st.markdown('<p class="big-font">Revenue Trends: Monthly Performance by Role</p>', unsafe_allow_html=True)
+                with col12:
+                    if st.button("🛈", key=467, help="Get some plot information", use_container_width=False):
+                        #if render_circle_button(22):
+                        condition = True
+                    else:
+                        condition = False
+                    # Check the state of the button
+                if condition == True:
+                    st.markdown("""
+                    This line chart tracks the revenue generated by Merchandisers and Sales Representatives each month, allowing you to visualize revenue fluctuations and compare performance trends between roles. Analyze these trends to identify seasonal patterns, the impact of sales strategies, and opportunities for growth.
+                    """)
+                reps_summary_viz.plot_revenue_trend_by_month_and_role(df)
+        except Exception as e:
+            print("Error in plot_revenue_trend_by_month_and_role:", e)
+            st.success("This visualization is temporarily unavailable")
     else:
         st.warning("There is no Date or Total revenue or Role columns, so visualizing can not be ready")
     
-    #wih cc2:
-    #if "Name" in columns and "Visits" in columns and "Travel distance" in columns:
-    #    with st.container(border=True):
-    #        col11, col12 = st.columns([10, 0.50])
-    #        with col11:
-    #            st.markdown("""
-    #            <style>
-    #            .big-font {
-    #                font-size:20px !important;
-    #            }</style>""", unsafe_allow_html=True)
-    #            st.markdown('<p class="big-font">Individual Performance: Visits and Travel</p>', unsafe_allow_html=True)
-    #        with col12:
-    #            if st.button("🛈", key=468, help="Get some plot information", use_container_width=False):
-    #                #if render_circle_button(22):
-    #                condition = True
-    #            else:
-    #                condition = False
-    #            # Check the state of the button
-    #        if condition == True:
-    #            st.markdown("""
-    #            This bar chart provides a comparative view of the total visits and travel distance covered by each sales representative. By analyzing individual performance metrics, you can identify top performers, potential areas for improvement in travel efficiency, and opportunities for optimized resource allocation.
-    #            """)
-    #        reps_summary_viz.plot_visits_and_travel_distance_by_name(df)
-    #else:
-    #    st.warning("There is no Name or Visits or Travel distance columns, so visualizing can not be ready")
-
-    #if "Role" in columns and "Visits" in columns and "Total revenue" in columns and "Orders total" in columns:
-    #    with st.container(border=True):
-    #        col11, col12 = st.columns([10, 0.50])
-    #        with col11:
-    #            st.markdown("""
-    #            <style>
-    #            .big-font {
-    #                font-size:20px !important;
-    #            }</style>""", unsafe_allow_html=True)
-    #            st.markdown('<p class="big-font">Total Revenue and Conversion Rate by Representative</p>', unsafe_allow_html=True)
-    #        with col12:
-    #            if st.button("🛈", key=3468, help="Get some plot information", use_container_width=False):
-    #                #if render_circle_button(22):
-    #                condition = True
-    #            else:
-    #                condition = False
-    #            # Check the state of the button
-    #        if condition == True:
-    #            st.markdown("""
-    #            Total Revenue (Bar Chart): This represents the revenue generated by each sales representative.
-    #            Conversion Rate (Line Chart): This metric shows the percentage of visits that resulted in orders, indicating the effectiveness of each representative.
-    #            """)
-    #        reps_summary_viz.total_revenue_and_conversion_rate(df)
-    #else:
-    #    st.warning("There is no Total revenue or Visits or Role columns or Orders total, so visualizing can not be ready")
     
     if "Role" in columns and "Orders total" in columns and "Total revenue" in columns:
         try:
@@ -179,6 +140,7 @@ def report_func(df):
                     """)
                 reps_summary_viz.Total_Visits_vs_Total_Revenue(df)
         except Exception as e:
+            print("Error in Total_Visits_vs_Total_Revenue:", e)
             st.warning("There is no Total revenue or Orders total or Role columns, so visualizing can not be ready")
     
     else:
@@ -213,6 +175,7 @@ def report_func(df):
                     """)
                 reps_summary_viz.revenue_conversion_and_trend(df)
         except Exception as e:
+            print("Error in revenue_conversion_and_trend:", e)
             st.warning("There is no Total revenue or Orders total or Visits or Name or Total revenue (Direct) or Total revenue (3rd party) columns, so visualizing can not be ready")
     # Name Total revenue (Direct) Total revenue (3rd party) Total revenue Visits Orders total
     
@@ -245,6 +208,7 @@ def report_func(df):
                     """)
                 reps_summary_viz.total_revenue_and_conversion_rate(df)
         except Exception as e:
+            print("Error in total_revenue_and_conversion_rate:", e)
             st.warning("There is no Total revenue or Orders total or Name or Visits columns, so visualizing can not be ready")
     # Name   Total revenue   Visits   Orders total
     
