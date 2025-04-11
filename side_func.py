@@ -35,6 +35,8 @@ def identify_file_mini(file_name):
             return "Inventory depletion"
         elif file_name == 'REPS_VISITS':
             return "Reps Visits"
+        elif file_name == 'PRODUCT_FULFILLMENT':
+            return "Product fulfillment"
         else:
             return "SimplyDepo"
         
@@ -72,7 +74,7 @@ def identify_file(UPLOAD_DIR):
         elif file_name == 'rep_details.csv':
             return "Representative Details report"
         elif file_name == 'reps_summary.csv':
-            return "Reps Summary report" #"Unknown (similar columns to Low Stock and Current Inventory)"
+            return "Reps Summary report"
         elif file_name == 'sku_not_ordered.csv':
             return "SKU's Not Ordered report"
         elif file_name == 'low_stock_inventory.csv':
@@ -87,6 +89,8 @@ def identify_file(UPLOAD_DIR):
             return "Inventory Depletion report"
         elif file_name == 'reps_visits.csv':
             return "Reps visits report"
+        elif file_name == 'product_fulfillment.csv':
+            return "Product fulfillment report"
         else:
             return "SimplyDepo report"
         

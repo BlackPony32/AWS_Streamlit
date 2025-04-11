@@ -21,9 +21,114 @@ from langchain.agents.agent_types import AgentType
 
 from reports_type import (best_sellers, current_inventory, customer_details, low_stock_inventory,
                           order_sales_summary, rep_details, reps_summary, sku_not_ordered,
-                          third_party_sales_summary, top_customers, inventory_depletion, reps_visits)
+                          third_party_sales_summary, top_customers, inventory_depletion, reps_visits,product_fulfillment)
 
 from side_func import identify_file, identify_file_mini
+
+EXPECTED_COLUMNS = {
+    "PRODUCT_FULFILLMENT": ["Order Id", "Customer", "Shipping Address", "Shipping city", "Shipping state", "Shipping zip", "Delivery status", "Type", "VIA", "Fulfilled by", "Tracking ID", "Fulfill date", "Product name", "QTY", "Product price", "Product total", "Payment status", "Grand total", "Paid", "Balance", "Contact phone", "Contact name"],
+    "REPS_VISITS": ["Role", "Id", "Name", "Date", "Business Name", "Billing Address", "Billing city", "Billing state", "Billing zip", "Shipping Address", "Shipping city", "Shipping state", "Shipping zip", "Check In", "Check Out", "Total time", "Check In Status", "Cases sold (Direct)", "Cases sold (3rd party)", "Cases sold total", "Notes", "Orders (Direct)", "Orders (3rd party)", "Orders total", "Photos", "Forms Submission"],
+    "INVENTORY_DEPLETION": ["Business name", "Shipping Address", "Shipping City", "Shipping State", "Shipping Zip", "Billing Address", "Billing City", "Billing State", "Billing Zip", "Ginger Shots / Digestive Aid / 2 fl oz", "Ginger Shots / Immunity Aid / 2 fl oz", "Ginger Shots / Immunity Booster / 2 fl oz", "Ginger Shots / Vitamin C / 2 fl oz"],
+    "REPS_SUMMARY": ["Id", "Name", "Role", "Visits", "Orders (Direct)", "Orders (3rd party)", "Orders total", "Cases sold (Direct)", "Cases sold (3rd party)", "Cases sold total", "Total revenue (Direct)", "Total revenue (3rd party)", "Total revenue", "Photos", "Notes", "New clients", "Date", "Start day", "End day", "Break", "Travel distance", "First visit", "Last visit", "Total time"],
+    "REP_DETAILS": ["Status", "Id", "Name", "Role", "Email", "Phone number", "Total visits", "Total photos", "Total notes", "Total working hours", "Total break hours", "Total travel distance", "Assigned customers", "Active customers", "Inactive customers"],
+    "SKU_NOT_ORDERED": ["Category name", "Product name", "SKU", "Manufacturer name", "Cases sold", "Total revenue", "Wholesale price", "Retail price", "Available cases (QTY)"],
+    "BEST_SELLERS": ["Category name", "Product name", "SKU", "Manufacturer name", "Cases sold", "Total revenue", "Wholesale price", "Retail price", "Available cases (QTY)"],
+    "LOW_STOCK_INVENTORY": ["Category name", "Product name", "SKU", "Manufacturer name", "Available cases (QTY)", "Wholesale price", "Retail price"],
+    "CURRENT_INVENTORY": ["Category name", "Product name", "SKU", "Manufacturer name", "Available cases (QTY)", "Wholesale price", "Retail price"],
+    "THIRD_PARTY_SALES_SUMMARY": ["Customer ID", "Customer", "Billing Address", "Billing city", "Billing state", "Billing zip", "Shipping Address", "Shipping city", "Shipping state", "Shipping zip", "Order Id", "Created by", "Created at", "Product name", "Manufacturer name", "QTY", "Grand total", "Discount type", "Item specific discount", "Manufacturer specific discount", "Total invoice discount", "Price list", "Customer discount", "Free cases", "Order tags", "Representative"],
+    "ORDER_SALES_SUMMARY": ["Customer ID", "Customer", "Billing Address", "Billing city", "Billing state", "Billing zip", "Shipping Address", "Shipping city", "Shipping state", "Shipping zip", "Order Id", "Created by", "Created at", "Product name", "Product Price", "Product Total", "Manufacturer name", "QTY", "Discount type", "Item specific discount", "Customer discount", "Manufacturer specific discount", "Total invoice discount", "Price list", "Free cases", "Balance", "Payment status", "Expected payment date", "Grand total", "Paid", "Delivery status", "Delivered", "Delivery methods", "Order Note", "Order Status", "Customer contact", "Representative", "Order tags"],
+    "TOP_CUSTOMERS": ["Name", "Shipping address", "Shipping city", "Shipping state", "Shipping zip", "Billing address", "Billing city", "Billing state", "Billing zip", "Group", "Territory", "Total orders", "Total sales", "Customer discount", "Price list", "Primary payment method", "Order direct access", "Payment terms", "Contact name", "Contact role", "Contact phone", "Contact email", "Phone", "Business email", "Business Fax", "Website", "Tags", "Licenses & certifications"],
+    "CUSTOMER_DETAILS": ["Name", "Shipping address", "Shipping city", "Shipping state", "Shipping zip", "Billing address", "Billing city", "Billing state", "Billing zip", "Group", "Territory", "Total orders", "Total sales", "Customer discount", "Price list", "Primary payment method", "Order direct access", "Payment terms", "Contact name", "Contact role", "Contact phone", "Contact email", "Phone", "Business email", "Business Fax", "Website", "Tags", "Licenses & certifications"],
+}
+import pandas as pd
+import logging
+from typing import Dict, List
+
+
+def check_report(file_path: str, report_type: str) -> Dict:
+    """
+    Validate a report file against expected columns for a given report type.
+    
+    Returns:
+        Dictionary with validation results:
+        {
+            'report_type': str,
+            'is_valid': bool,
+            'missing_columns': List[str],
+            'extra_columns': List[str],
+            'column_count_match': bool,
+            'error': Optional[str]
+        }
+    """
+    result = {
+        'report_type': report_type,
+        'is_valid': False,
+        'missing_columns': [],
+        'extra_columns': [],
+        'column_count_match': False,
+        'error': None
+    }
+
+    try:
+        # Validate report type first
+        expected = EXPECTED_COLUMNS.get(report_type)
+        if not expected:
+            raise ValueError(f"Invalid report type: {report_type}. "
+                             f"Valid types: {list(EXPECTED_COLUMNS.keys())}")
+
+        # Read CSV
+        df = pd.read_csv(file_path)
+        actual_columns = df.columns.tolist()
+
+        # Check columns
+        missing = [col for col in expected if col not in actual_columns]
+        extra = [col for col in actual_columns if col not in expected]
+        
+        # Additional validation: column count match
+        count_match = len(actual_columns) == len(expected)
+        
+        # Prepare results
+        result.update({
+            'is_valid': not missing and not extra,
+            'missing_columns': missing,
+            'extra_columns': extra,
+            'column_count_match': count_match
+        })
+
+        # Log discrepancies
+        if missing:
+            logging.warning(f"[{report_type}] Missing columns: {missing}")
+        if extra:
+            logging.warning(f"[{report_type}] Extra columns: {extra}")
+        if not count_match:
+            logging.warning(f"[{report_type}] Column count mismatch. "
+                            f"Expected {len(expected)}, found {len(actual_columns)}")
+
+        return result
+
+    except FileNotFoundError as e:
+        error_msg = f"File not found: {file_path}"
+        logging.error(f"[{report_type}] {error_msg}")
+        result['error'] = error_msg
+        return result
+
+    except pd.errors.ParserError as e:
+        error_msg = f"CSV parsing error: {str(e)}"
+        logging.error(f"[{report_type}] {error_msg}")
+        result['error'] = error_msg
+        return result
+
+    except ValueError as e:
+        error_msg = str(e)
+        logging.error(f"[{report_type}] {error_msg}")
+        result['error'] = error_msg
+        return result
+
+    except Exception as e:
+        error_msg = f"Unexpected error: {str(e)}"
+        logging.error(f"[{report_type}] {error_msg}")
+        result['error'] = error_msg
+        return result
 
 load_dotenv()
 
@@ -97,8 +202,6 @@ st.markdown(css, unsafe_allow_html=True)
 
 
 
-
-
 def convert_excel_to_csv(excel_file_path):
     try:
         df = pd.read_excel(excel_file_path)
@@ -147,8 +250,10 @@ def chat_with_agent(input_string, file_path):
         result = agent.invoke(input_string)
         return result['output']
     except pd.errors.ParserError as e:
+        logging.error("CSV parsing error: %s", e)
         raise ValueError("Parsing error occurred: " + str(e))
     except Exception as e:
+        logging.error("Unexpected error in chat_with_agent: %s", e)
         raise ValueError(f"An error occurred: {str(e)}")
 
 def fetch_file_info():
@@ -158,25 +263,32 @@ def fetch_file_info():
         response.raise_for_status()  # Raise an exception for HTTP errors
         data = response.json()
         return data
-    except Exception as e:
+    except requests.RequestException as e:
+        logging.error("Request failed: %s", e)
         st.success("""**Important Notice**
         \nThis page was reloaded due to a manual refresh.\n To proceed, please close this window and run the report again from **Simply Depo**. Avoid refreshing the page to ensure smooth operation and avoid interruptions. Thank you for your cooperation.
         """)
         st.stop()
-    except requests.RequestException as e:
-        st.error(f"Error fetching file info: {e}")
-        return None
+    except Exception as e:
+        logging.error("General error in fetch_file_info: %s", e)
+        st.success("""**Important Notice**
+        \nThis page was reloaded due to a manual refresh.\n To proceed, please close this window and run the report again from **Simply Depo**. Avoid refreshing the page to ensure smooth operation and avoid interruptions. Thank you for your cooperation.
+        """)
+        st.stop()
+
 
 #@st.cache_data(show_spinner=False)
 def cache_df(last_uploaded_file_path):
-    if 'df' not in st.session_state:
-            df = pd.read_csv(last_uploaded_file_path, low_memory=False)
-            #df_limited = df.head(NUMBER_SHOWN_ROWS)
-            st.session_state["df"] = df  #df_limited
     try:
+        if 'df' not in st.session_state:
+                df = pd.read_csv(last_uploaded_file_path, low_memory=False)
+                #df_limited = df.head(NUMBER_SHOWN_ROWS)
+                st.session_state["df"] = df  #df_limited
+
         df = st.session_state["df"]
     except Exception as e:
         st.warning("There is some error with data, try to update the session")
+        st.stop()
     return df
 
 def id_str(value):
@@ -387,6 +499,17 @@ def big_main():
                             st.dataframe(df_show, use_container_width=False)
                         except:
                             st.warning("Data display error, try reloading the report")
+                    elif file_type == "Product fulfillment report":
+                        df_show = df.copy()
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
+                        
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
+                        try:
+                            st.dataframe(df_show, use_container_width=False)
+                        except:
+                            st.warning("Data display error, try reloading the report")
                     elif file_type == "Low Stock Inventory report":
                         df_show = df.copy()
                         df_show  = df_show.head(NUMBER_SHOWN_ROWS)
@@ -459,7 +582,10 @@ def big_main():
                         except:
                             st.warning("Data display error, try reloading the report")
                     else:
-                        st.dataframe(df, use_container_width=False)
+                        try:
+                            st.dataframe(df, use_container_width=False)
+                        except:
+                            st.warning("Data display error, try reloading the report")
     except Exception as e:
         #st.write(str(e))
         st.warning("Data display error, try reloading the report")
@@ -913,10 +1039,14 @@ def big_main():
             'Top Customers report': top_customers.report_func,
             'Customer Details report': customer_details.report_func,
             'Inventory Depletion report': inventory_depletion.report_func,
-            'Reps visits report': reps_visits.report_func
+            'Reps visits report': reps_visits.report_func,
+            'Product fulfillment report': product_fulfillment.report_func
         }
         if file_type in report_function_map:
-            report_function_map[file_type](df)
+            try:
+                report_function_map[file_type](df)
+            except Exception as e:
+                st.success("Important technical work is underway, please try again later")
         else:
             st.warning("Your report is not standard, so there are no additional visualizations")
 
@@ -928,7 +1058,12 @@ def big_main():
 def main_viz():
     global last_uploaded_file_path
     global UPLOAD_DIR
-
+    
+    #try:
+    #    if st.session_state.result:
+    #        st.write(st.session_state.result)
+    #except Exception as e:
+    #    pass
     async def cleanup_uploads_folder(upload_dir: str):
         try:
             # Pause for 0.5 seconds asynchronously
@@ -1004,7 +1139,8 @@ def main_viz():
         'REP_DETAILS': 'rep_details.xlsx',
         'REPS_SUMMARY': 'reps_summary.xlsx',
         'INVENTORY_DEPLETION': 'inventory_depletion.xlsx',
-        'REPS_VISITS': 'reps_visits.xlsx'
+        'REPS_VISITS': 'reps_visits.xlsx',
+        'PRODUCT_FULFILLMENT': 'product_fulfillment.xlsx'
     }
     try:
         response = requests.get(url_name, stream=True)
@@ -1016,9 +1152,11 @@ def main_viz():
     friendly_filename = report_type_filenames.get(file_name_, 'unknown.xlsx')
     excel_file_path = os.path.join(UPLOAD_DIR, friendly_filename)
     
+    #if "file_download" not in st.session_state:
     with open(excel_file_path, "wb") as file:
         for chunk in response.iter_content(chunk_size=8192):
             file.write(chunk)
+    #    st.session_state.file_download = True
     
     excel_files_pattern = os.path.join(UPLOAD_DIR, '*.xls*')
     time.sleep(0.3)
@@ -1031,6 +1169,7 @@ def main_viz():
                 if "last_uploaded_file_path" not in st.session_state:
                     st.session_state.last_uploaded_file_path = convert_excel_to_csv(excel_file)
                 else:
+                    #pass
                     st.session_state.last_uploaded_file_path = convert_excel_to_csv(excel_file)
             except Exception as e:
                 st.warning("Oops, something went wrong with data. Please try updating the page.")
@@ -1039,6 +1178,14 @@ def main_viz():
     last_uploaded_file_path = st.session_state.last_uploaded_file_path
     report_name_title = identify_file_mini(file_name_)
     st.title(f"Report: {report_name_title}")
+    
+    if "file_result_check" not in st.session_state:
+        st.session_state["file_result_check"] = True
+        try:
+            result_check = check_report(last_uploaded_file_path, st.session_state["file_name"])
+            logger.info(f"File check: {result_check}")
+        except Exception as e:
+            pass
     
     if "one_rerun" not in st.session_state:
         st.session_state["one_rerun"] = True
