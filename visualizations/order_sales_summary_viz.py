@@ -79,7 +79,7 @@ def visualize_sales_trends2(data, customer_col='Customer', product_col='Product 
         grand_total_col = 'Grand total'
 
         # Calculate monthly sales
-        monthly_sales = data.groupby(pd.Grouper(key='Created at', freq='M'))[grand_total_col].sum()
+        monthly_sales = data.groupby(pd.Grouper(key='Created at', freq='ME'))[grand_total_col].sum()
 
         # Create the plot
         fig = go.Figure()
