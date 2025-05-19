@@ -32,11 +32,11 @@ EXPECTED_COLUMNS = {
     "REPS_SUMMARY": ["Id", "Name", "Role", "Visits", "Orders (Direct)", "Orders (3rd party)", "Orders total", "Cases sold (Direct)", "Cases sold (3rd party)", "Cases sold total", "Total revenue (Direct)", "Total revenue (3rd party)", "Total revenue", "Photos", "Notes", "New clients", "Date", "Start day", "End day", "Break", "Travel distance", "First visit", "Last visit", "Total time"],
     "REP_DETAILS": ["Status", "Id", "Name", "Role", "Email", "Phone number", "Total visits", "Total photos", "Total notes", "Total working hours", "Total break hours", "Total travel distance", "Assigned customers", "Active customers", "Inactive customers"],
     "SKU_NOT_ORDERED": ["Category name", "Product name", "SKU", "Manufacturer name", "Cases sold", "Total revenue", "Wholesale price", "Retail price", "Available cases (QTY)"],
-    "BEST_SELLERS": ["Category name", "Product name", "SKU", "Manufacturer name", "Cases sold", "Total revenue", "Wholesale price", "Retail price", "Available cases (QTY)"],
-    "LOW_STOCK_INVENTORY": ["Category name", "Product name", "SKU", "Manufacturer name", "Available cases (QTY)", "Wholesale price", "Retail price"],
-    "CURRENT_INVENTORY": ["Category name", "Product name", "SKU", "Manufacturer name", "Available cases (QTY)", "Wholesale price", "Retail price"],
-    "THIRD_PARTY_SALES_SUMMARY": ["Customer ID", "Customer", "Billing Address", "Billing city", "Billing state", "Billing zip", "Shipping Address", "Shipping city", "Shipping state", "Shipping zip", "Order Id", "Created by", "Created at", "Product name", "Manufacturer name", "QTY", "Grand total", "Discount type", "Item specific discount", "Manufacturer specific discount", "Total invoice discount", "Price list", "Customer discount", "Free cases", "Order tags", "Representative"],
-    "ORDER_SALES_SUMMARY": ["Customer ID", "Customer", "Billing Address", "Billing city", "Billing state", "Billing zip", "Shipping Address", "Shipping city", "Shipping state", "Shipping zip", "Order Id", "Created by", "Created at", "Product name", "Product Price", "Product Total", "Manufacturer name", "QTY", "Discount type", "Item specific discount", "Customer discount", "Manufacturer specific discount", "Total invoice discount", "Price list", "Free cases", "Balance", "Payment status", "Expected payment date", "Grand total", "Paid", "Delivery status", "Delivered", "Delivery methods", "Order Note", "Order Status", "Customer contact", "Representative", "Order tags"],
+    "BEST_SELLERS": ["Category name", "Product name", "SKU", "On hand cases", "Allocated cases", "Manufacturer name", "Cases sold", "Total revenue", "Wholesale price", "Retail price", "Available cases (QTY)"],
+    "LOW_STOCK_INVENTORY": ["Category name", "Product name", "SKU", "On hand cases", "Allocated cases", "Manufacturer name", "Available cases (QTY)", "Wholesale price", "Retail price"],
+    "CURRENT_INVENTORY": ["Category name", "Product name", "SKU", "On hand cases", "Allocated cases", "Manufacturer name", "Available cases (QTY)", "Wholesale price", "Retail price"],
+    "THIRD_PARTY_SALES_SUMMARY": ["Customer ID", "Customer", "Billing Address", "Slotting", "Billing city", "Billing state", "Billing zip", "Shipping Address", "Shipping city", "Shipping state", "Shipping zip", "Order Id", "Created by", "Created at", "Product name", "Manufacturer name", "QTY", "Grand total", "Discount type", "Item specific discount", "Manufacturer specific discount", "Total invoice discount", "Price list", "Customer discount", "Free cases", "Order tags", "Representative"],
+    "ORDER_SALES_SUMMARY": ["Customer ID", "Customer", "Billing Address", "Slotting", "Billing city", "Billing state", "Billing zip", "Shipping Address", "Shipping city", "Shipping state", "Shipping zip", "Order Id", "Created by", "Created at", "Product name", "Product Price", "Product Total", "Manufacturer name", "QTY", "Discount type", "Item specific discount", "Customer discount", "Manufacturer specific discount", "Total invoice discount", "Price list", "Free cases", "Balance", "Payment status", "Expected payment date", "Grand total", "Paid", "Delivery status", "Delivered", "Delivery methods", "Order Note", "Order Status", "Customer contact", "Representative", "Order tags"],
     "TOP_CUSTOMERS": ["Name", "Shipping address", "Shipping city", "Shipping state", "Shipping zip", "Billing address", "Billing city", "Billing state", "Billing zip", "Group", "Territory", "Total orders", "Total sales", "Customer discount", "Price list", "Primary payment method", "Order direct access", "Payment terms", "Contact name", "Contact role", "Contact phone", "Contact email", "Phone", "Business email", "Business Fax", "Website", "Tags", "Licenses & certifications"],
     "CUSTOMER_DETAILS": ["Name", "Shipping address", "Shipping city", "Shipping state", "Shipping zip", "Billing address", "Billing city", "Billing state", "Billing zip", "Group", "Territory", "Total orders", "Total sales", "Customer discount", "Price list", "Primary payment method", "Order direct access", "Payment terms", "Contact name", "Contact role", "Contact phone", "Contact email", "Phone", "Business email", "Business Fax", "Website", "Tags", "Licenses & certifications"],
 }
@@ -244,7 +244,7 @@ def chat_with_agent(input_string, file_path):
         agent = create_csv_agent(
             ChatOpenAI(temperature=0, model="gpt-4o"),
             file_path,
-            verbose=True,
+            verbose=False,
             agent_type=AgentType.OPENAI_FUNCTIONS
         )
         result = agent.invoke(input_string)
@@ -983,9 +983,13 @@ def big_main():
                                                     </style>
                                                     """, unsafe_allow_html=True)
                                                 with st.container(border=True):
-                                                    st.write('<span class="red-frame"/>', unsafe_allow_html=True)
-                                                    plot_result = test_plot_maker(df, input_text2)
-                                                    st.plotly_chart(plot_result)
+                                                    try:
+                                                        st.write('<span class="red-frame"/>', unsafe_allow_html=True)
+                                                        plot_result = test_plot_maker(df, input_text2)
+                                                        st.plotly_chart(plot_result)
+                                                    except Exception as e:
+                                                        st.warning("There is some error with data visualization, try to give query more details")
+
 
                                         except Exception as e:
                                             st.warning("There is some error with data visualization, try to make query more details")
