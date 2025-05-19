@@ -416,6 +416,7 @@ def big_main():
                         'Wholesale price': add_dollar_sign,
                         'Retail price': add_dollar_sign,
                         'Phone number': format_phone_number,
+                        'Contact phone': format_phone_number,
                         'Total sales' : add_dollar_sign,
                         'Shipping zip' : id_str,
                         'Shipping Zip' : id_str,
