@@ -45,7 +45,7 @@ import logging
 from typing import Dict, List
 
 
-def check_report(file_path: str, report_type: str) -> Dict:
+def check_report(file_path: str, report_type: str, url_name) -> Dict:
     """
     Validate a report file against expected columns for a given report type.
     
@@ -70,6 +70,8 @@ def check_report(file_path: str, report_type: str) -> Dict:
     }
 
     try:
+        #for stage file check
+        logging.info(f'File report link:  {url_name}')
         # Validate report type first
         expected = EXPECTED_COLUMNS.get(report_type)
         if not expected:
@@ -413,6 +415,8 @@ def big_main():
                         'Total invoice discount': add_dollar_sign,
                         'Customer discount': add_dollar_sign,
                         'Balance': add_dollar_sign,
+                        'Product Price': add_dollar_sign,
+                        'Product Total': add_dollar_sign,
                         'Wholesale price': add_dollar_sign,
                         'Retail price': add_dollar_sign,
                         'Phone number': format_phone_number,
@@ -1187,7 +1191,7 @@ def main_viz():
     if "file_result_check" not in st.session_state:
         st.session_state["file_result_check"] = True
         try:
-            result_check = check_report(last_uploaded_file_path, st.session_state["file_name"])
+            result_check = check_report(last_uploaded_file_path, st.session_state["file_name"], url_name)
             logger.info(f"File check: {result_check}")
         except Exception as e:
             pass
