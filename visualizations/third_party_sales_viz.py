@@ -42,7 +42,7 @@ def preprocess_data(data):
     return data
 
 #Total sales
-def visualize_product_analysis1(data, product_col='Product name', grand_total_col='Grand total', threshold=0.03):
+def visualize_product_analysis1(data, product_col='Product name', grand_total_col='Grand total', threshold=0.02):
     product_data = data.groupby(product_col)[grand_total_col].agg(['sum', 'count']).sort_values(by='sum', ascending=False)
     
     # Calculate percentages
@@ -72,17 +72,17 @@ def visualize_product_analysis1(data, product_col='Product name', grand_total_co
     
     st.plotly_chart(fig, use_container_width=True)
 
-def visualize_product_analysis2(data, product_col='Product name', grand_total_col='Grand total'):
-    product_data = data.groupby(product_col)[grand_total_col].agg(['sum', 'count']).sort_values(by='sum', ascending=False)
-
+def visualize_product_analysis2(data, product_col='Product name', order_id_col='Order Id'):
+    """Distribution of unique orders by product"""
+    # Count unique orders per product
+    unique_orders = data.drop_duplicates(subset=[order_id_col, product_col])
+    product_counts = unique_orders.groupby(product_col).size().sort_values(ascending=False)
+    
     # Bar chart
     fig = go.Figure(data=[go.Bar(
-        x=product_data.index,
-        y=product_data['count'],
-        marker=dict(
-            color=product_data['count'],
-            colorscale='Cividis'
-        ),
+        x=product_counts.index,
+        y=product_counts.values,
+        marker=dict(color=product_counts.values, colorscale='Cividis'),
         hovertemplate='<b>%{x}</b><br>Orders: %{y}<extra></extra>'
     )])
     
@@ -97,72 +97,79 @@ def visualize_product_analysis2(data, product_col='Product name', grand_total_co
     st.plotly_chart(fig, use_container_width=True)
         
 #Sales amount for each client (top 10)
-def visualize_sales_trends(data, customer_col='Customer', product_col='Product name',
-                           grand_total_col='Grand total', qty_col='QTY'):
-    # Calculate top 10 customers
-    top_customers = data.groupby(customer_col)[grand_total_col].sum().nlargest(10)
+def visualize_sales_trends(data, customer_col='Customer', 
+                          grand_total_col='Grand total', 
+                          order_id_col='Order Id'):
+    """Top customers by unique order totals"""
+    # Get unique orders
+    unique_orders = data.drop_duplicates(subset=[order_id_col])
+    
+    # Convert to numeric
+    unique_orders[grand_total_col] = pd.to_numeric(unique_orders[grand_total_col], errors='coerce')
+    unique_orders = unique_orders.dropna(subset=[grand_total_col])
+    
+    # Calculate top customers
+    top_customers = unique_orders.groupby(customer_col)[grand_total_col].sum().nlargest(10)
 
     # Create bar chart
     fig = go.Figure(data=[go.Bar(
         x=top_customers.index,
         y=top_customers.values,
-        marker=dict(
-            color=top_customers.values,
-            colorscale='Bluyl',
-            colorbar=dict(title="Sales Amount")
-        ),
+        marker=dict(color=top_customers.values, colorscale='Bluyl'),
         hovertemplate='<b>%{x}</b><br>Sales Amount: $%{y:,.2f}<extra></extra>'
     )])
 
     # Update layout
     fig.update_layout(
+        title="Top Customers by Sales Amount",
         xaxis_title="Customer",
         yaxis_title="Sales Amount",
         xaxis_tickangle=45,
         hoverlabel=dict(bgcolor="white", font_size=12)
     )
 
-    # Display chart
     st.plotly_chart(fig, use_container_width=True)
 
 
 #Plot with coloring of points by product type
 def visualize_combined_analysis(data, product_col='Product name',
-                               grand_total_col='Grand total', qty_col='QTY',
-                               delivery_status_col='Delivery status'):
+                               qty_col='QTY', order_id_col='Order Id'):
+    """Quantity distribution by product using unique orders"""
+    # Get unique orders with quantities
+    unique_orders = data.drop_duplicates(subset=[order_id_col, product_col])
+    
+    # Convert to numeric
+    unique_orders[qty_col] = pd.to_numeric(unique_orders[qty_col], errors='coerce')
+    unique_orders = unique_orders.dropna(subset=[qty_col])
+    
     # Group data by product and quantity
-    grouped_data = data.groupby([product_col, qty_col])[grand_total_col].sum().reset_index()
-
-    # Create a list of unique products
-    products = grouped_data[product_col].unique()
-
+    grouped_data = unique_orders.groupby([product_col, qty_col]).size().reset_index(name='count')
+    
     # Create the figure
     fig = go.Figure()
-
+    
     # Add a trace for each product
-    for product in products:
+    for product in grouped_data[product_col].unique()[:15]:  # Limit to top 15 products
         product_data = grouped_data[grouped_data[product_col] == product]
         fig.add_trace(go.Bar(
             x=product_data[qty_col],
-            y=product_data[grand_total_col],
+            y=product_data['count'],
             name=product,
-            text=grouped_data[grouped_data[product_col] == product],  # Add product names to bars
-            textposition='auto',  # Position text automatically
-            hovertemplate='<b>%{text}</b><br>Quantity: %{x}<br>Sales Amount: $%{y:,.2f}<extra></extra>',
-            width=0.8  # Make bars thicker
+            hovertemplate=f'<b>{product}</b><br>Quantity: %{{x}}<br>Orders: %{{y}}<extra></extra>',
+            width=0.8
         ))
 
     # Update the layout
     fig.update_layout(
+        title="Product Quantity Distribution",
         xaxis_title="Quantity",
-        yaxis_title="Sales Amount",
-        barmode='stack',
+        yaxis_title="Number of Orders",
+        barmode='group',
         legend_title="Product",
-        bargap=0.2,  # Adjust gap between bar groups
-        bargroupgap=0.1  # Adjust gap between bars in a group
+        bargap=0.2,
+        bargroupgap=0.1
     )
 
-    # Display the chart
     st.plotly_chart(fig, use_container_width=True)
 
     
