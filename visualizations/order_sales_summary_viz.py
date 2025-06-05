@@ -100,71 +100,80 @@ def visualize_sales_trends2(data, customer_col='Customer', product_col='Product 
     st.plotly_chart(fig, use_container_width=True)
 
 #_________________Product Analysis Function (with Plotly)___________________________
-def visualize_product_analysis1(data, product_col='Product name', order_id_col='Order Id'):
-    """Visualize product distribution by unique orders"""
-    # Count unique orders per product
-    unique_orders = data.drop_duplicates(subset=[order_id_col, product_col])
-    product_counts = unique_orders.groupby(product_col).size()
+def visualize_product_analysis1(data, product_col='Product name', 
+                                product_total_col='Product Total',  # Use item-level total
+                                threshold=0.03):
+    """Visualize total sales by product with a pie chart, grouping smaller products into 'Other'."""
     
+    # Convert to numeric and handle NaNs
+    data[product_total_col] = pd.to_numeric(data[product_total_col], errors='coerce')
+    data = data.dropna(subset=[product_total_col])
+    
+    # Group by product using PRODUCT-level total (not order total)
+    product_data = data.groupby(product_col)[product_total_col].agg(['sum', 'count']).sort_values(by='sum', ascending=False)
+
     # Calculate percentages
-    total_orders = len(unique_orders[order_id_col].unique())
-    product_data = product_counts.reset_index(name='count')
-    product_data['percentage'] = product_data['count'] / total_orders
-    
-    # Group smaller categories into 'Other'
-    threshold = 0.03
+    total_sales_sum = product_data['sum'].sum()
+    product_data['percentage'] = product_data['sum'] / total_sales_sum
+
+    # Group smaller products into 'Other'
     main_data = product_data[product_data['percentage'] >= threshold]
     other_data = product_data[product_data['percentage'] < threshold]
-    
+
     if not other_data.empty:
-        other_count = other_data['count'].sum()
-        other_percentage = other_count / total_orders
+        other_sales_sum = other_data['sum'].sum()
         other_row = pd.DataFrame({
-            product_col: ['Other'],
-            'count': [other_count],
-            'percentage': [other_percentage]
-        })
+            'sum': [other_sales_sum],
+            'count': [other_data['count'].sum()],
+            'percentage': [other_sales_sum / total_sales_sum]
+        }, index=['Other'])
         main_data = pd.concat([main_data, other_row])
-    
-    # Pie chart
+
+    # Create pie chart
     fig = go.Figure(data=[go.Pie(
-        labels=main_data[product_col],
-        values=main_data['count'],
-        textinfo='percent+label',
-        hovertemplate='<b>%{label}</b><br>Orders: %{value}<br>Percentage: %{percent}<extra></extra>'
+        labels=main_data.index, 
+        values=main_data['sum'],
+        hovertemplate='<b>%{label}</b><br>Sales: $%{value:.2f}<br>Percentage: %{percent}<extra></extra>',
+        textinfo='percent+label'
     )])
     
     fig.update_layout(
-        hoverlabel=dict(bgcolor="white", font_size=12),
-        margin=dict(t=0, b=0, l=0, r=0),
-        title="Product Distribution by Unique Orders"
+        title="Total Sales by Product",
+        colorway=px.colors.qualitative.Vivid,
+        title_x=0.5,
+        height=550
     )
-    
     st.plotly_chart(fig, use_container_width=True)
 
 
-def visualize_product_analysis2(data, product_col='Product name', order_id_col='Order Id'):
-    """Distribution of unique orders by product"""
-    # Count unique orders per product
-    unique_orders = data.drop_duplicates(subset=[order_id_col, product_col])
-    product_counts = unique_orders.groupby(product_col).size().sort_values(ascending=False)
+def visualize_product_analysis2(data, product_col='Product name'):
+    """Distribution of orders by product (uses count of occurrences, not Grand total)"""
     
-    # Bar chart
+    # Simply count product occurrences (no need for totals)
+    product_counts = data.groupby(product_col).size().sort_values(ascending=False)
+    
+    # Wrap long labels
+    wrapped_labels = [textwrap.fill(text, width=15) for text in product_counts.index]
+
     fig = go.Figure(data=[go.Bar(
-        x=product_counts.index,
+        x=wrapped_labels, 
         y=product_counts.values,
-        marker=dict(color=product_counts.values, colorscale='Cividis'),
-        hovertemplate='<b>%{x}</b><br>Orders: %{y}<extra></extra>'
+        hovertemplate='<b>%{x}</b><br>Orders: %{y}<extra></extra>',
+        marker=dict(
+            color=product_counts.values, 
+            colorscale='Cividis',
+            showscale=False
+        )
     )])
     
     fig.update_layout(
-        title_text="Distribution of Orders by Product",
+        title="Distribution of Orders by Product",
         xaxis_title="Product",
         yaxis_title="Number of Orders",
-        xaxis_tickangle=45,
-        hoverlabel=dict(bgcolor="white", font_size=12)
+        xaxis_tickangle=-45,
+        title_x=0.5,
+        height=600
     )
-    
     st.plotly_chart(fig, use_container_width=True)
 
 #_________________Discount Analysis Function (with Plotly)__________________________
