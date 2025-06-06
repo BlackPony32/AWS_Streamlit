@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 import numpy as np
 import plotly.graph_objects as go
+import textwrap
 
 def preprocess_data(data):
     """
@@ -33,88 +34,86 @@ def preprocess_data(data):
 
 #_________________Sales Trends Function  (with Plotly)_______________________________
 def visualize_sales_trends1(data, customer_col='Customer', product_col='Product name', 
-                            grand_total_col='Grand total', qty_col='QTY'):
+                            grand_total_col='Grand total', qty_col='QTY', 
+                            order_id_col='Order Id'):  # Add order_id_col parameter
     
-    # Ensure the grand total column is numeric
+    # Convert Grand Total to numeric
     data[grand_total_col] = pd.to_numeric(data[grand_total_col], errors='coerce')
-
-    # Handle potential NaN values after conversion
     data = data.dropna(subset=[grand_total_col])
-
-    # Calculate the top customers
-    top_customers = data.groupby(customer_col)[grand_total_col].sum().nlargest(10)
-
-    # Create the plot
-    fig = go.Figure()
     
+    # Step 1: Remove duplicate orders (keep first occurrence per Order ID)
+    unique_orders = data.drop_duplicates(subset=[order_id_col])
+    
+    # Step 2: Calculate total sales per customer using de-duplicated data
+    customer_sales = unique_orders.groupby(customer_col)[grand_total_col].sum()
+    top_customers = customer_sales.nlargest(10)
+
+    # Create plot
+    fig = go.Figure()
     fig.add_trace(go.Bar(
         x=top_customers.index,
         y=top_customers.values,
-        marker=dict(
-            color=top_customers.values,
-            colorscale='Bluyl'
-        ),
+        marker=dict(color=top_customers.values, colorscale='Bluyl'),
         hovertemplate='<b>Customer:</b> %{x}<br><b>Sales Amount:</b> $%{y:.2f}<extra></extra>'
     ))
     
-    # Update the layout
     fig.update_layout(
         title="Top 10 Customers by Sales Amount",
         xaxis_tickangle=45,
         yaxis_title="Sales Amount",
-        xaxis_title="Customer",
-        coloraxis_colorbar=dict(title="Sales Amount")
+        xaxis_title="Customer"
     )
-    
-    # Display the chart in Streamlit
     st.plotly_chart(fig, use_container_width=True)
 
 
 def visualize_sales_trends2(data, customer_col='Customer', product_col='Product name', 
-                           grand_total_col='Grand total', qty_col='QTY'):
+                           grand_total_col='Grand total', qty_col='QTY',
+                           order_id_col='Order Id'):  # Add order_id_col parameter
     
-        data['Created at'] = pd.to_datetime(data['Created at'])
+    # Convert date and Grand Total
+    data['Created at'] = pd.to_datetime(data['Created at'])
+    data[grand_total_col] = pd.to_numeric(data[grand_total_col], errors='coerce')
+    data = data.dropna(subset=[grand_total_col])
+    
+    # Step 1: Remove duplicate orders
+    unique_orders = data.drop_duplicates(subset=[order_id_col])
+    
+    # Step 2: Group de-duplicated data by month
+    monthly_sales = unique_orders.groupby(pd.Grouper(key='Created at', freq='M'))[grand_total_col].sum()
 
-        # Specify the column name for grand total
-        grand_total_col = 'Grand total'
-
-        # Calculate monthly sales
-        monthly_sales = data.groupby(pd.Grouper(key='Created at', freq='ME'))[grand_total_col].sum()
-
-        # Create the plot
-        fig = go.Figure()
-        
-        fig.add_trace(go.Scatter(
-            x=monthly_sales.index,
-            y=monthly_sales.values,
-            mode='lines+markers',
-            name='Sales Amount',
-            hovertemplate='<b>Month:</b> %{x}<br><b>Sales Amount:</b> $%{y:.2f}<extra></extra>'
-        ))
-        
-        # Update the layout
-        fig.update_layout(
-            title="Monthly Sales Trend",
-            xaxis_title="Month",
-            yaxis_title="Sales Amount",
-            hovermode='x unified'
-        )
-
-        # Update the layout
-        #fig.update_layout(xaxis_title="Month", yaxis_title="Sales Amount")
-        st.plotly_chart(fig, use_container_width=True)
+    # Create plot
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=monthly_sales.index,
+        y=monthly_sales.values,
+        mode='lines+markers',
+        name='Sales Amount',
+        hovertemplate='<b>Month:</b> %{x|%b %Y}<br><b>Sales Amount:</b> $%{y:.2f}<extra></extra>'
+    ))
+    
+    fig.update_layout(
+        title="Monthly Sales Trend",
+        xaxis_title="Month",
+        yaxis_title="Sales Amount",
+        hovermode='x unified'
+    )
+    st.plotly_chart(fig, use_container_width=True)
 
 #_________________Product Analysis Function (with Plotly)___________________________
-def visualize_product_analysis1(data, product_col='Product name', grand_total_col='Grand total', threshold=0.04):
+def visualize_product_analysis1(data, product_col='Product name', 
+                                product_total_col='Product Total',  # Use item-level total
+                                threshold=0.03):
     """Visualize total sales by product with a pie chart, grouping smaller products into 'Other'."""
     
-    # Group by product and aggregate sales and count
-    product_data = data.groupby(product_col)[grand_total_col].agg(['sum', 'count']).sort_values(by='sum', ascending=False)
+    # Convert to numeric and handle NaNs
+    data[product_total_col] = pd.to_numeric(data[product_total_col], errors='coerce')
+    data = data.dropna(subset=[product_total_col])
+    
+    # Group by product using PRODUCT-level total (not order total)
+    product_data = data.groupby(product_col)[product_total_col].agg(['sum', 'count']).sort_values(by='sum', ascending=False)
 
-    # Calculate the total sales for percentage calculation
+    # Calculate percentages
     total_sales_sum = product_data['sum'].sum()
-
-    # Calculate the percentage of each product's sales
     product_data['percentage'] = product_data['sum'] / total_sales_sum
 
     # Group smaller products into 'Other'
@@ -123,64 +122,59 @@ def visualize_product_analysis1(data, product_col='Product name', grand_total_co
 
     if not other_data.empty:
         other_sales_sum = other_data['sum'].sum()
-        other_row = pd.DataFrame({'sum': [other_sales_sum], 'count': [other_data['count'].sum()], 'percentage': [other_sales_sum / total_sales_sum]}, index=['Other'])
-        main_data = pd.concat([main_data, other_row], ignore_index=False)
-    
-    # Create the pie chart
+        other_row = pd.DataFrame({
+            'sum': [other_sales_sum],
+            'count': [other_data['count'].sum()],
+            'percentage': [other_sales_sum / total_sales_sum]
+        }, index=['Other'])
+        main_data = pd.concat([main_data, other_row])
+
+    # Create pie chart
     fig = go.Figure(data=[go.Pie(
         labels=main_data.index, 
         values=main_data['sum'],
         hovertemplate='<b>%{label}</b><br>Sales: $%{value:.2f}<br>Percentage: %{percent}<extra></extra>',
         textinfo='percent+label'
     )])
-
-    # Update the layout of the pie chart
+    
     fig.update_layout(
         title="Total Sales by Product",
         colorway=px.colors.qualitative.Vivid,
         title_x=0.5,
-        height=550  # Optional: adjust height for better display
+        height=550
     )
-
-    # Display the chart in Streamlit
     st.plotly_chart(fig, use_container_width=True)
 
 
+def visualize_product_analysis2(data, product_col='Product name'):
+    """Distribution of orders by product (uses count of occurrences, not Grand total)"""
+    
+    # Simply count product occurrences (no need for totals)
+    product_counts = data.groupby(product_col).size().sort_values(ascending=False)
+    
+    # Wrap long labels
+    wrapped_labels = [textwrap.fill(text, width=15) for text in product_counts.index]
 
-import textwrap
-
-def visualize_product_analysis2(data, product_col='Product name', grand_total_col='Grand total'):
-    # Group data by product and aggregate sales and order count
-    product_data = data.groupby(product_col)[grand_total_col].agg(['sum', 'count']).sort_values(by='sum', ascending=False)
-
-    # Wrap long product names
-    wrapped_labels = [textwrap.fill(text, width=15) for text in product_data.index]
-
-    # Create the bar chart
     fig = go.Figure(data=[go.Bar(
         x=wrapped_labels, 
-        y=product_data['count'],
+        y=product_counts.values,
         hovertemplate='<b>%{x}</b><br>Orders: %{y}<extra></extra>',
         marker=dict(
-            color=product_data['count'], 
+            color=product_counts.values, 
             colorscale='Cividis',
-            showscale=False  # Optional: hides the color scale legend
+            showscale=False
         )
     )])
-
-    # Update the layout
+    
     fig.update_layout(
         title="Distribution of Orders by Product",
         xaxis_title="Product",
         yaxis_title="Number of Orders",
         xaxis_tickangle=-45,
         title_x=0.5,
-        height=600  # Optional: adjust height for better display
+        height=600
     )
-
-    # Display the chart in Streamlit
     st.plotly_chart(fig, use_container_width=True)
-
 
 #_________________Discount Analysis Function (with Plotly)__________________________
 def visualize_discount_analysis1(data, discount_type_col='Discount type', total_discount_col='Total invoice discount'):
@@ -236,8 +230,6 @@ def visualize_discount_analysis1(data, discount_type_col='Discount type', total_
     # Display the bar chart in Streamlit
     st.plotly_chart(fig, use_container_width=True)
 
-
-
 def visualize_discount_analysis2(data, discount_type_col='Discount type', total_discount_col='Total invoice discount'):
     """Visualizes discount analysis by type and top customers, with error handling."""
     
@@ -276,7 +268,6 @@ def visualize_discount_analysis2(data, discount_type_col='Discount type', total_
     
     # Display the pie chart in Streamlit
     st.plotly_chart(fig, use_container_width=True)
-
 
 
 # _________________Delivery Analysis Function (with Plotly)___________________________
@@ -353,41 +344,40 @@ def visualize_payment_analysis(data, payment_status_col='Payment status'):
     st.plotly_chart(fig, use_container_width=True)
 
 
-    
-
 # _________________Combined Analysis Function (with Plotly)___________________________
 def visualize_combined_analysis1(data, product_col='Product name', 
-                                 grand_total_col='Grand total', qty_col='QTY', 
+                                 product_total_col='Product Total',  # Use item-level total
+                                 qty_col='QTY',
                                  delivery_status_col='Delivery status'):
-    max_legend_length = 50  # Adjust the maximum legend length 
+    
+    # Convert to numeric
+    data[product_total_col] = pd.to_numeric(data[product_total_col], errors='coerce')
+    data[qty_col] = pd.to_numeric(data[qty_col], errors='coerce')
+    data = data.dropna(subset=[product_total_col, qty_col])
+    
+    max_legend_length = 30
+    top_products = data[product_col].value_counts().nlargest(20).index  # Limit to top 20
 
     scatter_data = [
         go.Scatter(
             x=data[data[product_col] == product][qty_col], 
-            y=data[data[product_col] == product][grand_total_col],
+            y=data[data[product_col] == product][product_total_col],  # Use PRODUCT total
             mode='markers',
-            name=(product if len(product) <= max_legend_length else product[:max_legend_length] + '...'),
+            name=(product[:max_legend_length] + '...' if len(product) > max_legend_length else product),
             text=data[data[product_col] == product][product_col],
-            hovertemplate='Quantity: %{x}<br>Sales Amount: %{y}<br>Product: %{text}<extra></extra>'
-        ) for product in data[product_col].unique()
+            hovertemplate='<b>%{text}</b><br>Quantity: %{x}<br>Sales: $%{y:.2f}<extra></extra>'
+        ) for product in top_products  # Only plot top products
     ]
+    
     fig = go.Figure(data=scatter_data)
     fig.update_layout(
         xaxis_title="Quantity",
         yaxis_title="Sales Amount",
         xaxis_tickangle=45,
         template="plotly_white",
-        legend=dict(
-            title="Products",
-            traceorder="normal",
-            font=dict(
-                size=10  # Adjust font size for legend if needed
-            )
-        )
+        legend=dict(title="Products", font=dict(size=9))
     )
     st.plotly_chart(fig, use_container_width=True)
-
-
 
 
 def visualize_combined_analysis2(data, product_col='Product name', 

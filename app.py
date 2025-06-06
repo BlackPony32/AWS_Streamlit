@@ -45,7 +45,7 @@ import logging
 from typing import Dict, List
 
 
-def check_report(file_path: str, report_type: str) -> Dict:
+def check_report(file_path: str, report_type: str, url_name) -> Dict:
     """
     Validate a report file against expected columns for a given report type.
     
@@ -70,6 +70,8 @@ def check_report(file_path: str, report_type: str) -> Dict:
     }
 
     try:
+        #for stage file check
+        #logging.info(f'File report link:  {url_name}')
         # Validate report type first
         expected = EXPECTED_COLUMNS.get(report_type)
         if not expected:
@@ -300,19 +302,40 @@ def id_str(value):
         return value
 
 def format_phone_number(phone_number):
+    # Convert input to string
     phone_str = str(phone_number)
-    if len(phone_str) == 11 and phone_str.startswith("1"):
-        return f"+{phone_str[0]} ({phone_str[1:4]}) {phone_str[4:7]}-{phone_str[7:]}"
-    elif len(phone_str) == 10:
-        return f"({phone_str[:3]}) {phone_str[3:6]}-{phone_str[6:]}"
-    elif not str(phone_str).startswith('$'):
-        temp = f"{float(phone_str):.0f}" #TODO maybe try str format and first element show only
-        temp1 = str(temp)
-        if len(temp1) == 11 and temp1.startswith("1"):
-            return f"+{temp1[0]} ({temp1[1:4]}) {temp1[4:7]}-{temp1[7:]}"
-        elif len(temp1) == 10:
-            return f"({temp1[:3]}) {temp1[3:6]}-{temp1[6:]}"
+    
+    # Return if it's a special case (e.g., starts with '$')
+    if phone_str.startswith('$'):
+        return phone_str
+        
+    # Extract only digits from the string
+    digits = ''.join(filter(str.isdigit, phone_str))
+    
+    # Handle 11-digit numbers (with leading '1' country code)
+    if len(digits) == 11 and digits.startswith("1"):
+        return f"+{digits[0]} ({digits[1:4]}) {digits[4:7]}-{digits[7:]}"
+    
+    # Handle 10-digit numbers
+    elif len(digits) == 10:
+        return f"({digits[:3]}) {digits[3:6]}-{digits[6:]}"
+    
+    # Handle numeric strings that might be floats
     else:
+        try:
+            # Convert to float then to int to remove decimals
+            num = float(phone_str)
+            digits_float = f"{num:.0f}"
+            # Check formatted float as 11-digit
+            if len(digits_float) == 11 and digits_float.startswith("1"):
+                return f"+{digits_float[0]} ({digits_float[1:4]}) {digits_float[4:7]}-{digits_float[7:]}"
+            # Check formatted float as 10-digit
+            elif len(digits_float) == 10:
+                return f"({digits_float[:3]}) {digits_float[3:6]}-{digits_float[6:]}"
+        except (ValueError, TypeError):
+            pass  # Fall through to return original
+        
+        # Return original if no valid format matches
         return phone_str
 
 def add_dollar_sign(value):
@@ -413,6 +436,8 @@ def big_main():
                         'Total invoice discount': add_dollar_sign,
                         'Customer discount': add_dollar_sign,
                         'Balance': add_dollar_sign,
+                        'Product Price': add_dollar_sign,
+                        'Product Total': add_dollar_sign,
                         'Wholesale price': add_dollar_sign,
                         'Retail price': add_dollar_sign,
                         'Phone number': format_phone_number,
@@ -509,7 +534,8 @@ def big_main():
                                 df_show[column] = df_show[column].apply(func)
                         try:
                             st.dataframe(df_show, use_container_width=False)
-                        except:
+                        except Exception as e:
+                            #print(e)
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "Low Stock Inventory report":
                         df_show = df.copy()
@@ -1187,7 +1213,7 @@ def main_viz():
     if "file_result_check" not in st.session_state:
         st.session_state["file_result_check"] = True
         try:
-            result_check = check_report(last_uploaded_file_path, st.session_state["file_name"])
+            result_check = check_report(last_uploaded_file_path, st.session_state["file_name"], url_name)
             logger.info(f"File check: {result_check}")
         except Exception as e:
             pass
