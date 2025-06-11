@@ -219,14 +219,17 @@ async def read_csv(file_path):
     return await loop.run_in_executor(None, pd.read_csv, file_path)
 
 @st.cache_data(show_spinner=False)
-def chat_with_file(prompt, file_path):
+def chat_with_file(prompt, file_path, grand_total_value):
     #file_name = get_file_name()
     #last_uploaded_file_path = os.path.join(UPLOAD_DIR, file_name)
     try:
         if file_path is None or not os.path.exists(file_path):
             raise HTTPException(status_code=400, detail=f"No file has been uploaded or downloaded yet {file_path}")
             
-        pre_prompt = f'''Please do not include any tables, graphs, or code imports in your response, just answer to the query and make it attractive: {prompt} ?'''
+        pre_prompt = f'''Please do not include any tables, graphs, or code imports in your response, 
+        just answer to the query and make it attractive: {prompt} ?
+        Additional support info - users grand total for ALL customers is {grand_total_value}$ use it instead of count yourself as main answer
+        else make count base on unique order id value'''
 
         result = chat_with_agent(pre_prompt, file_path)
         
@@ -241,7 +244,6 @@ def chat_with_file(prompt, file_path):
 def chat_with_agent(input_string, file_path):
     try:
         # Assuming file_path is always CSV after conversion
-        df = pd.read_csv(file_path)
         #api_key = os.getenv('Chat_Api') ,openai_api_key=api_key
         agent = create_csv_agent(
             ChatOpenAI(temperature=0, model="gpt-4o"),
@@ -424,7 +426,26 @@ def big_main():
                     st.warning("### This data report is empty - try downloading another one to get better visualizations")
                     st.stop()
                 else:
+                    #some grand total hand fix count and agent feed
+                    # Convert Grand Total to numeric
+                    try:
+                        data = df.copy()
+                        grand_total_col, order_id_col, customer_col='Grand total', 'Order Id', 'Customer'
 
+                        data[grand_total_col] = pd.to_numeric(data[grand_total_col], errors='coerce')
+                        data = data.dropna(subset=[grand_total_col])
+
+                        # Step 1: Remove duplicate orders (keep first occurrence per Order ID)
+                        unique_orders = data.drop_duplicates(subset=[order_id_col])
+    
+                        # Step 2: Calculate total sales per customer using de-duplicated data
+                        customer_sales = unique_orders.groupby(customer_col)[grand_total_col].sum()
+                        grand_total_value = customer_sales #sum(customer_sales)
+                        #print(f"${grand_total_value:,.0f}")
+                    except Exception as e:
+                        grand_total_value = 'There is no information about this, so the answer cannot be calculated'
+                        pass
+                    
                     column_functions = {
                         'Customer ID': id_str,
                         'Id': id_str,
@@ -872,7 +893,7 @@ def big_main():
                                         try:
                                             with st.spinner(text="Analyzing Your Request..."):
                                                 if "chat_result" not in st.session_state:
-                                                        st.session_state["chat_result"] = chat_with_file(user_prompt, last_uploaded_file_path)
+                                                        st.session_state["chat_result"] = chat_with_file(user_prompt, last_uploaded_file_path, grand_total_value)
                                                         #chat_result = st.session_state["chat_result"]
                                                         #chat_result = chat_with_file(input_text, last_uploaded_file_path)
                                                         if "response" in st.session_state["chat_result"]:
@@ -895,7 +916,7 @@ def big_main():
                                                             st.success("There is some error occurred, try to give more details to your prompt")
                                                 else:
                                                     #with st.spinner(text="In progress..."):
-                                                        chat_result = chat_with_file(user_prompt, last_uploaded_file_path)
+                                                        chat_result = chat_with_file(user_prompt, last_uploaded_file_path, grand_total_value)
                                                         st.session_state["chat_result"] = chat_result
                                                         #rr = os.getenv("OPENAI_API_KEY")
                                                         #st.write(rr)
