@@ -228,7 +228,8 @@ def chat_with_file(prompt, file_path, grand_total_value):
             
         pre_prompt = f'''Please do not include any tables, graphs, or code imports in your response, 
         just answer to the query and make it attractive: {prompt} ?
-        Additional support info - users grand total is {grand_total_value}$ use it instead of count yourself'''
+        Additional support info - users grand total for ALL customers is {grand_total_value}$ use it instead of count yourself as main answer
+        else make count base on unique order id value'''
 
         result = chat_with_agent(pre_prompt, file_path)
         
@@ -439,10 +440,10 @@ def big_main():
     
                         # Step 2: Calculate total sales per customer using de-duplicated data
                         customer_sales = unique_orders.groupby(customer_col)[grand_total_col].sum()
-                        grand_total_value = sum(customer_sales)
+                        grand_total_value = customer_sales #sum(customer_sales)
                         #print(f"${grand_total_value:,.0f}")
                     except Exception as e:
-                        grand_total_value = 'No info about it'
+                        grand_total_value = 'There is no information about this, so the answer cannot be calculated'
                         pass
                     
                     column_functions = {
