@@ -77,14 +77,24 @@ def df_analyze_inventory_value_by_category(df):
     
 
 def df_analyze_quantity_vs_retail_price(df):
+    # Clean prices
     for col in ["Retail price", "Wholesale price"]:
         if df[col].dtype == 'object':
-            df[col] = pd.to_numeric(df[col].str.replace(',', '').str.replace('$ ', ''))
+            df[col] = pd.to_numeric(
+                df[col].str.replace(',', '', regex=False).str.replace('$ ', '', regex=False),
+                errors='coerce'
+            )
 
     df['Wholesale price'] = df['Wholesale price'].fillna(0)
 
+    # Replace NaN or empty categories
+    df["Category name"] = df["Category name"].fillna("Unknown")
+
     categories = df["Category name"].unique()
-    colors = px.colors.qualitative.Plotly[:len(categories)]
+
+    # Extend colors if more categories than default palette
+    base_colors = px.colors.qualitative.Plotly
+    colors = (base_colors * ((len(categories) // len(base_colors)) + 1))[:len(categories)]
     color_map = dict(zip(categories, colors))
 
     fig = go.Figure()
@@ -99,10 +109,15 @@ def df_analyze_quantity_vs_retail_price(df):
                 size=df_cat["Wholesale price"],
                 sizemode='area',
                 sizeref=2.*max(df["Wholesale price"])/(40.**2),
-                color=color_map[category]
+                color=color_map.get(category, "#CCCCCC")  # fallback to grey
             ),
             name=category,
-            hovertemplate='<b>%{text}</b><br>Available Cases: %{x}<br>Retail Price: $%{y:.2f}<br>Wholesale Price: $%{marker.size:.2f}<extra></extra>',
+            hovertemplate=(
+                '<b>%{text}</b><br>'
+                'Available Cases: %{x}<br>'
+                'Retail Price: $%{y:.2f}<br>'
+                'Wholesale Price: $%{marker.size:.2f}<extra></extra>'
+            ),
             text=df_cat["Category name"]
         ))
 
@@ -115,6 +130,7 @@ def df_analyze_quantity_vs_retail_price(df):
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
 
     
 

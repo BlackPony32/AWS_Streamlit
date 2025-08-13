@@ -123,7 +123,11 @@ def Quantity_Sold_Over_Time_Visualization(df):
     df_filtered = df[(df["Type"] == "Delivery") & (df["Delivery status"] == "FULFILLED")].copy()
 
     # Convert Fulfill date to datetime (assuming MM/DD/YYYY format)
-    df_filtered["Fulfill date"] = pd.to_datetime(df_filtered["Fulfill date"], format="%m/%d/%Y")
+    df_filtered["Fulfill date"] = pd.to_datetime(
+            df_filtered["Fulfill date"],
+            format="%Y-%m-%d %H:%M:%S.%f"
+        )
+
 
     # Extract month period for grouping
     df_filtered["Month"] = df_filtered["Fulfill date"].dt.to_period("M")
