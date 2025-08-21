@@ -1229,7 +1229,7 @@ def main_viz():
     #st.success(f"This is   type. File is available for visualization.")
     last_uploaded_file_path = st.session_state.last_uploaded_file_path
     report_name_title = identify_file_mini(file_name_)
-    st.title(f"Report: {report_name_title}")
+    st.title(f"Report: {report_name_title}", anchor=None)
     
     if "file_result_check" not in st.session_state:
         st.session_state["file_result_check"] = True
