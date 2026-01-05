@@ -71,7 +71,7 @@ def check_report(file_path: str, report_type: str, url_name) -> Dict:
 
     try:
         #for stage file check
-        #logging.info(f'File report link:  {url_name}')
+        logging.info(f'File report link:  {url_name}')
         # Validate report type first
         expected = EXPECTED_COLUMNS.get(report_type)
         if not expected:
