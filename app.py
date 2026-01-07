@@ -26,19 +26,89 @@ from reports_type import (best_sellers, current_inventory, customer_details, low
 from side_func import identify_file, identify_file_mini
 
 EXPECTED_COLUMNS = {
-    "PRODUCT_FULFILLMENT": ["Order Id", "Customer", "Shipping Address", "Shipping city", "Shipping state", "Shipping zip", "Delivery status", "Type", "VIA", "Fulfilled by", "Tracking ID", "Fulfill date", "Product name", "QTY", "Product price", "Product total", "Payment status", "Grand total", "Paid", "Balance", "Contact phone", "Contact name"],
-    "REPS_VISITS": ["Role", "Id", "Name", "Date", "Business Name", "Billing Address", "Billing city", "Billing state", "Billing zip", "Shipping Address", "Shipping city", "Shipping state", "Shipping zip", "Check In", "Check Out", "Total time", "Check In Status", "Cases sold (Direct)", "Cases sold (3rd party)", "Cases sold total", "Notes", "Orders (Direct)", "Orders (3rd party)", "Orders total", "Photos", "Forms Submission"],
-    "INVENTORY_DEPLETION": ["Business name", "Shipping Address", "Shipping City", "Shipping State", "Shipping Zip", "Billing Address", "Billing City", "Billing State", "Billing Zip", "Ginger Shots / Digestive Aid / 2 fl oz", "Ginger Shots / Immunity Aid / 2 fl oz", "Ginger Shots / Immunity Booster / 2 fl oz", "Ginger Shots / Vitamin C / 2 fl oz"],
-    "REPS_SUMMARY": ["Id", "Name", "Role", "Visits", "Orders (Direct)", "Orders (3rd party)", "Orders total", "Cases sold (Direct)", "Cases sold (3rd party)", "Cases sold total", "Total revenue (Direct)", "Total revenue (3rd party)", "Total revenue", "Photos", "Notes", "New clients", "Date", "Start day", "End day", "Break", "Travel distance", "First visit", "Last visit", "Total time"],
-    "REP_DETAILS": ["Status", "Id", "Name", "Role", "Email", "Phone number", "Total visits", "Total photos", "Total notes", "Total working hours", "Total break hours", "Total travel distance", "Assigned customers", "Active customers", "Inactive customers"],
-    "SKU_NOT_ORDERED": ["Category name", "Product name", "SKU", "Manufacturer name", "Cases sold", "Total revenue", "Wholesale price", "Retail price", "Available cases (QTY)"],
-    "BEST_SELLERS": ["Category name", "Product name", "SKU", "On hand cases", "Allocated cases", "Manufacturer name", "Cases sold", "Total revenue", "Wholesale price", "Retail price", "Available cases (QTY)"],
-    "LOW_STOCK_INVENTORY": ["Category name", "Product name", "SKU", "On hand cases", "Allocated cases", "Manufacturer name", "Available cases (QTY)", "Wholesale price", "Retail price"],
-    "CURRENT_INVENTORY": ["Category name", "Product name", "SKU", "On hand cases", "Allocated cases", "Manufacturer name", "Available cases (QTY)", "Wholesale price", "Retail price"],
-    "THIRD_PARTY_SALES_SUMMARY": ["Customer ID", "Customer", "Billing Address", "Slotting", "Billing city", "Billing state", "Billing zip", "Shipping Address", "Shipping city", "Shipping state", "Shipping zip", "Order Id", "Created by", "Created at", "Product name", "Manufacturer name", "QTY", "Grand total", "Discount type", "Item specific discount", "Manufacturer specific discount", "Total invoice discount", "Price list", "Customer discount", "Free cases", "Order tags", "Representative"],
-    "ORDER_SALES_SUMMARY": ["Customer ID", "Customer", "Billing Address", "Slotting", "Billing city", "Billing state", "Billing zip", "Shipping Address", "Shipping city", "Shipping state", "Shipping zip", "Order Id", "Created by", "Created at", "Product name", "Product Price", "Product Total", "Manufacturer name", "QTY", "Discount type", "Item specific discount", "Customer discount", "Manufacturer specific discount", "Total invoice discount", "Price list", "Free cases", "Balance", "Payment status", "Expected payment date", "Grand total", "Paid", "Delivery status", "Delivered", "Delivery methods", "Order Note", "Order Status", "Customer contact", "Representative", "Order tags"],
-    "TOP_CUSTOMERS": ["Name", "Shipping address", "Shipping city", "Shipping state", "Shipping zip", "Billing address", "Billing city", "Billing state", "Billing zip", "Group", "Territory", "Total orders", "Total sales", "Customer discount", "Price list", "Primary payment method", "Order direct access", "Payment terms", "Contact name", "Contact role", "Contact phone", "Contact email", "Phone", "Business email", "Business Fax", "Website", "Tags", "Licenses & certifications"],
-    "CUSTOMER_DETAILS": ["Name", "Shipping address", "Shipping city", "Shipping state", "Shipping zip", "Billing address", "Billing city", "Billing state", "Billing zip", "Group", "Territory", "Total orders", "Total sales", "Customer discount", "Price list", "Primary payment method", "Order direct access", "Payment terms", "Contact name", "Contact role", "Contact phone", "Contact email", "Phone", "Business email", "Business Fax", "Website", "Tags", "Licenses & certifications"],
+    "PRODUCT_FULFILLMENT": [
+        "Order ID", "Customer", "Shipping Address", "Shipping City", "Shipping State",
+        "Shipping ZIP", "Delivery Status", "Type", "VIA", "Fulfilled By", "Tracking ID",
+        "Fulfill Date", "Product Name", "QTY", "Product Price", "Product Total",
+        "Payment Status", "Grand Total", "Paid", "Balance", "Contact Phone", "Contact Name"
+    ],
+    "REPS_VISITS": [
+        "Role", "ID", "Name", "Date", "Business Name", "Billing Address", "Billing City",
+        "Billing State", "Billing ZIP", "Shipping Address", "Shipping City", "Shipping State",
+        "Shipping ZIP", "Check In", "Check Out", "Total Time", "Check In Status",
+        "Cases Sold (Direct)", "Cases Sold (3rd party)", "Cases Sold Total", "Notes",
+        "Orders (Direct)", "Orders (3rd party)", "Orders Total", "Photos", "Forms Submission"
+    ],
+    "INVENTORY_DEPLETION": [
+        "Business Name", "Shipping Address", "Shipping City", "Shipping State",
+        "Shipping ZIP", "Billing Address", "Billing City", "Billing State", "Billing ZIP",
+        "Ginger Shots / Digestive Aid / 2 fl oz", "Ginger Shots / Immunity Aid / 2 fl oz",
+        "Ginger Shots / Immunity Booster / 2 fl oz", "Ginger Shots / Vitamin C / 2 fl oz"
+    ],
+    "REPS_SUMMARY": [
+        "ID", "Name", "Role", "Visits", "Orders (Direct)", "Orders (3rd party)",
+        "Orders Total", "Cases Sold (Direct)", "Cases Sold (3rd party)", "Cases Sold Total",
+        "Total Revenue (Direct)", "Total Revenue (3rd party)", "Total Revenue", "Photos",
+        "Notes", "New Clients", "Date", "Start Day", "End Day", "Break", "Travel Distance",
+        "First Visit", "Last Visit", "Total Time"
+    ],
+    "REP_DETAILS": [
+        "ID", "Name", "Role", "Email", "Phone Number", "Total Visits",
+        "Total Photos", "Total Notes", "Total Working Hours", "Total Break Hours",
+        "Total Travel Distance", "Assigned Customers", "Active Customers", "Inactive Customers"
+    ],
+    "SKU_NOT_ORDERED": [
+        "Category Name", "Product Name", "SKU", "Manufacturer Name", "Cases Sold",
+        "Total Revenue", "Wholesale Price", "Retail Price", "Available Cases (QTY)", 'On Hand Cases', 'Cost'
+    ],
+    "BEST_SELLERS": [
+        "Category Name", "Product Name", "SKU", "On Hand Cases", "Allocated Cases",
+        "Manufacturer Name", "Cases Sold", "Total Revenue", "Wholesale Price",
+        "Retail Price", "Available Cases (QTY)", 'Cost'
+    ],
+    "LOW_STOCK_INVENTORY": [
+        "Category Name", "Product Name", "SKU", "On Hand Cases", "Allocated Cases",
+        "Manufacturer Name", "Available Cases (QTY)", "Wholesale Price", "Retail Price",'Total Revenue', 'Cost'
+    ],
+    "CURRENT_INVENTORY": [
+        "Category Name", "Product Name", "SKU", "On Hand Cases", "Allocated Cases",
+        "Manufacturer Name", "Available Cases (QTY)", "Wholesale Price", "Retail Price", 'Total Revenue', 'Cost'
+    ],
+    "THIRD_PARTY_SALES_SUMMARY": [
+        "Customer ID", "Customer", "Billing Address", "Slotting", "Billing City",
+        "Billing State", "Billing ZIP", "Shipping Address", "Shipping City", "Shipping State",
+        "Shipping ZIP", "Order ID", "Created By", "Date Created", "Product Name",
+        "Manufacturer Name", "QTY", "Grand Total", "Discount Type", "Item Specific Discount",
+        "Manufacturer Specific Discount", "Total Invoice Discount", "Price List",
+        "Customer Discount", "Free Cases", "Order Tags", "Representative"
+    ],
+    "ORDER_SALES_SUMMARY": [
+        "Customer ID", "Customer", "Billing Address", "Slotting", "Billing City",
+        "Billing State", "Billing ZIP", "Shipping Address", "Shipping City", "Shipping State",
+        "Shipping ZIP", "Order ID", "Created By", "Date Created", "Product Name",
+        "Product Price", "Product Total", "Manufacturer Name", "QTY", "Discount Type",
+        "Item Specific Discount", "Customer Discount", "Manufacturer Specific Discount",
+        "Total Invoice Discount", "Price List", "Free Cases", "Balance", "Payment Status",
+        "Expected Payment Date", "Grand Total", "Paid", "Delivery Status", "Delivered",
+        "Delivery Methods", "Order Note", "Order Status", "Customer Contact",
+        "Representative", "Order Tags", 'Payment Methods', 'Fulfill By'
+    ],
+    "TOP_CUSTOMERS": [
+        "Business Name", "Shipping Address", "Shipping City", "Shipping State",
+        "Shipping ZIP", "Billing Address", "Billing City", "Billing State", "Billing ZIP",
+        "Group", "Territory", "Total Orders", "Total Sales", "Customer Specific Discount",
+        "Price List", "Primary Payment Method", "Has Order Direct", "Payment Terms",
+        "Contact Name", "Contact Role", "Contact Phone", "Contact Email", "Business Phone",
+        "Business Email", "Business Fax", "Website", "Tags", "Licenses & Certifications", 'Lead Status', 'Representatives'
+    ],
+    "CUSTOMER_DETAILS": [
+        "Business Name", "Shipping Address", "Shipping City", "Shipping State",
+        "Shipping ZIP", "Billing Address", "Billing City", "Billing State", "Billing ZIP",
+        "Group", "Territory", "Total Orders", "Total Sales", "Customer Specific Discount",
+        "Price List", "Primary Payment Method", "Has Order Direct", "Payment Terms",
+        "Contact Name", "Contact Role", "Contact Phone", "Contact Email", "Business Phone",
+        "Business Email", "Business Fax", "Website", "Tags", "Licenses & Certifications", 'Lead Status', 'Representatives'
+    ]
 }
 import pandas as pd
 import logging
@@ -448,27 +518,29 @@ def big_main():
                     
                     column_functions = {
                         'Customer ID': id_str,
-                        'Id': id_str,
-                        'Order Id': id_str,
+                        'ID': id_str,
                         'Order ID': id_str,
-                        'Grand total': add_dollar_sign,
-                        'Item specific discount': add_dollar_sign,
-                        'Manufacturer specific discount': add_dollar_sign,
-                        'Total invoice discount': add_dollar_sign,
-                        'Customer discount': add_dollar_sign,
+                        'Order ID': id_str,
+                        'Grand Total': add_dollar_sign,
+                        'Cost': add_dollar_sign,
+                        'Paid': add_dollar_sign,
+                        'Item Specific Discount': add_dollar_sign,
+                        'Manufacturer Specific Discount': add_dollar_sign,
+                        'Total Invoice Discount': add_dollar_sign,
+                        'Customer Discount': add_dollar_sign,
                         'Balance': add_dollar_sign,
                         'Product Price': add_dollar_sign,
                         'Product Total': add_dollar_sign,
-                        'Wholesale price': add_dollar_sign,
-                        'Retail price': add_dollar_sign,
-                        'Phone number': format_phone_number,
-                        'Contact phone': format_phone_number,
-                        'Total sales' : add_dollar_sign,
-                        'Shipping zip' : id_str,
+                        'Wholesale Price': add_dollar_sign,
+                        'Retail Price': add_dollar_sign,
+                        'Phone Number': format_phone_number,
+                        'Contact Phone': format_phone_number,
+                        'Total Sales' : add_dollar_sign,
+                        'Shipping ZIP' : id_str,
                         'Shipping Zip' : id_str,
-                        'Billing zip' : id_str,
+                        'Billing ZIP' : id_str,
                         'Billing Zip' : id_str,
-                        'Total revenue': add_dollar_sign
+                        'Total Revenue': add_dollar_sign
                     }
 
                     if file_type == "Representative Details report":

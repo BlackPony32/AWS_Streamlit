@@ -21,10 +21,10 @@ def preprocess_data(data):
 
     # Process numeric columns
     for col in numeric_cols:
-        # Check for missing values (NaN)
-        if np.isnan(data[col]).any():
-            # Fill missing values with 0 (you can choose another strategy)
-            data[col].fillna(0, inplace=True)
+        # Use .isna() instead of np.isnan() because it's safer for different data types
+        if data[col].isna().any():
+            # ASSIGN the result back to data[col] instead of using inplace=True
+            data[col] = data[col].fillna(0)
             print(f"Warning: Column '{col}' contains missing values (NaN). Filled with 0.")
 
     # Remove currency symbols and thousands separators
@@ -33,9 +33,9 @@ def preprocess_data(data):
     return data
 
 #_________________Sales Trends Function  (with Plotly)_______________________________
-def visualize_sales_trends1(data, customer_col='Customer', product_col='Product name', 
-                            grand_total_col='Grand total', qty_col='QTY', 
-                            order_id_col='Order Id'):  # Add order_id_col parameter
+def visualize_sales_trends1(data, customer_col='Customer', product_col='Product Name', 
+                            grand_total_col='Grand Total', qty_col='QTY', 
+                            order_id_col='Order ID'):  # Add order_id_col parameter
     
     # Convert Grand Total to numeric
     data[grand_total_col] = pd.to_numeric(data[grand_total_col], errors='coerce')
@@ -66,12 +66,12 @@ def visualize_sales_trends1(data, customer_col='Customer', product_col='Product 
     st.plotly_chart(fig, use_container_width=True)
 
 
-def visualize_sales_trends2(data, customer_col='Customer', product_col='Product name', 
-                           grand_total_col='Grand total', qty_col='QTY',
-                           order_id_col='Order Id'):  # Add order_id_col parameter
+def visualize_sales_trends2(data, customer_col='Customer', product_col='Product Name', 
+                           grand_total_col='Grand Total', qty_col='QTY',
+                           order_id_col='Order ID'):  # Add order_id_col parameter
     
     # Convert date and Grand Total
-    data['Created at'] = pd.to_datetime(data['Created at'])
+    data['Date Created'] = pd.to_datetime(data['Date Created'])
     data[grand_total_col] = pd.to_numeric(data[grand_total_col], errors='coerce')
     data = data.dropna(subset=[grand_total_col])
     
@@ -79,7 +79,7 @@ def visualize_sales_trends2(data, customer_col='Customer', product_col='Product 
     unique_orders = data.drop_duplicates(subset=[order_id_col])
     
     # Step 2: Group de-duplicated data by month
-    monthly_sales = unique_orders.groupby(pd.Grouper(key='Created at', freq='M'))[grand_total_col].sum()
+    monthly_sales = unique_orders.groupby(pd.Grouper(key='Date Created', freq='ME'))[grand_total_col].sum()
 
     # Create plot
     fig = go.Figure()
@@ -100,7 +100,7 @@ def visualize_sales_trends2(data, customer_col='Customer', product_col='Product 
     st.plotly_chart(fig, use_container_width=True)
 
 #_________________Product Analysis Function (with Plotly)___________________________
-def visualize_product_analysis1(data, product_col='Product name', 
+def visualize_product_analysis1(data, product_col='Product Name', 
                                 product_total_col='Product Total',  # Use item-level total
                                 threshold=0.03):
     """Visualize total sales by product with a pie chart, grouping smaller products into 'Other'."""
@@ -146,7 +146,7 @@ def visualize_product_analysis1(data, product_col='Product name',
     st.plotly_chart(fig, use_container_width=True)
 
 
-def visualize_product_analysis2(data, product_col='Product name'):
+def visualize_product_analysis2(data, product_col='Product Name'):
     """Distribution of orders by product (uses count of occurrences, not Grand total)"""
     
     # Simply count product occurrences (no need for totals)
@@ -177,7 +177,7 @@ def visualize_product_analysis2(data, product_col='Product name'):
     st.plotly_chart(fig, use_container_width=True)
 
 #_________________Discount Analysis Function (with Plotly)__________________________
-def visualize_discount_analysis1(data, discount_type_col='Discount type', total_discount_col='Total invoice discount'):
+def visualize_discount_analysis1(data, discount_type_col='Discount Type', total_discount_col='Total Invoice Discount'):
     """Visualizes discount analysis by type and top customers, with error handling."""
     
     st.subheader("Discount Amount by Customer (Top 10)")
@@ -230,7 +230,7 @@ def visualize_discount_analysis1(data, discount_type_col='Discount type', total_
     # Display the bar chart in Streamlit
     st.plotly_chart(fig, use_container_width=True)
 
-def visualize_discount_analysis2(data, discount_type_col='Discount type', total_discount_col='Total invoice discount'):
+def visualize_discount_analysis2(data, discount_type_col='Discount Type', total_discount_col='Total Invoice Discount'):
     """Visualizes discount analysis by type and top customers, with error handling."""
     
     # Check if DataFrame is empty
@@ -271,7 +271,7 @@ def visualize_discount_analysis2(data, discount_type_col='Discount type', total_
 
 
 # _________________Delivery Analysis Function (with Plotly)___________________________
-def visualize_delivery_analysis1(data, delivery_status_col='Delivery status'):
+def visualize_delivery_analysis1(data, delivery_status_col='Delivery Status'):
     """Visualizes the distribution of orders by delivery status."""
     
     # Calculate the counts for each delivery status
@@ -295,7 +295,7 @@ def visualize_delivery_analysis1(data, delivery_status_col='Delivery status'):
     # Display the pie chart in Streamlit
     st.plotly_chart(fig, use_container_width=True)
 
-def visualize_delivery_analysis2(data, delivery_method_col='Delivery methods'):
+def visualize_delivery_analysis2(data, delivery_method_col='Delivery Methods'):
     """Visualizes the distribution of orders by delivery method."""
     
     # Calculate the counts for each delivery method
@@ -319,7 +319,7 @@ def visualize_delivery_analysis2(data, delivery_method_col='Delivery methods'):
     # Display the pie chart in Streamlit
     st.plotly_chart(fig, use_container_width=True)
 
-def visualize_payment_analysis(data, payment_status_col='Payment status'):
+def visualize_payment_analysis(data, payment_status_col='Payment Status'):
     """Visualizes the distribution of orders by payment status."""
     
     # Calculate the counts for each payment status
@@ -345,10 +345,10 @@ def visualize_payment_analysis(data, payment_status_col='Payment status'):
 
 
 # _________________Combined Analysis Function (with Plotly)___________________________
-def visualize_combined_analysis1(data, product_col='Product name', 
+def visualize_combined_analysis1(data, product_col='Product Name', 
                                  product_total_col='Product Total',  # Use item-level total
                                  qty_col='QTY',
-                                 delivery_status_col='Delivery status'):
+                                 delivery_status_col='Delivery Status'):
     
     # Convert to numeric
     data[product_total_col] = pd.to_numeric(data[product_total_col], errors='coerce')
@@ -380,9 +380,9 @@ def visualize_combined_analysis1(data, product_col='Product name',
     st.plotly_chart(fig, use_container_width=True)
 
 
-def visualize_combined_analysis2(data, product_col='Product name', 
-                               grand_total_col='Grand total', qty_col='QTY', 
-                               delivery_status_col='Delivery status'):
+def visualize_combined_analysis2(data, product_col='Product Name', 
+                               grand_total_col='Grand Total', qty_col='QTY', 
+                               delivery_status_col='Delivery Status'):
 
         histogram_data = [
             go.Histogram(

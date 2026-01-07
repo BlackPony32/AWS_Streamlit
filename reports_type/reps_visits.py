@@ -26,7 +26,7 @@ def report_func(df):
 '''
     st.markdown(css, unsafe_allow_html=True)
     
-    if "Business Name" in columns and "Cases sold (Direct)" in columns and "Cases sold (3rd party)" in columns:
+    if "Business Name" in columns and "Cases Sold (Direct)" in columns and "Cases Sold (3rd party)" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -58,9 +58,10 @@ def report_func(df):
         #print(e)
         st.warning("There is some error with plot, so visualizing can not be ready")
         
-        
- 
-    if "Name" in columns and "Date" in columns and "Cases sold total" in columns:
+
+
+
+    if "Name" in columns and "Date" in columns and "Cases Sold Total" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])

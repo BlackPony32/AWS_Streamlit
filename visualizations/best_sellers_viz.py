@@ -23,10 +23,10 @@ def preprocess_data(data):
 
     # Process numeric columns
     for col in numeric_cols:
-        # Check for missing values (NaN)
-        if np.isnan(data[col]).any():
-            # Fill missing values with 0 (you can choose another strategy)
-            data[col].fillna(0, inplace=True)
+        # Use .isna() instead of np.isnan() because it's safer for different data types
+        if data[col].isna().any():
+            # ASSIGN the result back to data[col] instead of using inplace=True
+            data[col] = data[col].fillna(0)
             print(f"Warning: Column '{col}' contains missing values (NaN). Filled with 0.")
 
     # Remove currency symbols and thousands separators
@@ -36,15 +36,15 @@ def preprocess_data(data):
 
 
 def create_available_cases_plot(df):
-    df['Available cases (QTY)'] = df['Available cases (QTY)'].astype(int)
-    df['Color'] = df['Available cases (QTY)'].apply(lambda x: 'Out of Stock' if x < 0 else 'In Stock')
-
+    df['Available Cases (QTY)'] = df['Available Cases (QTY)'].astype(int)
+    df['Color'] = df['Available Cases (QTY)'].apply(lambda x: 'Out of Stock' if x < 0 else 'In Stock')
+    df['Product Name'] = df['Product Name'].apply(lambda x: x[:35] + '...' if len(x) > 35 else x)
     fig = px.scatter(
         df, 
-        y='Product name', 
-        x='Available cases (QTY)', 
+        y='Product Name', 
+        x='Available Cases (QTY)', 
         title='Available Cases (QTY)', 
-        text='Available cases (QTY)',
+        text='Available Cases (QTY)',
         color='Color',  
         color_discrete_map={'Out of Stock': 'red', 'In Stock': 'green'}
     )
@@ -65,12 +65,13 @@ def create_available_cases_plot(df):
 
 
 def product_analysis_app1(df):
-    product_data = df.groupby('Product name')[['Total revenue', 'Cases sold']].sum()
+    df['Product Name'] = df['Product Name'].apply(lambda x: x[:35] + '...' if len(x) > 35 else x)
+    product_data = df.groupby('Product Name')[['Total Revenue', 'Cases Sold']].sum()
 
     
     fig1 = px.pie(
         product_data, 
-        values='Total revenue', 
+        values='Total Revenue', 
         names=product_data.index,
         hole=0.3, 
         color_discrete_sequence=px.colors.qualitative.Light24
@@ -83,11 +84,12 @@ def product_analysis_app1(df):
     st.plotly_chart(fig1, use_container_width=True)
         
 def product_analysis_app2(df):
-    product_data = df.groupby('Product name')[['Total revenue', 'Cases sold']].sum()
+    df['Product Name'] = df['Product Name'].apply(lambda x: x[:35] + '...' if len(x) > 35 else x)
+    product_data = df.groupby('Product Name')[['Total Revenue', 'Cases Sold']].sum()
 
     fig2 = px.funnel(
             product_data, 
-            x='Cases sold', 
+            x='Cases Sold', 
             y=product_data.index,
             title="Total Cases Sold by Product",
             color=product_data.index,
@@ -104,12 +106,12 @@ def product_analysis_app2(df):
 def create_cases_revenue_relationship_plot(df):
     fig = px.scatter(
         df, 
-        x='Cases sold', 
-        y='Total revenue', 
-        color='Total revenue',
+        x='Cases Sold', 
+        y='Total Revenue', 
+        color='Total Revenue',
         color_continuous_scale='Greens',
-        size='Total revenue',  
-        hover_data={'Product name': True, 'Cases sold': True, 'Total revenue': True}
+        size='Total Revenue',  
+        hover_data={'Product Name': True, 'Cases Sold': True, 'Total Revenue': True}
     )
 
     fig.update_traces(
@@ -127,12 +129,12 @@ def create_cases_revenue_relationship_plot(df):
 
 
 def price_comparison_app1(df):
-    average_prices = df.groupby('Category name')[['Wholesale price', 'Retail price']].mean()
+    average_prices = df.groupby('Category Name')[['Wholesale Price', 'Retail Price']].mean()
 
     
     fig1 = go.Figure(go.Bar(
         x=average_prices.index,
-        y=average_prices['Wholesale price'],
+        y=average_prices['Wholesale Price'],
         marker_color=colors.qualitative.Pastel,
         hovertemplate="<b>Category:</b> %{x}<br><b>Wholesale Price:</b> $%{y:.2f}<extra></extra>"
     ))
@@ -147,11 +149,11 @@ def price_comparison_app1(df):
 
 
 def price_comparison_app2(df):
-    average_prices = df.groupby('Category name')[['Wholesale price', 'Retail price']].mean()
+    average_prices = df.groupby('Category Name')[['Wholesale Price', 'Retail Price']].mean()
 
     fig2 = go.Figure(go.Bar(
         x=average_prices.index,
-        y=average_prices['Retail price'],
+        y=average_prices['Retail Price'],
         marker_color=colors.qualitative.Pastel,
         hovertemplate="<b>Category:</b> %{x}<br><b>Retail Price:</b> $%{y:.2f}<extra></extra>"
     ))
@@ -166,26 +168,25 @@ def price_comparison_app2(df):
 
 def create_revenue_vs_profit_plot1(df):
     # Calculate Profit
-    df['Profit'] = (df['Retail price'] - df['Wholesale price']) * df['Cases sold']
+    df['Profit'] = (df['Retail Price'] - df['Wholesale Price']) * df['Cases Sold']
     
     # Calculate Revenue by Category (if needed)
-    category_revenue = df.groupby('Category name')['Total revenue'].sum()
+    category_revenue = df.groupby('Category Name')['Total Revenue'].sum()
 
     # Assign colors to products
     product_colors = colors.qualitative.Plotly
-    product_color_map = {product: color for product, color in zip(df['Product name'].unique(), product_colors)}
-    
+    product_color_map = {product: color for product, color in zip(df['Product Name'].unique(), product_colors)}
     # Create the plot
     fig1 = go.Figure()
     
-    for product in df['Product name'].unique():
-        product_data = df[df['Product name'] == product]
+    for product in df['Product Name'].unique():
+        product_data = df[df['Product Name'] == product]
         
         # Use .get() to avoid KeyError
         color = product_color_map.get(product, 'green')  # Default to 'green' if product not found in product_color_map
         
         fig1.add_trace(go.Scatter(
-            x=product_data['Total revenue'],
+            x=product_data['Total Revenue'],
             y=product_data['Profit'],
             mode='markers',
             marker=dict(
@@ -193,7 +194,7 @@ def create_revenue_vs_profit_plot1(df):
                 size=10
             ),
             name=product,
-            text=product_data['Product name'],
+            text=product_data['Product Name'],
             hovertemplate="<b>Product:</b> %{text}<br><b>Revenue:</b> $%{x:.2f}<br><b>Profit:</b> $%{y:.2f}<extra></extra>"
         ))
     
@@ -211,9 +212,9 @@ def create_revenue_vs_profit_plot1(df):
     
             
 def create_revenue_vs_profit_plot2(df):
-    df['Profit'] = (df['Retail price'] - df['Wholesale price']) * df['Cases sold']
-    category_revenue = df.groupby('Category name')['Total revenue'].sum()
-    
+    df['Profit'] = (df['Retail Price'] - df['Wholesale Price']) * df['Cases Sold']
+    category_revenue = df.groupby('Category Name')['Total Revenue'].sum()
+
     fig2 = go.Figure(go.Pie(
         values=category_revenue.values,
         labels=category_revenue.index,

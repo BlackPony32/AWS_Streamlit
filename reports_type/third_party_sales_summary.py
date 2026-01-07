@@ -8,7 +8,7 @@ def report_func(df):
 
     columns = get_csv_columns(df)
     third_party_sales_viz.preprocess_data(df)
-    if "Product name" in columns and "Grand total" in columns:
+    if "Product Name" in columns and "Grand Total" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -77,7 +77,7 @@ def report_func(df):
     else:
         st.warning("There is no Grand total or Product name, so visualizing can not be ready")
     
-    if "Customer" in columns and "Product name" in columns and "QTY" in columns and "Grand total" in columns:
+    if "Customer" in columns and "Product Name" in columns and "QTY" in columns and "Grand Total" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -106,7 +106,7 @@ def report_func(df):
     else:
         st.warning("There is no Customer or Product name or Quantity or Grand total, so visualizing can not be ready")
     
-    if "Product name" in columns and "QTY" in columns and "Grand total" in columns:
+    if "Product Name" in columns and "QTY" in columns and "Grand Total" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -135,7 +135,7 @@ def report_func(df):
     else:
         st.warning("There is no Delivery status or Product name or Quantity or Grand total, so visualizing can not be ready")
     
-    if "Discount type" in columns:
+    if "Discount Type" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -163,7 +163,7 @@ def report_func(df):
             st.success("This visualization is temporarily unavailable")
     else:
         st.warning("There is no Discount type, so visualizing can not be ready")
-    if "Grand total" in columns and "Manufacturer specific discount" in columns and "Customer discount" in columns:
+    if "Grand Total" in columns and "Manufacturer Specific Discount" in columns and "Customer Discount" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])

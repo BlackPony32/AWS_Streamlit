@@ -20,10 +20,10 @@ def preprocess_data(data):
 
     # Process numeric columns
     for col in numeric_cols:
-        # Check for missing values (NaN)
-        if np.isnan(data[col]).any():
-            # Fill missing values with 0 (you can choose another strategy)
-            data[col].fillna(0, inplace=True)
+        # Use .isna() instead of np.isnan() because it's safer for different data types
+        if data[col].isna().any():
+            # ASSIGN the result back to data[col] instead of using inplace=True
+            data[col] = data[col].fillna(0)
             print(f"Warning: Column '{col}' contains missing values (NaN). Filled with 0.")
 
     # Remove currency symbols and thousands separators
@@ -43,15 +43,15 @@ def analyze_sales_rep_efficiency(df_pd):
         except ValueError:
             return pd.NA
 
-    df_pd['Total working hours'] = df_pd['Total working hours'].apply(convert_hours_to_numeric)
-    df_pd["Visits per Working Hour"] = df_pd["Total visits"] / df_pd["Total working hours"]
-    df_pd["Customers per Visit"] = df_pd["Assigned customers"] / df_pd["Total visits"]
+    df_pd['Total Working Hours'] = df_pd['Total Working Hours'].apply(convert_hours_to_numeric)
+    df_pd["Visits per Working Hour"] = df_pd["Total Visits"] / df_pd["Total Working Hours"]
+    df_pd["Customers per Visit"] = df_pd["Assigned Customers"] / df_pd["Total Visits"]
 
-    grouped = df_pd.groupby("Role")[["Total visits"]].sum().reset_index()
+    grouped = df_pd.groupby("Role")[["Total Visits"]].sum().reset_index()
 
     fig = go.Figure(data=[go.Pie(
         labels=grouped['Role'],
-        values=grouped['Total visits'],
+        values=grouped['Total Visits'],
         hole=0.3,
         textinfo='percent+label',
         marker=dict(colors=px.colors.qualitative.Set2),
@@ -77,8 +77,8 @@ def plot_active_customers_vs_visits(df_pd):
     for name in sales_data["Name"].unique():
         rep_data = sales_data[sales_data["Name"] == name]
         fig.add_trace(go.Scatter(
-            x=rep_data["Active customers"],
-            y=rep_data["Total visits"],
+            x=rep_data["Active Customers"],
+            y=rep_data["Total Visits"],
             mode='markers',
             marker=dict(size=10),
             name=name,
@@ -105,8 +105,8 @@ def plot_travel_efficiency_line(df_pd):
     # Copy the dataframe to avoid modifying the original data
     df_pd = df_pd.copy()
 
-    # Extract numeric part from "Total travel distance"
-    df_pd["Total travel distance"] = df_pd["Total travel distance"].str.extract(r'(\d+\.?\d*)').astype(float)
+    # Extract numeric part from "Total Travel Distance"
+    df_pd["Total Travel Distance"] = df_pd["Total Travel Distance"].str.extract(r'(\d+\.?\d*)').astype(float)
 
     # Create the scatter plot
     fig = go.Figure()
@@ -114,8 +114,8 @@ def plot_travel_efficiency_line(df_pd):
     for role in df_pd["Role"].unique():
         role_data = df_pd[df_pd["Role"] == role]
         fig.add_trace(go.Scatter(
-            x=role_data["Total travel distance"],
-            y=role_data["Total visits"],
+            x=role_data["Total Travel Distance"],
+            y=role_data["Total Visits"],
             mode='markers',
             name=role,
             hovertemplate="<b>Name:</b> %{text}<br>" +
@@ -161,14 +161,13 @@ def analyze_work_hours_and_distance1(df_pd):
                 h, m = 0, 0
         return h + m / 60
 
-    df_pd['Total working hours'] = df_pd['Total working hours'].apply(parse_time)
-    df_pd['Total break hours'] = df_pd['Total break hours'].apply(parse_time)
-    df_pd['Pure Work Hours'] = df_pd['Total working hours'] - df_pd['Total break hours']
+    df_pd['Total Working Hours'] = df_pd['Total Working Hours'].apply(parse_time)
+    df_pd['Total Break Hours'] = df_pd['Total Break Hours'].apply(parse_time)
+    df_pd['Pure Work Hours'] = df_pd['Total Working Hours'] - df_pd['Total Break Hours']
     df_pd = df_pd.sort_values(by='Pure Work Hours', ascending=False).head(10)
 
-    # Extract numeric part from "Total travel distance" 
-    df_pd["Total travel distance"] = df_pd["Total travel distance"].str.extract('(\d+\.?\d*)').astype(float)
-
+    # Extract numeric part from "Total Travel Distance" 
+    df_pd["Total Travel Distance"] = df_pd["Total Travel Distance"].str.extract('(\d+\.?\d*)').astype(float)
 
 
     fig = go.Figure(go.Bar(
@@ -214,21 +213,20 @@ def analyze_work_hours_and_distance2(df_pd):
                 h, m = 0, 0
         return h + m / 60
 
-    df_pd['Total working hours'] = df_pd['Total working hours'].apply(parse_time)
-    df_pd['Total break hours'] = df_pd['Total break hours'].apply(parse_time)
-    df_pd['Pure Work Hours'] = df_pd['Total working hours'] - df_pd['Total break hours']
+    df_pd['Total Working Hours'] = df_pd['Total Working Hours'].apply(parse_time)
+    df_pd['Total Break Hours'] = df_pd['Total Break Hours'].apply(parse_time)
+    df_pd['Pure Work Hours'] = df_pd['Total Working Hours'] - df_pd['Total Break Hours']
     df_pd = df_pd.sort_values(by='Pure Work Hours', ascending=False).head(10)
 
-    # Extract numeric part from "Total travel distance" 
-    df_pd["Total travel distance"] = df_pd["Total travel distance"].str.extract('(\d+\.?\d*)').astype(float)
-
+    # Extract numeric part from "Total Travel Distance" 
+    df_pd["Total Travel Distance"] = df_pd["Total Travel Distance"].str.extract('(\d+\.?\d*)').astype(float)
     
 
 
     fig = go.Figure(go.Bar(
         x=df_pd['Name'],
-        y=df_pd['Total travel distance'],
-        text=[f"{x:.1f} mi" for x in df_pd['Total travel distance']],
+        y=df_pd['Total Travel Distance'],
+        text=[f"{x:.1f} mi" for x in df_pd['Total Travel Distance']],
         textposition='outside',
         marker_color=px.colors.qualitative.Light24,
         name="Total Travel Distance"
@@ -262,8 +260,8 @@ def plot_visits_vs_photos_separate(df_pd):
             fig = go.Figure()
 
             fig.add_trace(go.Scatter(
-                x=role_data["Total visits"],
-                y=role_data["Total photos"],
+                x=role_data["Total Visits"],
+                y=role_data["Total Photos"],
                 mode='markers',
                 marker=dict(color=px.colors.qualitative.Vivid[i % len(px.colors.qualitative.Vivid)]),
                 text=role_data["Name"],
@@ -287,16 +285,16 @@ def analyze_customer_distribution(df_pd):
     sales_data = df_pd[df_pd["Role"] == "SALES"].copy()
 
     # Group by sales representative and sum the number of assigned customers
-    customer_distribution = sales_data.groupby("Name")["Assigned customers"].sum().reset_index()
+    customer_distribution = sales_data.groupby("Name")["Assigned Customers"].sum().reset_index()
 
     # Create a bar plot to visualize the distribution of assigned customers
     fig = go.Figure()
 
     fig.add_trace(go.Bar(
         x=customer_distribution["Name"],
-        y=customer_distribution["Assigned customers"],
-        marker=dict(color=customer_distribution["Assigned customers"], colorscale='Viridis'),
-        text=customer_distribution["Assigned customers"],
+        y=customer_distribution["Assigned Customers"],
+        marker=dict(color=customer_distribution["Assigned Customers"], colorscale='Viridis'),
+        text=customer_distribution["Assigned Customers"],
         hovertemplate="<b>%{x}</b><br>Assigned Customers: %{y}<extra></extra>"
     ))
 

@@ -11,7 +11,7 @@ def report_func(df):
     columns = get_csv_columns(df)
     order_sales_summary_viz.preprocess_data(df)
     
-    if "Customer" in columns and "Grand total" in columns and "Product name" in columns and "Created at" in columns:
+    if "Customer" in columns and "Grand Total" in columns and "Product Name" in columns and "Date Created" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -83,7 +83,7 @@ def report_func(df):
     else:
         st.warning("There is no Customer or Product name or Created at columns, so visualizing can not be ready")
     
-    if "Product name" in columns and "Grand total" in columns:
+    if "Product Name" in columns and "Grand Total" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -158,7 +158,7 @@ def report_func(df):
     else:
         st.warning("There is no Product name or Grand total columns, so visualizing can not be ready")
     
-    if "Discount type" in columns and "Total invoice discount" in columns and "Customer" in columns:
+    if "Discount Type" in columns and "Total Invoice Discount" in columns and "Customer" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -234,7 +234,7 @@ def report_func(df):
     
     #wih cc2:
     # bar_chart()
-    if "Delivery status" in columns and "Delivery methods" in columns:
+    if "Delivery Status" in columns and "Delivery Methods" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -309,7 +309,7 @@ def report_func(df):
     else:
         st.warning("There is no Delivery status or Delivery methods columns, so visualizing can not be ready")
     
-    if "Payment status" in columns:
+    if "Payment Status" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -341,7 +341,7 @@ def report_func(df):
     else:
         st.warning("There is no Payment status column, so visualizing can not be ready")
     
-    if "Product name" in columns and "Grand total" in columns and "QTY" in columns and "Delivery status"in columns:
+    if "Product Name" in columns and "Grand Total" in columns and "QTY" in columns and "Delivery Status"in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])

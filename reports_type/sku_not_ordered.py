@@ -11,7 +11,7 @@ def report_func(df):
     columns = get_csv_columns(df)
     skus_not_ordered_viz.preprocess_data(df)
     
-    if "Category name" in columns:
+    if "Category Name" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -38,9 +38,9 @@ def report_func(df):
             print("Error in create_unordered_products_by_category_plot:", e)
             st.success("This visualization is temporarily unavailable")
     else:
-        st.warning("There is no Category name column, so visualizing can not be ready")
+        st.warning("There is no Category Name column, so visualizing can not be ready")
     
-    if "Available cases (QTY)" in columns:
+    if "Available Cases (QTY)" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -69,7 +69,7 @@ def report_func(df):
     else:
         st.warning("There is no Available cases (QTY) column, so visualizing can not be ready")
     
-    if "Category name" in columns and "Retail price" in columns and "Available cases (QTY)" in columns:
+    if "Category Name" in columns and "Retail Price" in columns and "Available Cases (QTY)" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -96,10 +96,10 @@ def report_func(df):
             print("Error in price_vs_available_cases_app:", e)
             st.success("This visualization is temporarily unavailable")
     else:
-        st.warning("There is no Category name or Retail price or Available cases (QTY) columns, so visualizing can not be ready")
+        st.warning("There is no Category Name or Retail Price or Available Cases (QTY) columns, so visualizing can not be ready")
     
     #wih cc2:
-    if "Available cases (QTY)" in columns and "Retail price" in columns and "Wholesale price" in columns and "Category name" in columns:
+    if "Available Cases (QTY)" in columns and "Retail Price" in columns and "Wholesale Price" in columns and "Category Name" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -165,9 +165,9 @@ def report_func(df):
             print("Error in create_wholesale_vs_retail_price_scatter2:", e)
             st.success("This visualization is temporarily unavailable")
     else:
-        st.warning("There is no Available cases (QTY) or Retail price or Wholesale price columns, so visualizing can not be ready")
-    
-    if "Category name" in columns and "Retail price" in columns:
+        st.warning("There is no Available Cases (QTY) or Retail Price or Wholesale Price columns, so visualizing can not be ready")
+
+    if "Category Name" in columns and "Retail Price" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])

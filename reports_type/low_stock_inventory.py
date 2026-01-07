@@ -11,7 +11,7 @@ def report_func(df):
     columns = get_csv_columns(df)
     low_stock_inventory_viz.preprocess_data(df)
     
-    if "Category name" in columns and "Product name" in columns and "Available cases (QTY)" in columns and "Wholesale price" in columns:
+    if "Category Name" in columns and "Product Name" in columns and "Available Cases (QTY)" in columns and "Wholesale Price" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -77,9 +77,9 @@ def report_func(df):
             print("Error in low_stock_analysis_app2:", e)
             st.success("This visualization is temporarily unavailable")        
     else:
-        st.warning("There is no Available cases (QTY) or Category name or Product name columns, so visualizing can not be ready")
-    
-    if "Retail price" in columns and "Wholesale price" in columns and "Product name" in columns:
+        st.warning("There is no Available Cases (QTY) or Category Name or Product Name columns, so visualizing can not be ready")
+
+    if "Retail Price" in columns and "Wholesale Price" in columns and "Product Name" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -106,9 +106,9 @@ def report_func(df):
             print("Error in create_profit_margin_analysis_plot:", e)
             st.success("This visualization is temporarily unavailable")
     else:
-        st.warning("There is no Product name or Retail price or Wholesale price columns, so visualizing can not be ready")
-    
-    if "Manufacturer name" in columns and "Product name" in columns:
+        st.warning("There is no Product Name or Retail Price or Wholesale Price columns, so visualizing can not be ready")
+
+    if "Manufacturer Name" in columns and "Product Name" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -138,7 +138,7 @@ def report_func(df):
         st.warning("There is no Manufacturer name or Product name columns, so visualizing can not be ready")
     
     #wih cc2:
-    if "Wholesale price" in columns and "Available cases (QTY)" in columns:
+    if "Wholesale Price" in columns and "Available Cases (QTY)" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -165,9 +165,9 @@ def report_func(df):
             print("Error in create_interactive_price_vs_quantity_plot:", e)
             st.success("This visualization is temporarily unavailable")
     else:
-        st.warning("There is no Available cases (QTY) or Wholesale price columns, so visualizing can not be ready")
-    
-    if "Retail price" in columns and "Available cases (QTY)" in columns and "Product name" in columns:
+        st.warning("There is no Available Cases (QTY) or Wholesale Price columns, so visualizing can not be ready")
+
+    if "Retail Price" in columns and "Available Cases (QTY)" in columns and "Product Name" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])

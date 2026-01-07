@@ -23,10 +23,10 @@ def preprocess_data(data):
 
     # Process numeric columns
     for col in numeric_cols:
-        # Check for missing values (NaN)
-        if np.isnan(data[col]).any():
-            # Fill missing values with 0 (you can choose another strategy)
-            data[col].fillna(0, inplace=True)
+        # Use .isna() instead of np.isnan() because it's safer for different data types
+        if data[col].isna().any():
+            # ASSIGN the result back to data[col] instead of using inplace=True
+            data[col] = data[col].fillna(0)
             print(f"Warning: Column '{col}' contains missing values (NaN). Filled with 0.")
 
     # Remove currency symbols and thousands separators
@@ -43,25 +43,25 @@ def Quantity_Delivered_Returned_Per_Rep_Visualization(df):
     - df (pd.DataFrame): DataFrame containing the sales data.
     """
     # Define required columns
-    required_columns = ["Fulfilled by", "Type", "Delivery status", "QTY"]
+    required_columns = ["Fulfilled By", "Type", "Delivery Status", "QTY"]
     missing_columns = [col for col in required_columns if col not in df.columns]
     if missing_columns:
         st.error(f"Missing columns: {', '.join(missing_columns)}")
         return
 
     # Filter for fulfilled status
-    df_fulfilled = df[df["Delivery status"] == "FULFILLED"]
+    df_fulfilled = df[df["Delivery Status"] == "FULFILLED"]
 
     # Split into delivery and return DataFrames
     df_delivery = df_fulfilled[df_fulfilled["Type"] == "Delivery"]
     df_return = df_fulfilled[df_fulfilled["Type"] == "Return"]
 
     # Aggregate quantities by sales representative
-    delivery_agg = df_delivery.groupby("Fulfilled by")["QTY"].sum().reset_index()
-    return_agg = df_return.groupby("Fulfilled by")["QTY"].sum().reset_index()
+    delivery_agg = df_delivery.groupby("Fulfilled By")["QTY"].sum().reset_index()
+    return_agg = df_return.groupby("Fulfilled By")["QTY"].sum().reset_index()
 
     # Merge the aggregates, filling missing values with 0
-    merged = pd.merge(delivery_agg, return_agg, on="Fulfilled by", how="outer", 
+    merged = pd.merge(delivery_agg, return_agg, on="Fulfilled By", how="outer", 
                       suffixes=("_delivered", "_returned")).fillna(0)
 
     # Create Plotly figure
@@ -69,7 +69,7 @@ def Quantity_Delivered_Returned_Per_Rep_Visualization(df):
 
     # Add bar for delivered quantities
     fig.add_trace(go.Bar(
-        x=merged["Fulfilled by"],
+        x=merged["Fulfilled By"],
         y=merged["QTY_delivered"],
         name="Delivered",
         marker_color="rgb(55, 83, 109)",
@@ -80,7 +80,7 @@ def Quantity_Delivered_Returned_Per_Rep_Visualization(df):
 
     # Add bar for returned quantities
     fig.add_trace(go.Bar(
-        x=merged["Fulfilled by"],
+        x=merged["Fulfilled By"],
         y=merged["QTY_returned"],
         name="Returned",
         marker_color="rgb(255, 127, 80)",
@@ -113,20 +113,20 @@ def Quantity_Sold_Over_Time_Visualization(df):
     - df (pd.DataFrame): DataFrame containing the sales data.
     """
     # Define required columns
-    required_columns = ["Fulfill date", "Type", "Delivery status", "QTY"]
+    required_columns = ["Fulfill Date", "Type", "Delivery Status", "QTY"]
     missing_columns = [col for col in required_columns if col not in df.columns]
     if missing_columns:
         st.error(f"Missing columns: {', '.join(missing_columns)}")
         return
 
     # Filter for delivered and fulfilled items
-    df_filtered = df[(df["Type"] == "Delivery") & (df["Delivery status"] == "FULFILLED")].copy()
+    df_filtered = df[(df["Type"] == "Delivery") & (df["Delivery Status"] == "FULFILLED")].copy()
 
     # Convert Fulfill date to datetime (assuming MM/DD/YYYY format)
-    df_filtered["Fulfill date"] = pd.to_datetime(df_filtered["Fulfill date"], format="%m/%d/%Y")
+    df_filtered["Fulfill Date"] = pd.to_datetime(df_filtered["Fulfill Date"], format='mixed', errors='coerce')
 
     # Extract month period for grouping
-    df_filtered["Month"] = df_filtered["Fulfill date"].dt.to_period("M")
+    df_filtered["Month"] = df_filtered["Fulfill Date"].dt.to_period("M")
 
     # Aggregate quantities by month
     monthly_sales = df_filtered.groupby("Month")["QTY"].sum().reset_index()
