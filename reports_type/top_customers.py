@@ -10,7 +10,7 @@ def report_func(df):
     
     columns = get_csv_columns(df)
     top_customers_viz.preprocess_data(df)
-    if "Name" in columns and "Total sales" in columns and "Territory" in columns and "Payment terms" in columns:
+    if "Business Name" in columns and "Total Sales" in columns and "Territory" in columns and "Payment Terms" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -84,7 +84,7 @@ def report_func(df):
     else:
         st.warning("There is no Name or Total sales or Territory or Payment terms columns, so visualizing can not be ready")
     
-    if "Payment terms" in columns:
+    if "Payment Terms" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -113,7 +113,7 @@ def report_func(df):
         st.warning("There is no Payment terms column, so visualizing can not be ready")
     
     #wih cc2:
-    if "Total sales" in columns:
+    if "Total Sales" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -142,7 +142,7 @@ def report_func(df):
     else:
         st.warning("There is no Total sales column, so visualizing can not be ready")
     
-    if "Group" in columns and "Billing city" in columns:
+    if "Group" in columns and "Billing City" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])

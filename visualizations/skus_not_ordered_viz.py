@@ -23,10 +23,10 @@ def preprocess_data(data):
 
     # Process numeric columns
     for col in numeric_cols:
-        # Check for missing values (NaN)
-        if np.isnan(data[col]).any():
-            # Fill missing values with 0 (you can choose another strategy)
-            data[col].fillna(0, inplace=True)
+        # Use .isna() instead of np.isnan() because it's safer for different data types
+        if data[col].isna().any():
+            # ASSIGN the result back to data[col] instead of using inplace=True
+            data[col] = data[col].fillna(0)
             print(f"Warning: Column '{col}' contains missing values (NaN). Filled with 0.")
 
     # Remove currency symbols and thousands separators
@@ -36,7 +36,7 @@ def preprocess_data(data):
 
 #Distribution of unordered products across different categories
 def create_unordered_products_by_category_plot(df):
-    category_counts = df['Category name'].value_counts()
+    category_counts = df['Category Name'].value_counts()
 
     fig = go.Figure(go.Bar(
         x=category_counts.index,
@@ -69,7 +69,7 @@ def create_available_cases_distribution_plot(df):
             if min_val <= stock <= max_val:
                 return level
 
-    df["Stock Level"] = df['Available cases (QTY)'].apply(assign_stock_level)
+    df["Stock Level"] = df['Available Cases (QTY)'].apply(assign_stock_level)
     stock_level_counts = df["Stock Level"].value_counts()
 
     fig = go.Figure(go.Pie(
@@ -90,12 +90,11 @@ def create_available_cases_distribution_plot(df):
 
 
 def price_vs_available_cases_app(df):
-    category_options = df['Category name'].unique()
+    category_options = df['Category Name'].unique()
     selected_category = st.selectbox("Select a Category", category_options)
 
-    df['Price Range'] = pd.cut(df['Retail price'], bins=3, labels=["Low", "Medium", "High"])
-    average_cases_data = df[df['Category name'] == selected_category].groupby(['Price Range'])['Available cases (QTY)'].mean()
-
+    df['Price Range'] = pd.cut(df['Retail Price'], bins=3, labels=["Low", "Medium", "High"])
+    average_cases_data = df[df['Category Name'] == selected_category].groupby(['Price Range'], observed=False)['Available Cases (QTY)'].mean()
     fig = go.Figure(go.Bar(
         x=average_cases_data.index,
         y=average_cases_data.values,
@@ -117,24 +116,24 @@ def price_vs_available_cases_app(df):
 #Visualizes the relationship between wholesale and retail prices for unordered products
 def create_wholesale_vs_retail_price_scatter1(df):
 
-    df["Profit Margin %"] = (df['Retail price'] - df['Wholesale price']) / df['Wholesale price'] * 100
+    df["Profit Margin %"] = (df['Retail Price'] - df['Wholesale Price']) / df['Wholesale Price'] * 100
 
     # Create a color map for categories
-    unique_categories = df['Category name'].unique()
+    unique_categories = df['Category Name'].unique()
     color_map = dict(zip(unique_categories, colors.qualitative.Plotly[:len(unique_categories)]))
 
     traces = []
     for category in unique_categories:
-        df_category = df[df['Category name'] == category]
+        df_category = df[df['Category Name'] == category]
         traces.append(go.Scatter(
-            x=df_category['Available cases (QTY)'],
+            x=df_category['Available Cases (QTY)'],
             y=df_category["Profit Margin %"],
             mode='markers',
             name=category,
             marker=dict(color=color_map[category], size=8),
-            text=df_category['Category name'],
+            text=df_category['Category Name'],
             hovertemplate="<b>Category:</b> %{text}<br><b>Available Cases:</b> %{x}<br><b>Profit Margin:</b> %{y:.2f}%<br><b>Retail Price:</b> $%{customdata[0]:.2f}<br><b>Wholesale Price:</b> $%{customdata[1]:.2f}<extra></extra>",
-            customdata=df_category[['Retail price', 'Wholesale price']]
+            customdata=df_category[['Retail Price', 'Wholesale Price']]
         ))
     fig1 = go.Figure(data=traces)
     
@@ -162,22 +161,22 @@ def create_wholesale_vs_retail_price_scatter1(df):
 
 def create_wholesale_vs_retail_price_scatter2(df):
 
-    df["Profit Margin %"] = (df['Retail price'] - df['Wholesale price']) / df['Wholesale price'] * 100
+    df["Profit Margin %"] = (df['Retail Price'] - df['Wholesale Price']) / df['Wholesale Price'] * 100
 
     # Create a color map for categories
-    unique_categories = df['Category name'].unique()
+    unique_categories = df['Category Name'].unique()
     color_map = dict(zip(unique_categories, colors.qualitative.Plotly[:len(unique_categories)]))
 
     
     fig2 = go.Figure(go.Scatter(
-        x=df['Wholesale price'],
-        y=df['Retail price'],
+        x=df['Wholesale Price'],
+        y=df['Retail Price'],
         mode='markers',
         marker=dict(
-            color=[color_map[cat] for cat in df['Category name']],
+            color=[color_map[cat] for cat in df['Category Name']],
             size=8
         ),
-        text=df['Category name'],
+        text=df['Category Name'],
         hovertemplate="<b>Category:</b> %{text}<br><b>Wholesale Price:</b> $%{x:.2f}<br><b>Retail Price:</b> $%{y:.2f}<extra></extra>"
     ))
     
@@ -200,11 +199,12 @@ def create_wholesale_vs_retail_price_scatter2(df):
 
 
 
-def df_unordered_products_per_category_and_price_range(df, category_col='Category name', retail_price_col='Retail price'):
+def df_unordered_products_per_category_and_price_range(df, category_col='Category Name', retail_price_col='Retail Price'):
     price_ranges = [0, 20, 40, 60, 80, 100, float('inf')]  # Added 100+ range
     price_labels = ["0-20", "20-40", "40-60", "60-80", "80-100", "100+"]
     df['Price Range'] = pd.cut(df[retail_price_col], bins=price_ranges, labels=price_labels)
-    result = df.groupby([category_col, 'Price Range']).size().unstack(fill_value=0)
+
+    result = df.groupby([category_col, 'Price Range'], observed=False).size().unstack(fill_value=0)
     
     fig = go.Figure(go.Heatmap(
         z=result.values,

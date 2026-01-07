@@ -30,10 +30,10 @@ def preprocess_data(data):
 
     # Process numeric columns
     for col in numeric_cols:
-        # Check for missing values (NaN)
-        if np.isnan(data[col]).any():
-            # Fill missing values with 0 (you can choose another strategy)
-            data[col].fillna(0, inplace=True)
+        # Use .isna() instead of np.isnan() because it's safer for different data types
+        if data[col].isna().any():
+            # ASSIGN the result back to data[col] instead of using inplace=True
+            data[col] = data[col].fillna(0)
             print(f"Warning: Column '{col}' contains missing values (NaN). Filled with 0.")
 
     # Remove currency symbols and thousands separators
@@ -42,7 +42,7 @@ def preprocess_data(data):
     return data
 
 #Total sales
-def visualize_product_analysis1(data, product_col='Product name', grand_total_col='Grand total', threshold=0.02):
+def visualize_product_analysis1(data, product_col='Product Name', grand_total_col='Grand Total', threshold=0.02):
     product_data = data.groupby(product_col)[grand_total_col].agg(['sum', 'count']).sort_values(by='sum', ascending=False)
     
     # Calculate percentages
@@ -72,7 +72,7 @@ def visualize_product_analysis1(data, product_col='Product name', grand_total_co
     
     st.plotly_chart(fig, use_container_width=True)
 
-def visualize_product_analysis2(data, product_col='Product name', order_id_col='Order Id'):
+def visualize_product_analysis2(data, product_col='Product Name', order_id_col='Order ID'):
     """Distribution of unique orders by product"""
     # Count unique orders per product
     unique_orders = data.drop_duplicates(subset=[order_id_col, product_col])
@@ -98,14 +98,14 @@ def visualize_product_analysis2(data, product_col='Product name', order_id_col='
         
 #Sales amount for each client (top 10)
 def visualize_sales_trends(data, customer_col='Customer', 
-                          grand_total_col='Grand total', 
-                          order_id_col='Order Id'):
+                          grand_total_col='Grand Total', 
+                          order_id_col='Order ID'):
     """Top customers by unique order totals"""
     # Get unique orders
     unique_orders = data.drop_duplicates(subset=[order_id_col])
     
     # Convert to numeric
-    unique_orders[grand_total_col] = pd.to_numeric(unique_orders[grand_total_col], errors='coerce')
+    unique_orders = data.drop_duplicates(subset=[order_id_col, grand_total_col]).copy()
     unique_orders = unique_orders.dropna(subset=[grand_total_col])
     
     # Calculate top customers
@@ -132,36 +132,44 @@ def visualize_sales_trends(data, customer_col='Customer',
 
 
 #Plot with coloring of points by product type
-def visualize_combined_analysis(data, product_col='Product name',
-                               qty_col='QTY', order_id_col='Order Id'):
+def visualize_combined_analysis(data, product_col='Product Name', 
+                                qty_col='QTY', order_id_col='Order ID'):
     """Quantity distribution by product using unique orders"""
-    # Get unique orders with quantities
-    unique_orders = data.drop_duplicates(subset=[order_id_col, product_col])
     
-    # Convert to numeric
+    # 1. Create a simplified copy to avoid SettingWithCopy warnings
+    # Drop duplicates to ensure unique order-lines
+    unique_orders = data.drop_duplicates(subset=[order_id_col, product_col]).copy()
+    
+    # 2. Convert to numeric safely
     unique_orders[qty_col] = pd.to_numeric(unique_orders[qty_col], errors='coerce')
     unique_orders = unique_orders.dropna(subset=[qty_col])
     
-    # Group data by product and quantity
+    # 3. Group data by product and quantity
     grouped_data = unique_orders.groupby([product_col, qty_col]).size().reset_index(name='count')
     
-    # Create the figure
+    # --- LOGIC FIX: Sort by Popularity ---
+    # Calculate total orders per product to find the REAL Top 15
+    product_popularity = grouped_data.groupby(product_col)['count'].sum()
+    top_15_products = product_popularity.sort_values(ascending=False).head(15).index.tolist()
+    
+    # Filter the data to only include these top 15 products
+    filtered_data = grouped_data[grouped_data[product_col].isin(top_15_products)]
+    
     fig = go.Figure()
     
-    # Add a trace for each product
-    for product in grouped_data[product_col].unique()[:15]:  # Limit to top 15 products
-        product_data = grouped_data[grouped_data[product_col] == product]
+    # Add a trace for each of the Top 15 products
+    for product in top_15_products:
+        product_data = filtered_data[filtered_data[product_col] == product]
         fig.add_trace(go.Bar(
             x=product_data[qty_col],
             y=product_data['count'],
             name=product,
             hovertemplate=f'<b>{product}</b><br>Quantity: %{{x}}<br>Orders: %{{y}}<extra></extra>',
-            width=0.8
+            # REMOVED width=0.8 to prevent overlap
         ))
 
-    # Update the layout
     fig.update_layout(
-        title="Product Quantity Distribution",
+        title="Product Quantity Distribution (Top 15 by Volume)",
         xaxis_title="Quantity",
         yaxis_title="Number of Orders",
         barmode='group',
@@ -175,7 +183,7 @@ def visualize_combined_analysis(data, product_col='Product name',
     
 #Analyzes discounts
 def analyze_discounts(data):
-    discount_counts = data["Discount type"].value_counts()
+    discount_counts = data["Discount Type"].value_counts()
     
     fig = go.Figure(data=[go.Pie(
         labels=discount_counts.index,
@@ -196,7 +204,7 @@ def analyze_discounts(data):
     
 
 def area_visualisation(data):
-    columns = ['Grand total', 'Manufacturer specific discount', 'Customer discount']
+    columns = ['Grand Total', 'Manufacturer Specific Discount', 'Customer Discount']
     
     fig = go.Figure()
     

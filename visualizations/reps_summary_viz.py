@@ -21,10 +21,10 @@ def preprocess_data(data):
 
     # Process numeric columns
     for col in numeric_cols:
-        # Check for missing values (NaN)
-        if np.isnan(data[col]).any():
-            # Fill missing values with 0 (you can choose another strategy)
-            data[col].fillna(0, inplace=True)
+        # Use .isna() instead of np.isnan() because it's safer for different data types
+        if data[col].isna().any():
+            # ASSIGN the result back to data[col] instead of using inplace=True
+            data[col] = data[col].fillna(0)
             print(f"Warning: Column '{col}' contains missing values (NaN). Filled with 0.")
 
     # Remove currency symbols and thousands separators
@@ -35,16 +35,16 @@ def preprocess_data(data):
 #Visualize the relationships between Orders/Cases Sold and Revenue
 def plot_sales_relationships1(df):
     # Preprocess the data
-    df = df.dropna(subset=["Orders total", "Total revenue"])
-    df["Orders total"] = pd.to_numeric(df["Orders total"], errors='coerce')
-    df["Total revenue"] = pd.to_numeric(df["Total revenue"], errors='coerce')
-    df = df.dropna(subset=["Orders total", "Total revenue"])
+    df = df.dropna(subset=["Orders Total", "Total Revenue"])
+    df["Orders Total"] = pd.to_numeric(df["Orders Total"], errors='coerce')
+    df["Total Revenue"] = pd.to_numeric(df["Total Revenue"], errors='coerce')
+    df = df.dropna(subset=["Orders Total", "Total Revenue"])
     
     # Create the scatter plot
     fig = go.Figure()
     fig.add_trace(go.Scatter(
-        x=df["Orders total"],
-        y=df["Total revenue"],
+        x=df["Orders Total"],
+        y=df["Total Revenue"],
         mode='markers',
         marker=dict(color='LightSkyBlue', opacity=0.7),
         hovertemplate="<b>Orders Total: %{x}</b><br>Total Revenue: %{y}<extra></extra>"
@@ -64,16 +64,16 @@ def plot_sales_relationships1(df):
 
 def plot_sales_relationships2(df):
     # Preprocess the data
-    df = df.dropna(subset=["Cases sold total", "Total revenue"])
-    df["Cases sold total"] = pd.to_numeric(df["Cases sold total"], errors='coerce')
-    df["Total revenue"] = pd.to_numeric(df["Total revenue"], errors='coerce')
-    df = df.dropna(subset=["Cases sold total", "Total revenue"])
+    df = df.dropna(subset=["Cases Sold Total", "Total Revenue"])
+    df["Cases Sold Total"] = pd.to_numeric(df["Cases Sold Total"], errors='coerce')
+    df["Total Revenue"] = pd.to_numeric(df["Total Revenue"], errors='coerce')
+    df = df.dropna(subset=["Cases Sold Total", "Total Revenue"])
     
     # Create the scatter plot
     fig = go.Figure()
     fig.add_trace(go.Scatter(
-        x=df["Cases sold total"],
-        y=df["Total revenue"],
+        x=df["Cases Sold Total"],
+        y=df["Total Revenue"],
         mode='markers',
         marker=dict(color='darkgreen', opacity=0.7),
         hovertemplate="<b>Cases Sold Total: %{x}</b><br>Total Revenue: %{y}<extra></extra>"
@@ -93,8 +93,8 @@ def plot_sales_relationships2(df):
 
 #Revenue by Month and Role
 def plot_revenue_by_month_and_role(df):
-    # Convert 'Total revenue' to numeric, coercing non-numeric values to NaN
-    df['Total revenue'] = pd.to_numeric(df['Total revenue'], errors='coerce')
+    # Convert 'Total Revenue' to numeric, coercing non-numeric values to NaN
+    df['Total Revenue'] = pd.to_numeric(df['Total Revenue'], errors='coerce')
     
     # Convert 'Date' to datetime, coercing invalid dates to NaT
     df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
@@ -106,9 +106,9 @@ def plot_revenue_by_month_and_role(df):
     
     # Convert 'Month' to integer type to avoid float indices
     df['Month'] = df['Month'].astype(int)
-    
-    # Group by 'Month' and 'Role', sum 'Total revenue'
-    grouped_data = df.groupby(['Month', 'Role'])['Total revenue'].sum().unstack(fill_value=0)
+
+    # Group by 'Month' and 'Role', sum 'Total Revenue'
+    grouped_data = df.groupby(['Month', 'Role'])['Total Revenue'].sum().unstack(fill_value=0)
     
     # Create the figure
     fig = go.Figure()
@@ -144,11 +144,11 @@ def plot_revenue_by_month_and_role(df):
 #Visualize visits and travel distance for each name
 def plot_visits_and_travel_distance_by_name(df):
     df = df.copy()
-    if df['Travel distance'].dtype == 'object':
-         if df['Travel distance'].str.contains(' mi').any():
-             df['Travel distance'] = pd.to_numeric(df['Travel distance'].str.replace(' mi', ''), errors='coerce')
+    if df['Travel Distance'].dtype == 'object':
+         if df['Travel Distance'].str.contains(' mi').any():
+             df['Travel Distance'] = pd.to_numeric(df['Travel Distance'].str.replace(' mi', ''), errors='coerce')
     
-    grouped_data = df.groupby('Name')[['Visits', 'Travel distance']].sum()
+    grouped_data = df.groupby('Name')[['Visits', 'Travel Distance']].sum()
 
     fig = go.Figure()
     
@@ -189,9 +189,9 @@ def plot_cases_sold_by_day_of_week(df):
     
     # Ensure 'Day of Week' is integer type
     df['Day of Week'] = df['Day of Week'].astype(int)
-    
-    # Sum 'Cases sold total' by 'Day of Week' and include all days (0-6)
-    cases_sold_by_day = df.groupby('Day of Week')['Cases sold total'].sum().reindex(range(7), fill_value=0)
+
+    # Sum 'Cases Sold Total' by 'Day of Week' and include all days (0-6)
+    cases_sold_by_day = df.groupby('Day of Week')['Cases Sold Total'].sum().reindex(range(7), fill_value=0)
     
     # Define day names
     days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -229,21 +229,21 @@ def plot_cases_sold_by_day_of_week(df):
 def plot_revenue_trend_by_month_and_role(df):
     # Create a copy to avoid modifying the original DataFrame
     df = df.copy()
-    
-    # Convert 'Total revenue' to numeric, coercing errors to NaN
-    df['Total revenue'] = pd.to_numeric(df['Total revenue'], errors='coerce')
+
+    # Convert 'Total Revenue' to numeric, coercing errors to NaN
+    df['Total Revenue'] = pd.to_numeric(df['Total Revenue'], errors='coerce')
     
     # Convert 'Date' to datetime, coercing invalid dates to NaT
     df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
     
     # Extract month period (e.g., '2022-01') for grouping
     df['Month'] = df['Date'].dt.to_period('M')
-    
-    # Drop rows with invalid 'Month', 'Role', or 'Total revenue'
-    df = df.dropna(subset=['Month', 'Role', 'Total revenue'])
-    
-    # Group by 'Month' and 'Role', summing 'Total revenue'
-    monthly_revenue = df.groupby(['Month', 'Role'])['Total revenue'].sum().unstack(fill_value=0)
+
+    # Drop rows with invalid 'Month', 'Role', or 'Total Revenue'
+    df = df.dropna(subset=['Month', 'Role', 'Total Revenue'])
+
+    # Group by 'Month' and 'Role', summing 'Total Revenue'
+    monthly_revenue = df.groupby(['Month', 'Role'])['Total Revenue'].sum().unstack(fill_value=0)
     
     # Create the figure
     fig = go.Figure()
@@ -357,9 +357,9 @@ def plot_multiple_metrics_by_role(df):
 #Identifying Potential High-Value Clients
 def plot_revenue_vs_cases_sold_with_size_and_color(df):
     df = df.copy()  # Create a copy of the DataFrame
-    if df['Travel distance'].dtype == 'object':
-        if df['Travel distance'].str.contains(' mi').any():
-            df['Travel distance'] = pd.to_numeric(df['Travel distance'].str.replace(' mi', ''), errors='coerce')
+    if df['Travel Distance'].dtype == 'object':
+        if df['Travel Distance'].str.contains(' mi').any():
+            df['Travel Distance'] = pd.to_numeric(df['Travel Distance'].str.replace(' mi', ''), errors='coerce')
 
     
     # Plotting with Plotly
@@ -367,7 +367,7 @@ def plot_revenue_vs_cases_sold_with_size_and_color(df):
 
     fig.add_trace(go.Scatter(
         x=df["Cases sold"],
-        y=df["Total revenue"],
+        y=df["Total Revenue"],
         mode='markers',
         marker=dict(
             size=df['Visits'],
@@ -400,11 +400,11 @@ def revenue_and_conversion_rate_comparison(df):
     
     # Grouping the data by Name to calculate total revenue and conversion rate
     rep_data = data.groupby('Name').agg(
-        total_revenue_direct=('Total revenue (Direct)', 'sum'),
-        total_revenue_3rd_party=('Total revenue (3rd party)', 'sum'),
-        total_revenue=('Total revenue', 'sum'),
+        total_revenue_direct=('Total Revenue (Direct)', 'sum'),
+        total_revenue_3rd_party=('Total Revenue (3rd party)', 'sum'),
+        total_revenue=('Total Revenue', 'sum'),
         total_visits=('Visits', 'sum'),
-        total_orders=('Orders total', 'sum')
+        total_orders=('Orders Total', 'sum')
     ).reset_index()
 
     # Calculating conversion rate as a percentage
@@ -475,11 +475,11 @@ def revenue_conversion_and_trend(df):
 
     # Grouping the data by Name to calculate total revenue and conversion rate
     rep_data = data.groupby('Name').agg(
-        total_revenue_direct=('Total revenue (Direct)', 'sum'),
-        total_revenue_3rd_party=('Total revenue (3rd party)', 'sum'),
-        total_revenue=('Total revenue', 'sum'),
+        total_revenue_direct=('Total Revenue (Direct)', 'sum'),
+        total_revenue_3rd_party=('Total Revenue (3rd party)', 'sum'),
+        total_revenue=('Total Revenue', 'sum'),
         total_visits=('Visits', 'sum'),
-        total_orders=('Orders total', 'sum')
+        total_orders=('Orders Total', 'sum')
     ).reset_index()
 
     # Calculating conversion rate as a percentage
@@ -487,8 +487,8 @@ def revenue_conversion_and_trend(df):
 
     # Grouping by Date to calculate daily total revenue and orders
     date_data = data.groupby('Date').agg(
-        daily_revenue=('Total revenue', 'sum'),
-        daily_orders=('Orders total', 'sum'),
+        daily_revenue=('Total Revenue', 'sum'),
+        daily_orders=('Orders Total', 'sum'),
         daily_visits=('Visits', 'sum')
     ).reset_index()
 
@@ -547,9 +547,9 @@ def total_revenue_and_conversion_rate(df):
     data = df.copy()
     # Grouping the data by Representative to calculate total revenue and conversion rate
     rep_data = data.groupby('Name').agg(
-        total_revenue=('Total revenue', 'sum'),
+        total_revenue=('Total Revenue', 'sum'),
         total_visits=('Visits', 'sum'),
-        total_orders=('Orders total', 'sum')
+        total_orders=('Orders Total', 'sum')
     ).reset_index()
 
     # Calculating conversion rate as a percentage
@@ -605,8 +605,8 @@ def Total_Visits_vs_Total_Revenue(df):
     data = df.copy()
     # Grouping the data by Representative to calculate total revenue and conversion rate
     role_data = data.groupby('Role').agg(
-        total_revenue=('Total revenue', 'sum'),
-        total_orders=('Orders total', 'sum')
+        total_revenue=('Total Revenue', 'sum'),
+        total_orders=('Orders Total', 'sum')
     ).reset_index()
 
     # Create the figure

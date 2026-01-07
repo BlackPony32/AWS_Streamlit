@@ -10,7 +10,7 @@ def report_func(df):
     
     columns = get_csv_columns(df)
     current_inventory_viz.preprocess_data(df)
-    if "Available cases (QTY)" in columns and "Wholesale price" in columns and "Category name" in columns:
+    if "Available Cases (QTY)" in columns and "Wholesale Price" in columns and "Category Name" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -39,7 +39,7 @@ def report_func(df):
     else:
         st.warning("There is no Available cases (QTY) or Wholesale price columns, so visualizing can not be ready")
     
-    if "Available cases (QTY)" in columns and "Retail price" in columns and "Category name" in columns and "Wholesale price" in columns:
+    if "Available Cases (QTY)" in columns and "Retail Price" in columns and "Category Name" in columns and "Wholesale Price" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])#([1, 1.705])
@@ -68,7 +68,7 @@ def report_func(df):
     else:
         st.warning("There is no Available cases (QTY) or Retail price or Category name columns, so visualizing can not be ready")
     
-    if "Available cases (QTY)" in columns and "Wholesale price" in columns and "Manufacturer name" in columns:
+    if "Available Cases (QTY)" in columns and "Wholesale Price" in columns and "Manufacturer Name" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])#([1, 1.95])
@@ -97,7 +97,7 @@ def report_func(df):
         st.warning("There is no Available cases (QTY) or Manufacturer name or Wholesale price columns, so visualizing can not be ready")
     
     #wih cc2:
-    if "Wholesale price" in columns and "Available cases (QTY)" in columns and "Product name" in columns:
+    if "Wholesale Price" in columns and "Available Cases (QTY)" in columns and "Product Name" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])#([1, 2.35])
@@ -124,7 +124,7 @@ def report_func(df):
     else:
         st.warning("There is no Product name or Available cases (QTY) or Wholesale price columns, so visualizing can not be ready")
     
-    if "Retail price" in columns and "Category name" in columns:
+    if "Retail Price" in columns and "Category Name" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])#([1, 2])

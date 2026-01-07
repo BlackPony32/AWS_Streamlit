@@ -11,7 +11,7 @@ def report_func(df):
     columns = get_csv_columns(df)
     customer_details_viz.preprocess_data(df)
     
-    if "Group" in columns and "Total orders" in columns and "Total sales" in columns:
+    if "Group" in columns and "Total Orders" in columns and "Total Sales" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -40,7 +40,7 @@ def report_func(df):
     else:
         st.warning("There is no Group or Total orders or Total sales columns, so visualizing can not be ready")
     
-    if "Payment terms" in columns:
+    if "Payment Terms" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -70,7 +70,7 @@ def report_func(df):
         st.warning("There is no Payment terms column, so visualizing can not be ready")
     
     #wih cc2:
-    if "Total sales" in columns:
+    if "Total Sales" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -100,7 +100,7 @@ def report_func(df):
         st.warning("There is no Total sales column, so visualizing can not be ready")
     
         
-    if "Total sales" in columns and "Group" in columns and "Billing state" in columns:
+    if "Total Sales" in columns and "Group" in columns and "Billing State" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -134,7 +134,7 @@ def report_func(df):
     else:
         st.warning("There is no Total sales or Group or Billing state columns, so visualizing can not be ready")
         
-    if "Total sales" in columns and "Group" in columns and "Billing state" in columns:
+    if "Total Sales" in columns and "Group" in columns and "Billing State" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])

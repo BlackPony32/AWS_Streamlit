@@ -23,10 +23,10 @@ def preprocess_data(data):
 
     # Process numeric columns
     for col in numeric_cols:
-        # Check for missing values (NaN)
-        if np.isnan(data[col]).any():
-            # Fill missing values with 0 (you can choose another strategy)
-            data[col].fillna(0, inplace=True)
+        # Use .isna() instead of np.isnan() because it's safer for different data types
+        if data[col].isna().any():
+            # ASSIGN the result back to data[col] instead of using inplace=True
+            data[col] = data[col].fillna(0)
             print(f"Warning: Column '{col}' contains missing values (NaN). Filled with 0.")
 
     # Remove currency symbols and thousands separators
@@ -38,10 +38,11 @@ def preprocess_data(data):
 
 def Sales_Performance_Visualization(df):
     # Ensure required columns exist
+    df['Business Name'] = df['Business Name'].apply(lambda x: x[:35] + '...' if len(x) > 35 else x)
     required_columns = [
         "Business Name",
-        "Cases sold (Direct)",
-        "Cases sold (3rd party)"
+        "Cases Sold (Direct)",
+        "Cases Sold (3rd party)"
     ]
     missing_columns = [col for col in required_columns if col not in df.columns]
     
@@ -51,8 +52,8 @@ def Sales_Performance_Visualization(df):
     
     # Aggregate data (if needed)
     aggregated_data = df.groupby("Business Name").agg(
-        direct_sales=("Cases sold (Direct)", "sum"),
-        third_party_sales=("Cases sold (3rd party)", "sum")
+        direct_sales=("Cases Sold (Direct)", "sum"),
+        third_party_sales=("Cases Sold (3rd party)", "sum")
     ).reset_index()
     
     # Create the figure
@@ -108,7 +109,7 @@ def Sales_Performance_Visualization(df):
 
 def Sales_Trend_Visualization(df):
     # Ensure required columns exist
-    required_columns = ["Name", "Date", "Cases sold total"]
+    required_columns = ["Name", "Date", "Cases Sold Total"]
     missing_columns = [col for col in required_columns if col not in df.columns]
     
     if missing_columns:
@@ -123,7 +124,7 @@ def Sales_Trend_Visualization(df):
     
     # Aggregate data by Name and Date
     aggregated_data = filtered_data.groupby(["Name", "Date"]).agg(
-        total_cases_sold=("Cases sold total", "sum")
+        total_cases_sold=("Cases Sold Total", "sum")
     ).reset_index()
     
     # Create the figure

@@ -11,7 +11,7 @@ def report_func(df):
     best_sellers_viz.preprocess_data(df)
     columns = get_csv_columns(df)
     
-    if "Available cases (QTY)" in columns and "Product name" in columns:
+    if "Available Cases (QTY)" in columns and "Product Name" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -42,9 +42,9 @@ def report_func(df):
             print("Error in create_available_cases_plot:", e)
             st.success("This visualization is temporarily unavailable")
     else:
-        st.warning("There is no Product name or Available cases (QTY) columns, so visualizing can not be ready")
-    
-    if "Product name" in columns and "Total revenue" in columns and "Cases sold" in columns:
+        st.warning("There is no Product Name or Available Cases (QTY) columns, so visualizing can not be ready")
+
+    if "Product Name" in columns and "Total Revenue" in columns and "Cases Sold" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -116,9 +116,9 @@ def report_func(df):
             print("Error in product_analysis_app1 or product_analysis_app2:", e)
             st.success("This visualization is temporarily unavailable")
     else:
-        st.warning("There is no Total revenue or Product name or Cases sold columns, so visualizing can not be ready")
-    
-    if "Cases sold" in columns and "Total revenue" in columns:
+        st.warning("There is no Total Revenue or Product Name or Cases Sold columns, so visualizing can not be ready")
+
+    if "Cases Sold" in columns and "Total Revenue" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -153,7 +153,7 @@ def report_func(df):
     
     #wih cc2:
     # bar_chart()
-    if "Category name" in columns and "Wholesale price" in columns and "Retail price" in columns:
+    if "Category Name" in columns and "Wholesale Price" in columns and "Retail Price" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -226,9 +226,9 @@ def report_func(df):
             print("Error in price_comparison_app2:", e)
             st.success("This visualization is temporarily unavailable")    
     else:
-        st.warning("There is no Category name or Wholesale price or Retail price columns, so visualizing can not be ready")
-    
-    if "Total revenue" in columns and "Product name" in columns:
+        st.warning("There is no Category Name or Wholesale Price or Retail Price columns, so visualizing can not be ready")
+
+    if "Total Revenue" in columns and "Product Name" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
