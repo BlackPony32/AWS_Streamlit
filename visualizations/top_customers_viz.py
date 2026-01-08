@@ -20,10 +20,10 @@ def preprocess_data(data):
 
     # Process numeric columns
     for col in numeric_cols:
-        # Check for missing values (NaN)
-        if np.isnan(data[col]).any():
-            # Fill missing values with 0 (you can choose another strategy)
-            data[col].fillna(0, inplace=True)
+        # Use .isna() instead of np.isnan() because it's safer for different data types
+        if data[col].isna().any():
+            # ASSIGN the result back to data[col] instead of using inplace=True
+            data[col] = data[col].fillna(0)
             print(f"Warning: Column '{col}' contains missing values (NaN). Filled with 0.")
 
     # Remove currency symbols and thousands separators
@@ -34,12 +34,12 @@ def preprocess_data(data):
 def customer_analysis_app1(df):
     """Creates a Streamlit app with tabs for analyzing customer data using plots."""
 
-    top_10_customers = df.groupby('Name')['Total sales'].sum().nlargest(10).reset_index()
+    top_10_customers = df.groupby('Business Name')['Total Sales'].sum().nlargest(10).reset_index()
     fig = go.Figure(data=go.Bar(
-        x=top_10_customers['Name'],
-        y=top_10_customers['Total sales'],
+        x=top_10_customers['Business Name'],
+        y=top_10_customers['Total Sales'],
         marker_color=px.colors.qualitative.Light24,
-        text=top_10_customers['Total sales'].apply(lambda x: f'${x:,.2f}'),
+        text=top_10_customers['Total Sales'].apply(lambda x: f'${x:,.2f}'),
         textposition='outside',
         hovertemplate='<b>Customer:</b> %{x}<br><b>Total Sales:</b> $%{y:,.2f}<extra></extra>'
     ))
@@ -58,27 +58,27 @@ def customer_analysis_app2(df, threshold=0.01):
 
     
     # Group sales by territory
-    territory_sales = df.groupby('Territory')['Total sales'].sum().reset_index()
+    territory_sales = df.groupby('Territory')['Total Sales'].sum().reset_index()
     
     # Calculate the total sales for percentage calculation
-    total_sales_sum = territory_sales['Total sales'].sum()
+    total_sales_sum = territory_sales['Total Sales'].sum()
     
     # Calculate the percentage of each territory's sales
-    territory_sales['percentage'] = territory_sales['Total sales'] / total_sales_sum
+    territory_sales['percentage'] = territory_sales['Total Sales'] / total_sales_sum
     
     # Group smaller territories into 'Other'
     main_data = territory_sales[territory_sales['percentage'] >= threshold]
     other_data = territory_sales[territory_sales['percentage'] < threshold]
     
     if not other_data.empty:
-        other_sales_sum = other_data['Total sales'].sum()
-        other_row = pd.DataFrame({'Territory': ['Other'], 'Total sales': [other_sales_sum], 'percentage': [other_sales_sum / total_sales_sum]})
+        other_sales_sum = other_data['Total Sales'].sum()
+        other_row = pd.DataFrame({'Territory': ['Other'], 'Total Sales': [other_sales_sum], 'percentage': [other_sales_sum / total_sales_sum]})
         main_data = pd.concat([main_data, other_row], ignore_index=True)
     
     # Create the pie chart
     fig = go.Figure(data=go.Pie(
         labels=main_data['Territory'],
-        values=main_data['Total sales'],
+        values=main_data['Total Sales'],
         hole=0.3,
         marker=dict(colors=px.colors.qualitative.Dark2),
         hovertemplate='<b>Territory:</b> %{label}<br><b>Total Sales:</b> $%{value:,.2f}<br><b>Percentage:</b> %{percent}<extra></extra>',
@@ -100,12 +100,12 @@ def customer_analysis_app3(df):
     """Creates a Streamlit app with tabs for analyzing customer data using plots."""
 
 
-    payment_terms_sales = df.groupby('Payment terms')['Total sales'].sum().reset_index()
+    payment_terms_sales = df.groupby('Payment Terms')['Total Sales'].sum().reset_index()
     fig = go.Figure(data=go.Bar(
-        x=payment_terms_sales['Payment terms'],
-        y=payment_terms_sales['Total sales'],
+        x=payment_terms_sales['Payment Terms'],
+        y=payment_terms_sales['Total Sales'],
         marker_color=px.colors.qualitative.Pastel,
-        text=payment_terms_sales['Total sales'].apply(lambda x: f'${x:,.2f}'),
+        text=payment_terms_sales['Total Sales'].apply(lambda x: f'${x:,.2f}'),
         textposition='outside',
         hovertemplate='<b>Payment Terms:</b> %{x}<br><b>Total Sales:</b> $%{y:,.2f}<extra></extra>'
     ))
@@ -119,7 +119,7 @@ def customer_analysis_app3(df):
     st.plotly_chart(fig, use_container_width=True)
 
 #--------------------------bar_plot_with_percentages- SUB FUNCTION-------------------------------------
-def create_bar_plot_with_percentages(df, col="Payment terms"):
+def create_bar_plot_with_percentages(df, col="Payment Terms"):
     counts = df[col].value_counts().sort_values(ascending=False)
     percentages = (counts / len(df)) * 100
     df_plot = pd.DataFrame({'Category': counts.index, 'Count': counts.values, 'Percentage': percentages})
@@ -157,7 +157,7 @@ def interactive_bar_plot_app(df):
 
     
 #Data distribution visualization
-def create_non_zero_sales_grouped_plot(df, sales_col='Total sales', threshold=500):
+def create_non_zero_sales_grouped_plot(df, sales_col='Total Sales', threshold=500):
     df_filtered = df[df[sales_col] > 0]
     df_below_threshold = df_filtered[df_filtered[sales_col] <= threshold]
     df_above_threshold = df_filtered[df_filtered[sales_col] > threshold]
@@ -213,7 +213,7 @@ def create_bar_plot_with_legend(df, city_col, group_col, title):
     )
     return fig
 
-def interactive_group_distribution_app(df, group_col='Group', city_col='Billing city'):# Concise title
+def interactive_group_distribution_app(df, group_col='Group', city_col='Billing City'):# Concise title
 
     most_frequent_city = df[city_col].value_counts().index[0]
 

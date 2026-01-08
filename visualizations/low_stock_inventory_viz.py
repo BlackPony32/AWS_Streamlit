@@ -20,10 +20,10 @@ def preprocess_data(data):
 
     # Process numeric columns
     for col in numeric_cols:
-        # Check for missing values (NaN)
-        if np.isnan(data[col]).any():
-            # Fill missing values with 0 (you can choose another strategy)
-            data[col].fillna(0, inplace=True)
+        # Use .isna() instead of np.isnan() because it's safer for different data types
+        if data[col].isna().any():
+            # ASSIGN the result back to data[col] instead of using inplace=True
+            data[col] = data[col].fillna(0)
             print(f"Warning: Column '{col}' contains missing values (NaN). Filled with 0.")
 
     # Remove currency symbols and thousands separators
@@ -32,24 +32,24 @@ def preprocess_data(data):
     return data
 
 def low_stock_analysis_app1(df, threshold=0.01):
-    category_counts = df.groupby("Category name")["Product name"].count().reset_index()
-    total_sum = category_counts["Product name"].sum()
+    category_counts = df.groupby("Category Name")["Product Name"].count().reset_index()
+    total_sum = category_counts["Product Name"].sum()
     
     # Calculate percentages
-    category_counts['percentage'] = category_counts["Product name"] / total_sum
+    category_counts['percentage'] = category_counts["Product Name"] / total_sum
     
     # Group smaller categories into 'Other'
     main_data = category_counts[category_counts['percentage'] >= threshold]
     other_data = category_counts[category_counts['percentage'] < threshold]
     
     if not other_data.empty:
-        other_sum = other_data["Product name"].sum()
-        other_row = pd.DataFrame({'Category name': ['Other'], 'Product name': [other_sum], 'percentage': [other_sum / total_sum]})
+        other_sum = other_data["Product Name"].sum()
+        other_row = pd.DataFrame({'Category Name': ['Other'], 'Product Name': [other_sum], 'percentage': [other_sum / total_sum]})
         main_data = pd.concat([main_data, other_row], ignore_index=True)
     
     fig1 = go.Figure(go.Pie(
-        labels=main_data["Category name"],
-        values=main_data["Product name"],
+        labels=main_data["Category Name"],
+        values=main_data["Product Name"],
         hole=0.3,
         textinfo='percent+label',
         marker=dict(colors=px.colors.qualitative.Pastel),
@@ -64,7 +64,7 @@ def low_stock_analysis_app1(df, threshold=0.01):
 
 def low_stock_analysis_app2(df):
     # Filter data for non-null wholesale prices (allowing negative and zero quantities)
-    df_valid_prices = df[df['Wholesale price'].notna()]
+    df_valid_prices = df[df['Wholesale Price'].notna()]
 
     # Check if the DataFrame is empty after filtering
     if df_valid_prices.empty:
@@ -72,27 +72,27 @@ def low_stock_analysis_app2(df):
         return
 
     fig2 = go.Figure(data=go.Scatter(
-        x=df_valid_prices["Wholesale price"],
-        y=df_valid_prices["Available cases (QTY)"],
+        x=df_valid_prices["Wholesale Price"],
+        y=df_valid_prices["Available Cases (QTY)"],
         mode='markers',
         marker=dict(
             size=10,  # Increased marker size for better visibility
-            color=df_valid_prices["Wholesale price"],
+            color=df_valid_prices["Wholesale Price"],
             colorscale='Viridis',  # Choose a colorscale for better visualization
             showscale=True
         ),
-        text=df_valid_prices['Product name'],
+        text=df_valid_prices['Product Name'],
         hovertemplate="<b>%{text}</b><br>Wholesale Price: %{x}<br>Available Cases (QTY): %{y}<extra></extra>"
     ))
 
     fig2.update_layout(
         xaxis=dict(
             title="Wholesale Price",
-            range=[df_valid_prices["Wholesale price"].min() - 1, df_valid_prices["Wholesale price"].max() + 1]
+            range=[df_valid_prices["Wholesale Price"].min() - 1, df_valid_prices["Wholesale Price"].max() + 1]
         ),
         yaxis=dict(
             title="Available Cases (QTY)",
-            range=[df_valid_prices["Available cases (QTY)"].min() - 1, df_valid_prices["Available cases (QTY)"].max() + 1]
+            range=[df_valid_prices["Available Cases (QTY)"].min() - 1, df_valid_prices["Available Cases (QTY)"].max() + 1]
         ),
         template="plotly_white",
         margin=dict(t=0, b=0, l=0, r=0)
@@ -105,12 +105,12 @@ def low_stock_analysis_app2(df):
 
 def create_profit_margin_analysis_plot(df):
     # Calculate Profit Margin
-    df["Profit Margin"] = df["Retail price"] - df["Wholesale price"]
+    df["Profit Margin"] = df["Retail Price"] - df["Wholesale Price"]
     df_sorted = df.sort_values(by="Profit Margin", ascending=False)
 
     # Create the bar chart with a green color scale
     fig = go.Figure(go.Bar(
-        x=df_sorted['Product name'],
+        x=df_sorted['Product Name'],
         y=df_sorted['Profit Margin'],
         marker=dict(color=df_sorted['Profit Margin'], colorscale='greens'),  # Green color scale
         text=df_sorted['Profit Margin'].apply(lambda x: f'${x:,.2f}'),
@@ -142,14 +142,14 @@ def create_profit_margin_analysis_plot(df):
 
 
 def create_low_stock_by_manufacturer_bar_plot(df):
-    low_stock_counts = df.groupby("Manufacturer name")["Product name"].count().reset_index()
+    low_stock_counts = df.groupby("Manufacturer Name")["Product Name"].count().reset_index()
 
     fig = go.Figure(go.Bar(
-        x=low_stock_counts['Manufacturer name'],
-        y=low_stock_counts['Product name'],
-        marker=dict(color=low_stock_counts['Product name']),
+        x=low_stock_counts['Manufacturer Name'],
+        y=low_stock_counts['Product Name'],
+        marker=dict(color=low_stock_counts['Product Name']),
                     #colorscale='Pastel'),
-        text=low_stock_counts['Product name'],
+        text=low_stock_counts['Product Name'],
         hovertemplate="<b>%{x}</b><br>Number of Low Stock Items: %{y}<extra></extra>"
     ))
     
@@ -168,12 +168,12 @@ def create_low_stock_by_manufacturer_bar_plot(df):
 
 #Analyzing the correlation Between Price and Available Quantity
 def create_interactive_price_vs_quantity_plot(df):
-    df['Wholesale price'] = pd.to_numeric(df['Wholesale price'], errors='coerce')
+    df['Wholesale Price'] = pd.to_numeric(df['Wholesale Price'], errors='coerce')
 
     fig = px.scatter(
         df, 
-        x="Wholesale price", 
-        y="Available cases (QTY)", 
+        x="Wholesale Price", 
+        y="Available Cases (QTY)", 
         trendline="ols",
         template="plotly_white",
         color_discrete_sequence=px.colors.qualitative.Pastel
@@ -181,7 +181,7 @@ def create_interactive_price_vs_quantity_plot(df):
     
     fig.update_traces(
         hovertemplate="<b>Product:</b> %{text}<br><b>Wholesale Price:</b> %{x}<br><b>Available Cases (QTY):</b> %{y}<extra></extra>",
-        text=df['Product name']
+        text=df['Product Name']
     )
     
     fig.update_layout(
@@ -194,13 +194,13 @@ def create_interactive_price_vs_quantity_plot(df):
 
 
 def create_quantity_price_ratio_plot(df):
-    df['Retail price'] = pd.to_numeric(df['Retail price'], errors='coerce')
-    df["QTY/Price Ratio"] = df["Available cases (QTY)"] / df["Retail price"]
+    df['Retail Price'] = pd.to_numeric(df['Retail Price'], errors='coerce')
+    df["QTY/Price Ratio"] = df["Available Cases (QTY)"] / df["Retail Price"]
     df_sorted = df.sort_values(by="QTY/Price Ratio")
 
     fig = px.bar(
         df_sorted, 
-        y='Product name', 
+        y='Product Name', 
         x='QTY/Price Ratio', 
         color='QTY/Price Ratio', 
         orientation='h',

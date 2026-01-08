@@ -27,7 +27,7 @@ def report_func(df):
 '''
     st.markdown(css, unsafe_allow_html=True)
 
-    if "Date" in columns and "Role" in columns and "Total revenue" in columns:
+    if "Date" in columns and "Role" in columns and "Total Revenue" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -84,8 +84,8 @@ def report_func(df):
             st.success("This visualization is temporarily unavailable")
     else:
         st.warning("There is no Date column, so visualizing can not be ready")
-    
-    if "Date" in columns and "Total revenue" in columns and "Role" in columns:
+
+    if "Date" in columns and "Total Revenue" in columns and "Role" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -113,9 +113,9 @@ def report_func(df):
             st.success("This visualization is temporarily unavailable")
     else:
         st.warning("There is no Date or Total revenue or Role columns, so visualizing can not be ready")
-    
-    
-    if "Role" in columns and "Orders total" in columns and "Total revenue" in columns:
+
+
+    if "Role" in columns and "Orders Total" in columns and "Total Revenue" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -147,7 +147,7 @@ def report_func(df):
         st.warning("There is no Total revenue or Orders total or Role columns, so visualizing can not be ready")
     
     # Name Total revenue (Direct) Total revenue (3rd party) Total revenue Visits Orders total
-    if "Name" in columns and "Orders total" in columns and "Visits" in columns and "Total revenue (3rd party)" in columns and "Total revenue (Direct)" in columns and "Total revenue" in columns:
+    if "Name" in columns and "Orders Total" in columns and "Visits" in columns and "Total Revenue (3rd party)" in columns and "Total Revenue (Direct)" in columns and "Total Revenue" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -183,7 +183,7 @@ def report_func(df):
         st.warning("There is no Total revenue or Orders total or Role columns, so visualizing can not be ready")
     
     # Name   Total revenue   Visits   Orders total
-    if "Name" in columns and "Total revenue" in columns and "Visits" in columns and "Orders total" in columns:
+    if "Name" in columns and "Total Revenue" in columns and "Visits" in columns and "Orders Total" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])

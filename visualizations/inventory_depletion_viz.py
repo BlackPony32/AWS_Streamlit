@@ -23,10 +23,10 @@ def preprocess_data(data):
 
     # Process numeric columns
     for col in numeric_cols:
-        # Check for missing values (NaN)
-        if np.isnan(data[col]).any():
-            # Fill missing values with 0 (you can choose another strategy)
-            data[col].fillna(0, inplace=True)
+        # Use .isna() instead of np.isnan() because it's safer for different data types
+        if data[col].isna().any():
+            # ASSIGN the result back to data[col] instead of using inplace=True
+            data[col] = data[col].fillna(0)
             print(f"Warning: Column '{col}' contains missing values (NaN). Filled with 0.")
 
     # Remove currency symbols and thousands separators
@@ -48,8 +48,8 @@ def Inventory_Depletion_Visualization(df):
     # Drop columns if they exist
     data = data.drop(columns=[col for col in columns_to_remove if col in df.columns])
     # Validate presence of 'Business name' column
-    if 'Business name' not in data.columns:
-        st.error("The column 'Business name' is missing in the dataset.")
+    if 'Business Name' not in data.columns:
+        st.error("The column 'Business Name' is missing in the dataset.")
         return
 
     # Select numeric columns dynamically
@@ -67,7 +67,7 @@ def Inventory_Depletion_Visualization(df):
     )
 
     # Filter data for 'Business name' and top products
-    filtered_data = data[['Business name'] + list(top_products)]
+    filtered_data = data[['Business Name'] + list(top_products)]
 
     # Create a Plotly figure
     fig = go.Figure()
@@ -76,7 +76,7 @@ def Inventory_Depletion_Visualization(df):
     for product in top_products:
         fig.add_trace(
         go.Bar(
-            x=filtered_data['Business name'],  # X-axis data
+            x=filtered_data['Business Name'],  # X-axis data
             y=filtered_data[product],         # Y-axis data (quantities for the product)
             name=product,                     # Product name
             text=filtered_data[product],      # Add text to display on bars

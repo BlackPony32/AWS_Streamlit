@@ -20,10 +20,10 @@ def preprocess_data(data):
 
     # Process numeric columns
     for col in numeric_cols:
-        # Check for missing values (NaN)
-        if np.isnan(data[col]).any():
-            # Fill missing values with 0 (you can choose another strategy)
-            data[col].fillna(0, inplace=True)
+        # Use .isna() instead of np.isnan() because it's safer for different data types
+        if data[col].isna().any():
+            # ASSIGN the result back to data[col] instead of using inplace=True
+            data[col] = data[col].fillna(0)
             print(f"Warning: Column '{col}' contains missing values (NaN). Filled with 0.")
 
     # Remove currency symbols and thousands separators
@@ -32,8 +32,8 @@ def preprocess_data(data):
     return data
 #Visualization Customer_details
 def plot_orders_and_sales_plotly(df, group_col='Group'):
-    orders = df.groupby(group_col)["Total orders"].sum()
-    sales = df.groupby(group_col)["Total sales"].sum()
+    orders = df.groupby(group_col)["Total Orders"].sum()
+    sales = df.groupby(group_col)["Total Sales"].sum()
 
     fig = go.Figure()
 
@@ -80,7 +80,7 @@ def plot_orders_and_sales_plotly(df, group_col='Group'):
 
 
 #________________________________________________________________
-def bar_plot_sorted_with_percentages(df, col='Payment terms'):
+def bar_plot_sorted_with_percentages(df, col='Payment Terms'):
     counts = df[col].value_counts().sort_values(ascending=False)
     percentages = (counts / len(df)) * 100
     df_plot = pd.DataFrame({'Category': counts.index, 'Count': counts.values, 'Percentage': percentages})
@@ -114,7 +114,7 @@ def bar_plot_sorted_with_percentages(df, col='Payment terms'):
     st.plotly_chart(fig, use_container_width=True)
     
 #Data distribution visualization function
-def create_interactive_non_zero_sales_plot(df, sales_col='Total sales', threshold=500):
+def create_interactive_non_zero_sales_plot(df, sales_col='Total Sales', threshold=500):
     df_filtered = df[df[sales_col] > 0]
     df_below_threshold = df_filtered[df_filtered[sales_col] <= threshold]
     df_above_threshold = df_filtered[df_filtered[sales_col] > threshold]
@@ -150,8 +150,8 @@ def create_interactive_non_zero_sales_plot(df, sales_col='Total sales', threshol
     
 #Average total sales by customer group and billing state
 def create_interactive_average_sales_heatmap(df):
-    df['Total sales'] = df['Total sales'].apply(pd.to_numeric, errors='coerce')  # Convert to numeric
-    average_sales = df.groupby(["Group", "Billing state"])["Total sales"].mean().unstack()
+    df['Total Sales'] = df['Total Sales'].apply(pd.to_numeric, errors='coerce')  # Convert to numeric
+    average_sales = df.groupby(["Group", "Billing State"])["Total Sales"].mean().unstack()
 
     fig = go.Figure()
 
@@ -175,24 +175,20 @@ def create_interactive_average_sales_heatmap(df):
     )
     st.plotly_chart(fig, use_container_width=True)
     
-    
-import pandas as pd
-import plotly.graph_objects as go
-import streamlit as st
 
 def create_sales_trend_by_group(df):
     # Group by 'Group' and sum up the 'Total sales'
-    sales_by_group = df.groupby('Group')['Total sales'].sum().reset_index()
+    sales_by_group = df.groupby('Group')['Total Sales'].sum().reset_index()
 
     # Sort by Total Sales for better visualization
-    sales_by_group.sort_values(by='Total sales', ascending=False, inplace=True)
+    sales_by_group.sort_values(by='Total Sales', ascending=False, inplace=True)
 
     fig = go.Figure()
 
     # Add a line for total sales across different customer groups
     fig.add_trace(go.Scatter(
         x=sales_by_group['Group'],
-        y=sales_by_group['Total sales'],
+        y=sales_by_group['Total Sales'],
         mode='lines+markers',
         name='Total Sales by Customer Group',
         marker=dict(color='blue'),
@@ -209,6 +205,3 @@ def create_sales_trend_by_group(df):
 
     st.plotly_chart(fig, use_container_width=True)
 
-# Example usage with your DataFrame
-# df = pd.read_csv('your_data_file.csv')
-# create_sales_trend_by_group(df)

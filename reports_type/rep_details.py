@@ -10,8 +10,8 @@ def report_func(df):
     
     columns = get_csv_columns(df)
     reps_details_viz.preprocess_data(df)
-    
-    if "Total working hours" in columns and "Total visits" in columns and "Assigned customers" in columns and "Role"in columns:
+
+    if "Total Working Hours" in columns and "Total Visits" in columns and "Assigned Customers" in columns and "Role"in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -38,9 +38,9 @@ def report_func(df):
             print("Error in analyze_sales_rep_efficiency:", e)
             st.success("This visualization is temporarily unavailable")
     else:
-        st.warning("There is no Total working hours or Total visits or Assigned customers or Role columns, so visualizing can not be ready")
-    
-    if "Role" in columns and "Active customers" in columns and "Total visits" in columns:
+        st.warning("There is no Total Working Hours or Total Visits or Assigned Customers or Role columns, so visualizing can not be ready")
+
+    if "Role" in columns and "Active Customers" in columns and "Total Visits" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -67,9 +67,9 @@ def report_func(df):
             print("Error in plot_active_customers_vs_visits:", e)
             st.success("This visualization is temporarily unavailable")
     else:
-        st.warning("There is no Role or Active customers or Total visits columns, so visualizing can not be ready")
-    
-    if "Total travel distance" in columns and "Total visits" in columns and "Role" in columns:
+        st.warning("There is no Role or Active Customers or Total Visits columns, so visualizing can not be ready")
+
+    if "Total Travel Distance" in columns and "Total Visits" in columns and "Role" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -100,7 +100,7 @@ def report_func(df):
         st.warning("There is no Total travel distance or Total visits or Role columns, so visualizing can not be ready")
     
     #wih cc2:
-    if "Total working hours" in columns and "Total break hours" in columns and "Total travel distance" in columns:
+    if "Total Working Hours" in columns and "Total Break Hours" in columns and "Total Travel Distance" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -165,9 +165,9 @@ def report_func(df):
             print("Error in analyze_work_hours_and_distance2:", e)
             st.success("This visualization is temporarily unavailable")
     else:
-        st.warning("There is no Total working hours or Total break hours or Total travel distance columns, so visualizing can not be ready")
-    
-    if "Role" in columns and "Total visits" in columns and "Total photos" in columns:
+        st.warning("There is no Total Working hours or Total Break hours or Total Travel Distance columns, so visualizing can not be ready")
+
+    if "Role" in columns and "Total Visits" in columns and "Total Photos" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
@@ -226,9 +226,9 @@ def report_func(df):
             print("Error in plot_visits_vs_photos_separate:", e)
             st.success("This visualization is temporarily unavailable")
     else:
-        st.warning("There is no Role or Total visits or Total photos columns, so visualizing can not be ready")
+        st.warning("There is no Role or Total Visits or Total Photos columns, so visualizing can not be ready")
     
-    if "Role" in columns and "Assigned customers" in columns:
+    if "Role" in columns and "Assigned Customers" in columns:
         try:
             with st.container(border=True):
                 col11, col12 = st.columns([10, 0.50])
