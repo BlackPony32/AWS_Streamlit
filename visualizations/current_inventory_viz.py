@@ -78,10 +78,7 @@ def df_analyze_inventory_value_by_category(df):
 def df_analyze_quantity_vs_retail_price(df):
     for col in ["Retail Price", "Wholesale Price"]:
         if df[col].dtype == 'object':
-            df[col] = pd.to_numeric(
-                df[col].str.replace(',', '', regex=False).str.replace('$ ', '', regex=False),
-                errors='coerce'
-            )
+            df[col] = pd.to_numeric(df[col].str.replace(',', '').str.replace('$ ', ''))
 
     df['Wholesale Price'] = df['Wholesale Price'].fillna(0)
 
@@ -100,17 +97,12 @@ def df_analyze_quantity_vs_retail_price(df):
             marker=dict(
                 size=df_cat["Wholesale Price"],
                 sizemode='area',
-                sizeref=2.*max(df["Wholesale price"])/(40.**2),
-                color=color_map.get(category, "#CCCCCC")  # fallback to grey
+                sizeref=2.*max(df["Wholesale Price"])/(40.**2),
+                color=color_map[category]
             ),
             name=category,
-            hovertemplate=(
-                '<b>%{text}</b><br>'
-                'Available Cases: %{x}<br>'
-                'Retail Price: $%{y:.2f}<br>'
-                'Wholesale Price: $%{marker.size:.2f}<extra></extra>'
-            ),
-            text=df_cat["Category name"]
+            hovertemplate='<b>%{text}</b><br>Available Cases: %{x}<br>Retail Price: $%{y:.2f}<br>Wholesale Price: $%{marker.size:.2f}<extra></extra>',
+            text=df_cat["Category Name"]
         ))
 
     fig.update_layout(
