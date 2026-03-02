@@ -9,6 +9,7 @@ openai==1.14.2 #1.14.2
 pydantic==2.9.2
 httpx==0.27.0
 pandas
+python-calamine
 pydantic_core==2.23.4
 python-dotenv
 python-multipart

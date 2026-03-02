@@ -37,6 +37,8 @@ def identify_file_mini(file_name):
             return "Reps Visits"
         elif file_name == 'PRODUCT_FULFILLMENT':
             return "Product fulfillment"
+        elif file_name == 'PAYMENTS':
+            return "Payments"
         else:
             return "SimplyDepo"
         
@@ -91,6 +93,8 @@ def identify_file(UPLOAD_DIR):
             return "Reps visits report"
         elif file_name == 'product_fulfillment.csv':
             return "Product fulfillment report"
+        elif file_name == 'payments.csv':
+            return "Payments report"
         else:
             return "SimplyDepo report"
         
