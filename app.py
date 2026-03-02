@@ -1218,6 +1218,7 @@ def main_viz():
                 st.warnings("Something wrong with data")
                 st.stop()
         result = st.session_state["result"]
+        st.markdown(f"**Result:** {result}")
     except Exception as e:
         st.success("""**Important Notice**
         \nThis page was reloaded due to a manual refresh.\n To proceed, please close this window and run the report again from **Simply Depo**. Avoid refreshing the page to ensure smooth operation and avoid interruptions. Thank you for your cooperation.
