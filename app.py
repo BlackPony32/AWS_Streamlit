@@ -336,6 +336,7 @@ def fetch_file_info():
         response = requests.get(link)
         response.raise_for_status()  # Raise an exception for HTTP errors
         data = response.json()
+        print(f"Data received from FastAPI: {data}")
         return data
     except requests.RequestException as e:
         logging.error("Request failed: %s", e)
@@ -1296,7 +1297,7 @@ def main_viz():
                     #pass
                     st.session_state.last_uploaded_file_path = convert_excel_to_csv(excel_file)
             except Exception as e:
-                st.warning("Oops, something went wrong with data. Please try updating the page.")
+                st.success("This report is currently being updated and is temporarily unavailable. Please try again later.")
                 st.stop()
     #st.success(f"This is   type. File is available for visualization.")
     last_uploaded_file_path = st.session_state.last_uploaded_file_path

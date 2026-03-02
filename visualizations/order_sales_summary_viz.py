@@ -344,7 +344,7 @@ def visualize_payment_analysis(data, payment_status_col='Payment Status'):
     st.plotly_chart(fig, use_container_width=True)
 
 
-# _________________Combined Analysis Function (with Plotly)___________________________
+# _________________Combined Analysis Function___________________________
 def visualize_combined_analysis1(data, product_col='Product Name', 
                                  product_total_col='Product Total',  # Use item-level total
                                  qty_col='QTY',
@@ -381,24 +381,145 @@ def visualize_combined_analysis1(data, product_col='Product Name',
 
 
 def visualize_combined_analysis2(data, product_col='Product Name', 
-                               grand_total_col='Grand Total', qty_col='QTY', 
-                               delivery_status_col='Delivery Status'):
+                                delivery_status_col='Delivery Status'):
 
-        histogram_data = [
-            go.Histogram(
-                x=data[data[delivery_status_col] == status][product_col],
-                name=status,
-                marker=dict(line=dict(width=0.5)),
-                hovertemplate='Product: %{x}<br>Number of Orders: %{y}<br>Delivery Status: %{text}<extra></extra>',
-                text=data[data[delivery_status_col] == status][delivery_status_col]
-            ) for status in data[delivery_status_col].unique()
-        ]
-        fig = go.Figure(data=histogram_data)
-        fig.update_layout(
-            xaxis_title="Product",
-            yaxis_title="Number of Orders",
-            barmode='group',
-            xaxis_tickangle=45,
-            template="plotly_white"
+    # 1. Create a "Short Name" for the axis (e.g., first 15 chars + "...")
+    def make_short_label(name, limit=22):
+        s = str(name)
+        return s[:limit] + '...' if len(s) > limit else s
+
+    data['short_name'] = data[product_col].apply(make_short_label)
+
+    # 2. Group Data: We group by both Full Name and Short Name to keep them linked
+    #    This ensures we have the correct counts for the bars.
+    counts = data.groupby([product_col, 'short_name', delivery_status_col]).size().reset_index(name='count')
+
+    fig = go.Figure()
+
+    # 3. Create the Bars
+    for status in counts[delivery_status_col].unique():
+        subset = counts[counts[delivery_status_col] == status]
+        
+        fig.add_trace(go.Bar(
+            x=subset['short_name'],    # AXIS: Shows "Protein ba..."
+            y=subset['count'],         # AXIS: Shows number
+            name=status,
+            # We pass the FULL name to customdata so the tooltip can use it
+            customdata=subset[product_col],
+            hovertemplate=(
+                "<b>Product:</b> %{customdata}<br>" +  # Shows full long name
+                "<b>Count:</b> %{y}<br>" +
+                "<b>Status:</b> " + status + 
+                "<extra></extra>" # Hides the secondary box
+            )
+        ))
+
+    # 4. Layout Fixes
+    fig.update_layout(
+        xaxis_title="Product",
+        yaxis_title="Number of Orders",
+        barmode='group',
+        template="plotly_white",
+        xaxis=dict(
+            tickangle=45,      # Rotate labels slightly
+            automargin=True    # Key fix: allocates space so labels aren't cut off
+        ),
+        legend=dict(
+            orientation="h",   # Horizontal legend at top
+            yanchor="bottom", 
+            y=1.02, 
+            xanchor="right", 
+            x=1
         )
-        st.plotly_chart(fig, use_container_width=True)
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+
+# _________________Velocity Analysis Function___________________________
+def get_freq_alias(label):
+    """Maps user-friendly labels to Pandas frequency aliases."""
+    mapping = {
+        "Daily": "D",
+        "Weekly (Sun)": "W-SUN",
+        "Monthly": "ME"
+    }
+    return mapping.get(label, "W-SUN")
+
+# --- 1. Data Processing Functions (The "Logic") ---
+
+def calculate_total_velocity(data, freq_label, date_col='Date Created', qty_col='QTY'):
+    """Calculates total units sold based on frequency."""
+    # Ensure date column is datetime
+    data[date_col] = pd.to_datetime(data[date_col])
+    freq_alias = get_freq_alias(freq_label)
+    
+    # Resample
+    velocity_data = data[[date_col, qty_col]].copy()
+    grouped_velocity = velocity_data.resample(freq_alias, on=date_col)[qty_col].sum().reset_index()
+    
+    # Rename for clarity
+    grouped_velocity.rename(columns={date_col: 'Period', qty_col: 'Total Units Sold'}, inplace=True)
+    
+    return grouped_velocity
+
+def calculate_store_velocity(data, freq_label, date_col='Date Created', qty_col='QTY', customer_col='Customer'):
+    """Calculates units sold per store based on frequency."""
+    data[date_col] = pd.to_datetime(data[date_col])
+    freq_alias = get_freq_alias(freq_label)
+    
+    # Group by Customer AND Time Frequency
+    store_velocity = data.groupby([
+        customer_col, 
+        pd.Grouper(key=date_col, freq=freq_alias)
+    ])[qty_col].sum().reset_index()
+    
+    store_velocity.rename(columns={date_col: 'Period', qty_col: 'Units Sold'}, inplace=True)
+    
+    return store_velocity
+
+# --- 2. Visualization Functions ---
+
+def visualize_total_velocity(df_total, freq_label):
+    """Visualizes the processed total velocity data."""
+    fig = px.line(df_total, x='Period', y='Total Units Sold', markers=True)
+    
+    fig.update_layout(
+        title=f"Total Sales Velocity ({freq_label})",
+        title_x=0.5,
+        xaxis_title="Date",
+        yaxis_title="Total Units Sold",
+        height=400,
+        hovermode="x unified",
+        margin=dict(l=20, r=20, t=40, b=20)
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+def visualize_store_velocity(df_store, freq_label, customer_col='Customer', qty_col='Units Sold'):
+    """Visualizes the processed store velocity data."""
+    # Identify Top 10 Stores for the view (based on total volume in the selected period)
+    top_stores_series = df_store.groupby(customer_col)[qty_col].sum()
+    top_stores = top_stores_series.nlargest(10).index.tolist()
+    
+    fig = px.line(
+        df_store, 
+        x='Period', 
+        y=qty_col, 
+        color=customer_col,
+        markers=True
+    )
+    
+    # Show Top 10 by default
+    fig.for_each_trace(lambda trace: trace.update(visible=True) if trace.name in top_stores else trace.update(visible='legendonly'))
+    
+    fig.update_layout(
+        title=f"Store Sales Velocity ({freq_label})",
+        title_x=0.5,
+        xaxis_title="Date",
+        yaxis_title="Units Sold",
+        height=550, 
+        margin=dict(l=20, r=20, t=40, b=20), 
+        legend_title="Store Location",
+        hovermode="x unified"
+    )
+    st.plotly_chart(fig, use_container_width=True)
