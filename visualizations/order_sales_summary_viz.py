@@ -65,7 +65,6 @@ def visualize_sales_trends1(data, customer_col='Customer', product_col='Product 
     )
     st.plotly_chart(fig, use_container_width=True)
 
-
 def visualize_sales_trends2(data, customer_col='Customer', product_col='Product Name', 
                            grand_total_col='Grand Total', qty_col='QTY',
                            order_id_col='Order ID'):  # Add order_id_col parameter
@@ -149,16 +148,22 @@ def visualize_product_analysis1(data, product_col='Product Name',
 def visualize_product_analysis2(data, product_col='Product Name'):
     """Distribution of orders by product (uses count of occurrences, not Grand total)"""
     
-    # Simply count product occurrences (no need for totals)
+
     product_counts = data.groupby(product_col).size().sort_values(ascending=False)
     
-    # Wrap long labels
-    wrapped_labels = [textwrap.fill(text, width=15) for text in product_counts.index]
+    # 1. Get the full labels as strings
+    full_labels = product_counts.index.astype(str).tolist()
+    # 2. Create truncated labels (max 15 chars + '...') for the X-axis
+    truncated_labels = [text[:15] + '...' if len(text) > 15 else text for text in full_labels]
 
     fig = go.Figure(data=[go.Bar(
-        x=wrapped_labels, 
+        x=truncated_labels,            # X-axis gets the short names
         y=product_counts.values,
-        hovertemplate='<b>%{x}</b><br>Orders: %{y}<extra></extra>',
+        customdata=full_labels,        # We pass the full names in behind the scenes
+        
+        # 3. Tell the hovertemplate to look at %{customdata} instead of %{x}
+        hovertemplate='<b>%{customdata}</b><br>Orders: %{y}<extra></extra>',
+        
         marker=dict(
             color=product_counts.values, 
             colorscale='Cividis',
@@ -484,6 +489,10 @@ def visualize_total_velocity(df_total, freq_label):
     """Visualizes the processed total velocity data."""
     fig = px.line(df_total, x='Period', y='Total Units Sold', markers=True)
     
+    fig.update_traces(
+        hovertemplate='<b>Units Sold:</b> %{y:.2f}<br><b>Period:</b> %{x}<extra></extra>'
+    )
+
     fig.update_layout(
         title=f"Total Sales Velocity ({freq_label})",
         title_x=0.5,
@@ -506,9 +515,14 @@ def visualize_store_velocity(df_store, freq_label, customer_col='Customer', qty_
         x='Period', 
         y=qty_col, 
         color=customer_col,
-        markers=True
+        markers=True,
     )
-    
+    fig.update_traces(
+        hovertemplate='<b>Units Sold:</b> %{y:.2f}<br>'
+        '<b>Period:</b> %{x|%Y-%m-%d}<br>'
+        '<b>Customer:</b> %{fullData.name}<extra></extra>' 
+    )
+
     # Show Top 10 by default
     fig.for_each_trace(lambda trace: trace.update(visible=True) if trace.name in top_stores else trace.update(visible='legendonly'))
     
