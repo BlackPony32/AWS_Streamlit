@@ -21,7 +21,7 @@ from langchain.agents.agent_types import AgentType
 
 from reports_type import (best_sellers, current_inventory, customer_details, low_stock_inventory,
                           order_sales_summary, rep_details, reps_summary, sku_not_ordered,
-                          third_party_sales_summary, top_customers, inventory_depletion, reps_visits,product_fulfillment)
+                          third_party_sales_summary, top_customers, inventory_depletion, reps_visits,product_fulfillment, payments)
 
 from side_func import identify_file, identify_file_mini
 
@@ -108,7 +108,9 @@ EXPECTED_COLUMNS = {
         "Price List", "Primary Payment Method", "Has Order Direct", "Payment Terms",
         "Contact Name", "Contact Role", "Contact Phone", "Contact Email", "Business Phone",
         "Business Email", "Business Fax", "Website", "Tags", "Licenses & Certifications", 'Lead Status', 'Representatives'
-    ]
+    ],
+    "PAYMENTS": ["Order ID", "Created By", "Date Created", "Customer ID", "Business Name", "Payment Status", "Expected Payment Date", "Type",
+                  "Payment Method", "Reference #", "Note", "Payment Date", "Payment Amount", "Processed By", "Order Balance"]
 }
 import pandas as pd
 import logging
@@ -272,17 +274,47 @@ css='''
 st.markdown(css, unsafe_allow_html=True)
 
 
-
-
 def convert_excel_to_csv(excel_file_path):
     try:
-        df = pd.read_excel(excel_file_path)
+        #print(f"Converting file: {excel_file_path}")
+        
+        # 1. Attempt with Calamine (Highly resilient to malformed .xlsx files)
+        try:
+            df = pd.read_excel(excel_file_path, engine='calamine')
+            #print("Successfully read using calamine engine.")
+            
+        except ImportError:
+            #print("Calamine not installed. Trying default pandas reader...")
+            try:
+                df = pd.read_excel(excel_file_path)
+            except ValueError as e:
+                if "NaN" in str(e):
+                    #print("openpyxl hit the NaN bug. Trying as disguised CSV...")
+                    # Sometimes systems output CSVs but name them .xlsx
+                    df = pd.read_csv(excel_file_path)
+                else:
+                    raise e
+                    
+        # 2. Clean the data for Streamlit/Gradio compatibility
+        df.columns = df.columns.astype(str).str.strip()
+        df = df.replace(r'\n', ' ', regex=True)
+        df = df.replace(r'\r', ' ', regex=True)
+        
+        # 3. Save as CSV
         csv_file_path = os.path.splitext(excel_file_path)[0] + ".csv"
-        df.to_csv(csv_file_path, index=False)
-        os.remove(excel_file_path)
+        df.to_csv(csv_file_path, index=False, encoding='utf-8')
+        
+        # 4. Clean up original file
+        if os.path.exists(excel_file_path):
+            os.remove(excel_file_path)
+            
         return csv_file_path
+        
     except Exception as e:
-        raise ValueError(f"Error converting Excel to CSV: {str(e)}")
+        print(f" Critical failure during conversion: {str(e)}")
+        return None
+
+
 
 async def read_csv(file_path):
     loop = asyncio.get_event_loop()
@@ -336,6 +368,7 @@ def fetch_file_info():
         response = requests.get(link)
         response.raise_for_status()  # Raise an exception for HTTP errors
         data = response.json()
+        #print(f"Data received from FastAPI: {data}")
         return data
     except requests.RequestException as e:
         logging.error("Request failed: %s", e)
@@ -523,6 +556,8 @@ def big_main():
                         'Order ID': id_str,
                         'Grand Total': add_dollar_sign,
                         'Cost': add_dollar_sign,
+                        'Payment Amount': add_dollar_sign,
+                        'Order Balance': add_dollar_sign,
                         'Paid': add_dollar_sign,
                         'Item Specific Discount': add_dollar_sign,
                         'Manufacturer Specific Discount': add_dollar_sign,
@@ -678,6 +713,18 @@ def big_main():
                         except:
                             st.warning("Data display error, try reloading the report")
                     elif file_type == "Inventory Depletion report":
+                        df_show = df.copy()
+                        df_show  = df_show.head(NUMBER_SHOWN_ROWS)
+                        
+                        for column, func in column_functions.items():
+                            if column in df_show.columns:
+                                df_show[column] = df_show[column].apply(func)
+                        
+                        try:
+                            st.dataframe(df_show, use_container_width=False)
+                        except:
+                            st.warning("Data display error, try reloading the report")
+                    elif file_type == "Payments report":
                         df_show = df.copy()
                         df_show  = df_show.head(NUMBER_SHOWN_ROWS)
                         
@@ -1164,7 +1211,8 @@ def big_main():
             'Customer Details report': customer_details.report_func,
             'Inventory Depletion report': inventory_depletion.report_func,
             'Reps visits report': reps_visits.report_func,
-            'Product fulfillment report': product_fulfillment.report_func
+            'Product fulfillment report': product_fulfillment.report_func,
+            'Payments report': payments.report_func
         }
         if file_type in report_function_map:
             try:
@@ -1217,6 +1265,7 @@ def main_viz():
                 st.warnings("Something wrong with data")
                 st.stop()
         result = st.session_state["result"]
+        #st.markdown(f"**Result:** {result}")
     except Exception as e:
         st.success("""**Important Notice**
         \nThis page was reloaded due to a manual refresh.\n To proceed, please close this window and run the report again from **Simply Depo**. Avoid refreshing the page to ensure smooth operation and avoid interruptions. Thank you for your cooperation.
@@ -1264,7 +1313,8 @@ def main_viz():
         'REPS_SUMMARY': 'reps_summary.xlsx',
         'INVENTORY_DEPLETION': 'inventory_depletion.xlsx',
         'REPS_VISITS': 'reps_visits.xlsx',
-        'PRODUCT_FULFILLMENT': 'product_fulfillment.xlsx'
+        'PRODUCT_FULFILLMENT': 'product_fulfillment.xlsx',
+        'PAYMENTS': 'payments.xlsx'
     }
     try:
         response = requests.get(url_name, stream=True)
@@ -1296,7 +1346,7 @@ def main_viz():
                     #pass
                     st.session_state.last_uploaded_file_path = convert_excel_to_csv(excel_file)
             except Exception as e:
-                st.warning("Oops, something went wrong with data. Please try updating the page.")
+                st.success("This report is currently being updated and is temporarily unavailable. Please try again later.")
                 st.stop()
     #st.success(f"This is   type. File is available for visualization.")
     last_uploaded_file_path = st.session_state.last_uploaded_file_path

@@ -43,19 +43,19 @@ def Inventory_Depletion_Visualization(df):
     """
     # Copy the DataFrame to avoid modifying the original
     data = df.copy()
-    columns_to_remove = ['Billing Zip', 'Billing zip', 'Shipping zip', 'Shipping Zip']
+    columns_to_remove = ['Billing ZIP', 'Billing zip', 'Shipping zip', 'Shipping ZIP']
 
     # Drop columns if they exist
     data = data.drop(columns=[col for col in columns_to_remove if col in df.columns])
     # Validate presence of 'Business name' column
     if 'Business Name' not in data.columns:
-        st.error("The column 'Business Name' is missing in the dataset.")
+        #st.error("The column 'Business Name' is missing in the dataset.")
         return
 
     # Select numeric columns dynamically
     numeric_columns = data.select_dtypes(include="number").columns
     if numeric_columns.empty:
-        st.error("No numeric columns found in the dataset.")
+        #st.error("No numeric columns found in the dataset.")
         return
 
     # Identify the top 12 products by total quantity
